@@ -321,6 +321,17 @@ namespace Stack.DAL
             .WithMany(p => p.Pool_Admins)
             .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
 
+
+            modelBuilder.Entity<ActivitySection>()
+            .HasOne(pr => pr.Activity)
+            .WithMany(p => p.ActivitySections)
+            .HasForeignKey(pr => pr.ActivityID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<ActivitySection>()
+            .HasOne(pr => pr.Section)
+            .WithMany(p => p.ActivitySections)
+            .HasForeignKey(pr => pr.SectionID).OnDelete(DeleteBehavior.NoAction);
+
+
         }
 
 
@@ -339,7 +350,7 @@ namespace Stack.DAL
         public virtual DbSet<Pool_Users> Pool_Users { get; set; }
         public virtual DbSet<Pool_Admin> Pool_Admins { get; set; }
         public virtual DbSet<Activity> Activities { get; set; }
-        public virtual DbSet<ActivitySection> Activity_Sectiosn { get; set; }
+        public virtual DbSet<ActivitySection> ActivitySections { get; set; }
         public virtual DbSet<ActivityType> ActivityTypes { get; set; }
         public virtual DbSet<Section> Sections { get; set; }
         public virtual DbSet<SectionQuestion> SectionQuestions { get; set; }

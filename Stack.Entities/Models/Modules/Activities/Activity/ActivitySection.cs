@@ -8,7 +8,7 @@ namespace Stack.Entities.Models.Modules.Activities
     {
         public long ID { get; set; }
 
-        //Navigation Properties {get;set;}
+        //Navigation Properties
         public long ActivityID { get; set; }
 
         [ForeignKey("ActivityID")]
