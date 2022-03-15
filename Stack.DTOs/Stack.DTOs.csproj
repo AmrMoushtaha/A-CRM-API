@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\Modules\Vendors\" />
+    <Folder Include="Models\Modules\RFQS\" />
+    <Folder Include="Models\Modules\PRS\" />
+    <Folder Include="Models\Modules\POS\" />
+    <Folder Include="Requests\Modules\Vendors\" />
+    <Folder Include="Requests\Modules\RFQS\" />
+    <Folder Include="Requests\Modules\PRS\" />
+    <Folder Include="Requests\Modules\POS\" />
+  </ItemGroup>
+
+</Project>

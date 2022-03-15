@@ -1,0 +1,29 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Stack.DTOs.Models.Modules.Employees.Positions
+{
+    public class PositionDTO
+    {
+
+        public int ID { get; set; }
+        public string DescriptionAR { get; set; }
+
+        public string DescriptionEN { get; set; }
+
+        public string Code { get; set; }
+
+        public string Created_By { get; set; }
+        public DateTime Creation_Date { get; set; }
+
+        public string Updated_By { get; set; }
+
+        public DateTime Update_Date { get; set; }
+
+        public int OrgUnitID { get; set; }
+
+
+    }
+
+}

@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.8.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Stack.Core\Stack.Core.csproj" />
+    <ProjectReference Include="..\Stack.DAL\Stack.DAL.csproj" />
+    <ProjectReference Include="..\Stack.DTOs\Stack.DTOs.csproj" />
+    <ProjectReference Include="..\Stack.Entities\Stack.Entities.csproj" />
+    <ProjectReference Include="..\Stack.Repository\Stack.Repository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Common\" />
+    <Folder Include="Modules\Vendors\" />
+    <Folder Include="Modules\RFQS\" />
+    <Folder Include="Modules\PRS\" />
+    <Folder Include="Modules\POS\" />
+  </ItemGroup>
+
+</Project>

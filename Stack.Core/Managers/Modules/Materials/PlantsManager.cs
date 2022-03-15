@@ -1,0 +1,17 @@
+﻿using Stack.DAL;
+using Stack.Entities.Models.Modules.Materials;
+using Stack.Repository;
+
+namespace Stack.Core.Managers.Modules.Materials
+{
+    public class PlantsManager : Repository<Plant, ApplicationDbContext>
+    {
+        public PlantsManager(ApplicationDbContext _context) : base(_context)
+        {
+
+
+        }
+
+    }
+
+}
