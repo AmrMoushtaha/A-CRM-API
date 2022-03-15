@@ -16,11 +16,4 @@
     <ProjectReference Include="..\Stack.Repository\Stack.Repository.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Managers\Modules\Vendors\" />
-    <Folder Include="Managers\Modules\RFQs\" />
-    <Folder Include="Managers\Modules\PRs\" />
-    <Folder Include="Managers\Modules\POs\" />
-  </ItemGroup>
-
 </Project>

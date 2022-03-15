@@ -25,14 +25,21 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
 
-        [AllowAnonymous] // Allow anonymous calls without authorization to this specific endpoint . 
-        [HttpPost("CreateDummyUser")]
-        public async Task<IActionResult> CreateDummyUser(CreateDummyUserModel model)
+        //[AllowAnonymous] // Allow anonymous calls without authorization to this specific endpoint . 
+        //[HttpGet("SeedDB")]
+        //public async Task<IActionResult> SeedDB()
+        //{
+        //    return await GetResponseHandler(async () => await service.SeedDB());
+        //}
+
+
+
+        [AllowAnonymous]
+        [HttpGet("GetUserDetails")]
+        public async Task<IActionResult> GetUserDetails()
         {
-            return await AddItemResponseHandler(async () => await service.CreateDummyUser(model));
+            return await GetResponseHandler(async () => await service.GetUserDetails());
         }
-
-
     }
 
 

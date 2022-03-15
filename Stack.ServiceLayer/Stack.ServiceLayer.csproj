@@ -6,20 +6,8 @@
 
   <ItemGroup>
     <Compile Remove="Common\**" />
-    <Compile Remove="Modules\POS\**" />
-    <Compile Remove="Modules\PRS\**" />
-    <Compile Remove="Modules\RFQS\**" />
-    <Compile Remove="Modules\Vendors\**" />
     <EmbeddedResource Remove="Common\**" />
-    <EmbeddedResource Remove="Modules\POS\**" />
-    <EmbeddedResource Remove="Modules\PRS\**" />
-    <EmbeddedResource Remove="Modules\RFQS\**" />
-    <EmbeddedResource Remove="Modules\Vendors\**" />
     <None Remove="Common\**" />
-    <None Remove="Modules\POS\**" />
-    <None Remove="Modules\PRS\**" />
-    <None Remove="Modules\RFQS\**" />
-    <None Remove="Modules\Vendors\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,10 +27,6 @@
     <ProjectReference Include="..\Stack.DTOs\Stack.DTOs.csproj" />
     <ProjectReference Include="..\Stack.Entities\Stack.Entities.csproj" />
     <ProjectReference Include="..\Stack.Repository\Stack.Repository.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Modules\" />
   </ItemGroup>
 
 </Project>

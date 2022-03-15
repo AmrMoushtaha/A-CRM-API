@@ -41,8 +41,8 @@ namespace Stack.API
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=tcp:162.214.98.181,1433; Database = RFQDB; User Id = sa; Password = P@ssw0rd@./;"));
 
             //Local server connection string
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=B-AMR-MOUSHTAHA\\SQLEXPRESS; Database=Standalone;User ID=sa;Password=P@ssw0rd;"));
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=BOLT-NADER\\SQLEXPRESS; Database=Standalone;User ID=sa;Password=P@ssw0rd;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=BOLT-NADER\\SQLEXPRESS; Database=CRMDB;User ID=sa;Password=P@ssw0rd;"));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=B-AMR-MOUSHTAHA\\SQLEXPRESS; Database=CRMDB;User ID=sa;Password=P@ssw0rd;"));
 
 
             //Hangfire connection string
@@ -71,13 +71,6 @@ namespace Stack.API
 
             //Configure Auto Mapper .
             services.AddAutoMapper(typeof(AutoMapperProfile));
-            services.AddAutoMapper(typeof(EmployeeMapper));
-            services.AddAutoMapper(typeof(OrgUnitsMapper));
-            services.AddAutoMapper(typeof(PurchasingGroupsMapper));
-            services.AddAutoMapper(typeof(PlantsMapper));
-            services.AddAutoMapper(typeof(PositionsMapper));
-            services.AddAutoMapper(typeof(MaterialGroupsMapper));
-            services.AddAutoMapper(typeof(UOMsMapper));
 
 
             /////////////////////////////////////////

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -11,18 +11,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Stack.DTOs\Stack.DTOs.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Enums\Modules\Vendors\" />
-    <Folder Include="Enums\Modules\RFQS\" />
-    <Folder Include="Enums\Modules\PRS\" />
-    <Folder Include="Enums\Modules\POS\" />
-    <Folder Include="Enums\Modules\Organizations\" />
-    <Folder Include="Enums\Modules\Materials\" />
-    <Folder Include="Enums\Modules\Employees\" />
-    <Folder Include="Enums\Modules\Auth\" />
-    <Folder Include="Models\Modules\POS\" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Stack.Core.Managers.Modules.Activities;
 using Stack.Core.Managers.Modules.Auth;
-using Stack.Core.Managers.Modules.Employees;
 using Stack.Core.Managers.Modules.Materials;
-using Stack.Core.Managers.Modules.Organizations;
+using Stack.Core.Managers.Modules.pool;
 using Stack.DAL;
 using System;
 using System.Threading.Tasks;
@@ -38,312 +38,274 @@ namespace Stack.Core
             }
             return false;
         }
+
         public ApplicationUserManager UserManager { get; private set; } //Manager for application users table . 
         public ApplicationRoleManager RoleManager { get; private set; } //Manager for application users table . 
 
-        private EmployeesManager employeesManager;
-        public EmployeesManager EmployeesManager
+
+
+        private ContactManager contactManager;
+        public ContactManager ContactManager
         {
             get
             {
-                if (employeesManager == null)
+                if (contactManager == null)
                 {
-                    employeesManager = new EmployeesManager(context);
+                    contactManager = new ContactManager(context);
                 }
-                return employeesManager;
+                return contactManager;
+            }
+        }
+
+        private CustomerManager customerManager;
+        public CustomerManager CustomerManager
+        {
+            get
+            {
+                if (customerManager == null)
+                {
+                    customerManager = new CustomerManager(context);
+                }
+                return customerManager;
+            }
+        }
+
+        private DealManager dealManager;
+        public DealManager DealManager
+        {
+            get
+            {
+                if (dealManager == null)
+                {
+                    dealManager = new DealManager(context);
+                }
+                return dealManager;
+            }
+
+        }
+
+        private LeadManager leadManager;
+        public LeadManager LeadManager
+        {
+            get
+            {
+                if (leadManager == null)
+                {
+                    leadManager = new LeadManager(context);
+                }
+                return leadManager;
+            }
+        }
+
+        private LeadStatusManager leadStatusManager;
+        public LeadStatusManager LeadStatusManager
+        {
+            get
+            {
+                if (leadStatusManager == null)
+                {
+                    leadStatusManager = new LeadStatusManager(context);
+                }
+                return leadStatusManager;
             }
         }
 
 
-        private ActionsManager actionsManager;
-        public ActionsManager ActionsManager
+        private ProspectManager prospectManager;
+        public ProspectManager ProspectManager
         {
             get
             {
-                if (actionsManager == null)
+                if (prospectManager == null)
                 {
-                    actionsManager = new ActionsManager(context);
+                    prospectManager = new ProspectManager(context);
                 }
-                return actionsManager;
+                return prospectManager;
             }
         }
 
-        private EmployeeActionsManager employeeActionsManager;
-        public EmployeeActionsManager EmployeeActionsManager
+        private ProspectStatusManager prospectStatusManager;
+        public ProspectStatusManager ProspectStatusManager
         {
             get
             {
-                if (employeeActionsManager == null)
+                if (prospectStatusManager == null)
                 {
-                    employeeActionsManager = new EmployeeActionsManager(context);
+                    prospectStatusManager = new ProspectStatusManager(context);
                 }
-                return employeeActionsManager;
-            }
-        }
-
-
-        private EmployeeAddressesManager employeeAddressesManager;
-        public EmployeeAddressesManager EmployeeAddressesManager
-        {
-            get
-            {
-                if (employeeAddressesManager == null)
-                {
-                    employeeAddressesManager = new EmployeeAddressesManager(context);
-                }
-                return employeeAddressesManager;
+                return prospectStatusManager;
             }
         }
 
 
-        private EmployeeGroupsManager employeeGroupsManager;
-        public EmployeeGroupsManager EmployeeGroupsManager
+        private OpportunityManager opportunityManager;
+        public OpportunityManager OpportunityManager
         {
             get
             {
-                if (employeeGroupsManager == null)
+                if (opportunityManager == null)
                 {
-                    employeeGroupsManager = new EmployeeGroupsManager(context);
+                    opportunityManager = new OpportunityManager(context);
                 }
-                return employeeGroupsManager;
+                return opportunityManager;
+            }
+        }
+
+        private OpportunityStatusManager opportunityStatusManager;
+        public OpportunityStatusManager OpportunityStatusManager
+        {
+            get
+            {
+                if (opportunityStatusManager == null)
+                {
+                    opportunityStatusManager = new OpportunityStatusManager(context);
+                }
+                return opportunityStatusManager;
+            }
+        }
+
+        private ProcessFlowsManager processFlowManager;
+        public ProcessFlowsManager ProcessFlowsManager
+        {
+            get
+            {
+                if (processFlowManager == null)
+                {
+                    processFlowManager = new ProcessFlowsManager(context);
+                }
+                return processFlowManager;
+            }
+        }
+
+        private ActivityTypesManager activityTypesManager;
+        public ActivityTypesManager ActivityTypesManager
+        {
+            get
+            {
+                if (activityTypesManager == null)
+                {
+                    activityTypesManager = new ActivityTypesManager(context);
+                }
+                return activityTypesManager;
+            }
+        }
+
+        private ActivitiesManager activitiesManager;
+        public ActivitiesManager ActivitiesManager
+        {
+            get
+            {
+                if (activitiesManager == null)
+                {
+                    activitiesManager = new ActivitiesManager(context);
+                }
+                return activitiesManager;
+            }
+        }
+
+        private SectionsManager sectionsManager;
+        public SectionsManager SectionsManager
+        {
+            get
+            {
+                if (sectionsManager == null)
+                {
+                    sectionsManager = new SectionsManager(context);
+                }
+                return sectionsManager;
+            }
+        }
+
+        private ActivitySectionsManager activitySectionsManager;
+        public ActivitySectionsManager ActivitySectionsManager
+        {
+            get
+            {
+                if (activitySectionsManager == null)
+                {
+                    activitySectionsManager = new ActivitySectionsManager(context);
+                }
+                return activitySectionsManager;
+            }
+        }
+
+        private SectionsQuestionsManager sectionQuestionsManager;
+        public SectionsQuestionsManager SectionQuestionsManager
+        {
+            get
+            {
+                if (sectionQuestionsManager == null)
+                {
+                    sectionQuestionsManager = new SectionsQuestionsManager(context);
+                }
+                return sectionQuestionsManager;
+            }
+        }
+
+        private SectionQuestionOptionsManager sectionQuestionsOptionsManager;
+        public SectionQuestionOptionsManager SectionQuestionOptionsManager
+        {
+            get
+            {
+                if (sectionQuestionsOptionsManager == null)
+                {
+                    sectionQuestionsOptionsManager = new SectionQuestionOptionsManager(context);
+                }
+                return sectionQuestionsOptionsManager;
             }
         }
 
 
-        private EmployeePositionsManager employeePositionsManager;
-        public EmployeePositionsManager EmployeePositionsManager
+        private SectionQuestionAnswersManager sectionQuestionAnswersManager;
+        public SectionQuestionAnswersManager SectionQuestionAnswersManager
         {
             get
             {
-                if (employeePositionsManager == null)
+                if (sectionQuestionAnswersManager == null)
                 {
-                    employeePositionsManager = new EmployeePositionsManager(context);
+                    sectionQuestionAnswersManager = new SectionQuestionAnswersManager(context);
                 }
-                return employeePositionsManager;
+                return sectionQuestionAnswersManager;
             }
         }
 
-
-        private EmployeeSubGroupsManager employeeSubGroupsManager;
-        public EmployeeSubGroupsManager EmployeeSubGroupsManager
+        private PoolManager poolManager;
+        public PoolManager PoolManager
         {
             get
             {
-                if (employeeSubGroupsManager == null)
+                if (poolManager == null)
                 {
-                    employeeSubGroupsManager = new EmployeeSubGroupsManager(context);
+                    poolManager = new PoolManager(context);
                 }
-                return employeeSubGroupsManager;
+                return poolManager;
             }
         }
 
-
-        private PositionsManager positionsManager;
-        public PositionsManager PositionsManager
+        private PoolUserManager poolUserManager;
+        public PoolUserManager PoolUserManager
         {
             get
             {
-                if (positionsManager == null)
+                if (poolUserManager == null)
                 {
-                    positionsManager = new PositionsManager(context);
+                    poolUserManager = new PoolUserManager(context);
                 }
-                return positionsManager;
+                return poolUserManager;
             }
         }
-
-
-        private CompanyCodesManager companyCodesManager;
-        public CompanyCodesManager CompanyCodesManager
+        private PoolAdminManager poolAdminManager;
+        public PoolAdminManager PoolAdminManager
         {
             get
             {
-                if (companyCodesManager == null)
+                if (poolAdminManager == null)
                 {
-                    companyCodesManager = new CompanyCodesManager(context);
+                    poolAdminManager = new PoolAdminManager(context);
                 }
-                return companyCodesManager;
+                return poolAdminManager;
             }
         }
-
-
-        private CostCentersManager costCentersManager;
-        public CostCentersManager CostCentersManager
-        {
-            get
-            {
-                if (costCentersManager == null)
-                {
-                    costCentersManager = new CostCentersManager(context);
-                }
-                return costCentersManager;
-            }
-        }
-
-
-        private EmployeePurchasingGroupsManager employeePurchasingGroupsManager;
-        public EmployeePurchasingGroupsManager EmployeePurchasingGroupsManager
-        {
-            get
-            {
-                if (employeePurchasingGroupsManager == null)
-                {
-                    employeePurchasingGroupsManager = new EmployeePurchasingGroupsManager(context);
-                }
-                return employeePurchasingGroupsManager;
-            }
-        }
-
-
-        private ExchangeRatesManager exchangeRatesManager;
-        public ExchangeRatesManager ExchangeRatesManager
-        {
-            get
-            {
-                if (exchangeRatesManager == null)
-                {
-                    exchangeRatesManager = new ExchangeRatesManager(context);
-                }
-                return exchangeRatesManager;
-            }
-        }
-
-
-        private GLAccountsManager gLAccountsManager;
-        public GLAccountsManager GLAccountsManager
-        {
-            get
-            {
-                if (gLAccountsManager == null)
-                {
-                    gLAccountsManager = new GLAccountsManager(context);
-                }
-                return gLAccountsManager;
-            }
-        }
-
-
-        private OrgUnitsManager orgUnitsManager;
-        public OrgUnitsManager OrgUnitsManager
-        {
-            get
-            {
-                if (orgUnitsManager == null)
-                {
-                    orgUnitsManager = new OrgUnitsManager(context);
-                }
-                return orgUnitsManager;
-            }
-        }
-
-
-        private ProfitCentersManager profitCentersManager;
-        public ProfitCentersManager ProfitCentersManager
-        {
-            get
-            {
-                if (profitCentersManager == null)
-                {
-                    profitCentersManager = new ProfitCentersManager(context);
-                }
-                return profitCentersManager;
-            }
-        }
-
-
-        private PurchasingGroupsManager purchasingGroupsManager;
-        public PurchasingGroupsManager PurchasingGroupsManager
-        {
-            get
-            {
-                if (purchasingGroupsManager == null)
-                {
-                    purchasingGroupsManager = new PurchasingGroupsManager(context);
-                }
-                return purchasingGroupsManager;
-            }
-        }
-
-        private EmployeePhoneNumbersManager employeePhoneNumbersManager;
-        public EmployeePhoneNumbersManager EmployeePhoneNumbersManager
-        {
-            get
-            {
-                if (employeePhoneNumbersManager == null)
-                {
-                    employeePhoneNumbersManager = new EmployeePhoneNumbersManager(context);
-                }
-                return employeePhoneNumbersManager;
-            }
-        }
-
-        private PlantsManager plantsManager;
-        public PlantsManager PlantsManager
-        {
-            get
-            {
-                if (plantsManager == null)
-                {
-                    plantsManager = new PlantsManager(context);
-                }
-                return plantsManager;
-            }
-        }
-
-
-        private MaterialGroupsManager materialGroupsManager;
-        public MaterialGroupsManager MaterialGroupsManager
-        {
-            get
-            {
-                if (materialGroupsManager == null)
-                {
-                    materialGroupsManager = new MaterialGroupsManager(context);
-                }
-                return materialGroupsManager;
-            }
-        }
-
-        private UOMsManager uomsManager;
-        public UOMsManager UOMsManager
-        {
-            get
-            {
-                if (uomsManager == null)
-                {
-                    uomsManager = new UOMsManager(context);
-                }
-                return uomsManager;
-            }
-        }
-
-
-        private MaterialTypesManager materialTypesManager;
-        public MaterialTypesManager MaterialTypesManager
-        {
-            get
-            {
-                if (materialTypesManager == null)
-                {
-                    materialTypesManager = new MaterialTypesManager(context);
-                }
-                return materialTypesManager;
-            }
-        }
-
-        private MaterialsManager materialsManager;
-        public MaterialsManager MaterialsManager
-        {
-            get
-            {
-                if (materialsManager == null)
-                {
-                    materialsManager = new MaterialsManager(context);
-                }
-                return materialsManager;
-            }
-        }
-
-
     }
 
 }

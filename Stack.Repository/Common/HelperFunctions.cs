@@ -1,15 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
 namespace Stack.Repository.Common
 {
     public class HelperFunctions
     {
+
+        public static async Task<string> GetUserID(IHttpContextAccessor _httpContextAccessor)
+        {
+            return await Task.Run(() =>
+            {
+                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                if (accessToken != null && accessToken != "")
+                {
+                    var handler = new JwtSecurityTokenHandler();
+                    var jsonToken = handler.ReadToken(accessToken);
+                    var tokenS = handler.ReadToken(accessToken) as JwtSecurityToken;
+                    var userID = tokenS.Claims.First(claim => claim.Type == "nameid").Value;
+                    if (userID == null)
+                        return null;
+                    else
+                        return userID;
+                }
+                else
+                    return null;
+
+
+            });
+        }
 
         // Function to compute the SHA256 Hash of a string . 
         public static async Task<string> ComputeSha256Hash(string rawData)
@@ -97,20 +122,17 @@ namespace Stack.Repository.Common
             });
         }
 
-        //Generates a random number according to specified length .
-        public static async Task<string> GenerateRandomNumberAsync(int length)
+        //Generates a 10 digit random number .
+        public static string GenerateRandomNumber()
         {
-            return await Task.Run(() =>
+            Random random = new Random();
+            string r = "";
+            int i;
+            for (i = 1; i < 11; i++)
             {
-                Random random = new Random();
-                string r = "";
-                int i;
-                for (i = 1; i < length; i++)
-                {
-                    r += random.Next(0, 9).ToString();
-                }
-                return r;
-            });
+                r += random.Next(0, 9).ToString();
+            }
+            return r;
         }
 
         public static async Task<string> base64Encoding(string text) //to base64

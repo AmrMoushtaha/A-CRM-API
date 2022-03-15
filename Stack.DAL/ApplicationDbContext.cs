@@ -1,20 +1,21 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Stack.Entities.Models.Modules.Activities;
+using Stack.Entities.Models.Modules.AreaInterest;
+using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
-using Stack.Entities.Models.Modules.Employees;
-using Stack.Entities.Models.Modules.Materials;
-using Stack.Entities.Models.Modules.Organizations;
-using Stack.Entities.Models.Modules.PRS;
-using Stack.Entities.Models.Modules.RFQS;
-using Stack.Entities.Models.Modules.Vendors;
+using Stack.Entities.Models.Modules.CustomerStage;
+using Stack.Entities.Models.Modules.Region;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Stack.DAL
 {
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
@@ -41,515 +42,6 @@ namespace Stack.DAL
         private void OnBeforeSaving()
         {
 
-            foreach (var entry in ChangeTracker.Entries<Employee>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<PurchasingGroup>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<CompanyCode>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<CostCenter>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<ProfitCenter>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<OrgUnit>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Action>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Material>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<MaterialGroup>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<MaterialType>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Plant>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<StorageLocation>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<UOM>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<GLAccount>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Condition>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<PR>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<PRMainItem>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<PRSubItem>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<PRType>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<RFQ>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<RFQMainItem>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<RFQSubItem>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<RFQType>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<ExchangeRate>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Vendor>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<VendorAddress>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<VendorPhoneNumber>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<VendorEmail>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Tax>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Bank>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Position>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<EmployeeGroup>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<EmployeeSubGroup>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
-
-            foreach (var entry in ChangeTracker.Entries<Employee_PhoneNumber>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.CurrentValues["IsDeleted"] = false;
-                        break;
-
-                    case EntityState.Deleted:
-                        entry.State = EntityState.Modified;
-                        entry.CurrentValues["IsDeleted"] = true;
-                        break;
-                }
-            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -557,376 +49,316 @@ namespace Stack.DAL
 
             base.OnModelCreating(modelBuilder);
 
-            //Adding IsDeleted property to models where soft delete is applied . 
-            modelBuilder.Entity<Employee>()
+            modelBuilder.Entity<Area>()
             .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<CompanyCode>()
+            modelBuilder.Entity<LOneInterest>()
+           .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<LOneInterestInput>()
             .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<CostCenter>()
-            .Property<bool>("IsDeleted");
+            modelBuilder.Entity<LTwoInterest>()
+           .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<ProfitCenter>()
+            modelBuilder.Entity<LTwoInterestInput>()
              .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<OrgUnit>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<Action>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<Material>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<MaterialGroup>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<MaterialType>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<Plant>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<StorageLocation>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<UOM>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<GLAccount>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<Condition>()
+            modelBuilder.Entity<LThreeInterest>()
            .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<PR>()
+            modelBuilder.Entity<LThreeInterestInput>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<InterestAttribute>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<Contact>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<Customer>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<Lead>()
            .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<PRMainItem>()
+            modelBuilder.Entity<Opportunity>()
            .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<PRSubItem>()
+            modelBuilder.Entity<Prospect>()
            .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<PRType>()
+            modelBuilder.Entity<LeadStatus>()
            .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<RFQ>()
+            modelBuilder.Entity<ProspectStatus>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<OpportunityStatus>()
+
            .Property<bool>("IsDeleted");
+            modelBuilder.Entity<Pool>()
 
-            modelBuilder.Entity<RFQMainItem>()
            .Property<bool>("IsDeleted");
+                modelBuilder.Entity<Activity>()
 
-            modelBuilder.Entity<RFQSubItem>()
            .Property<bool>("IsDeleted");
+                modelBuilder.Entity<ActivityType>()
 
-            modelBuilder.Entity<RFQType>()
            .Property<bool>("IsDeleted");
+                modelBuilder.Entity<Section>()
 
-            modelBuilder.Entity<ExchangeRate>()
+           .Property<bool>("IsDeleted");
+                modelBuilder.Entity<SectionQuestion>()
+
+           .Property<bool>("IsDeleted");
+                modelBuilder.Entity<SectionQuestionOption>()
             .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<Vendor>()
+                modelBuilder.Entity<ProcessFlow>()
             .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<VendorEmail>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<VendorAddress>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<VendorPhoneNumber>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<Tax>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<Bank>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<Position>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<EmployeeGroup>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<EmployeeSubGroup>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<Employee_PhoneNumber>()
-            .Property<bool>("IsDeleted");
-            modelBuilder.Entity<PurchasingGroup>()
-            .Property<bool>("IsDeleted");
-
 
             //Soft delete query filters . 
-            modelBuilder.Entity<Vendor>()
-               .HasQueryFilter(Vendor => EF.Property<bool>(Vendor, "IsDeleted") == false);
 
-            modelBuilder.Entity<VendorAddress>()
-               .HasQueryFilter(VendorAddress => EF.Property<bool>(VendorAddress, "IsDeleted") == false);
+            modelBuilder.Entity<Region>()
+            .HasQueryFilter(Region => EF.Property<bool>(Region, "IsDeleted") == false);
 
-            modelBuilder.Entity<VendorEmail>()
-               .HasQueryFilter(VendorEmail => EF.Property<bool>(VendorEmail, "IsDeleted") == false);
+            modelBuilder.Entity<Area>()
+               .HasQueryFilter(Area => EF.Property<bool>(Area, "IsDeleted") == false);
 
-            modelBuilder.Entity<VendorPhoneNumber>()
-               .HasQueryFilter(VendorPhoneNumber => EF.Property<bool>(VendorPhoneNumber, "IsDeleted") == false);
+            modelBuilder.Entity<LOneInterest>()
+               .HasQueryFilter(LOneInterest => EF.Property<bool>(LOneInterest, "IsDeleted") == false);
 
-            modelBuilder.Entity<Tax>()
-               .HasQueryFilter(Tax => EF.Property<bool>(Tax, "IsDeleted") == false);
+            modelBuilder.Entity<LOneInterestInput>()
+               .HasQueryFilter(LOneInterestInput => EF.Property<bool>(LOneInterestInput, "IsDeleted") == false);
 
-            modelBuilder.Entity<Bank>()
-               .HasQueryFilter(Bank => EF.Property<bool>(Bank, "IsDeleted") == false);
+            modelBuilder.Entity<LTwoInterest>()
+               .HasQueryFilter(LTwoInterest => EF.Property<bool>(LTwoInterest, "IsDeleted") == false);
+
+            modelBuilder.Entity<LTwoInterestInput>()
+               .HasQueryFilter(LTwoInterestInput => EF.Property<bool>(LTwoInterestInput, "IsDeleted") == false);
+
+            modelBuilder.Entity<LThreeInterest>()
+               .HasQueryFilter(LThreeInterest => EF.Property<bool>(LThreeInterest, "IsDeleted") == false);
+
+            modelBuilder.Entity<LThreeInterestInput>()
+               .HasQueryFilter(LThreeInterestInput => EF.Property<bool>(LThreeInterestInput, "IsDeleted") == false);
+
+            modelBuilder.Entity<InterestAttribute>()
+               .HasQueryFilter(InterestAttribute => EF.Property<bool>(InterestAttribute, "IsDeleted") == false);
+
+            modelBuilder.Entity<Contact>()
+                .HasQueryFilter(Contact => EF.Property<bool>(Contact, "IsDeleted") == false);
+
+            modelBuilder.Entity<ContactPhoneNumber>()
+               .HasQueryFilter(ContactPhoneNumber => EF.Property<bool>(ContactPhoneNumber, "IsDeleted") == false);
+
+            modelBuilder.Entity<Customer>()
+               .HasQueryFilter(Customer => EF.Property<bool>(Customer, "IsDeleted") == false);
+
+            modelBuilder.Entity<CustomerPhoneNumber>()
+               .HasQueryFilter(CustomerPhoneNumber => EF.Property<bool>(CustomerPhoneNumber, "IsDeleted") == false);
+
+            modelBuilder.Entity<Deal>()
+               .HasQueryFilter(Deal => EF.Property<bool>(Deal, "IsDeleted") == false);
+
+            modelBuilder.Entity<Lead>()
+               .HasQueryFilter(Lead => EF.Property<bool>(Lead, "IsDeleted") == false);
+
+            modelBuilder.Entity<Prospect>()
+               .HasQueryFilter(Prospect => EF.Property<bool>(Prospect, "IsDeleted") == false);
+
+            modelBuilder.Entity<Opportunity>()
+               .HasQueryFilter(Opportunity => EF.Property<bool>(Opportunity, "IsDeleted") == false);
+
+            modelBuilder.Entity<LeadStatus>()
+               .HasQueryFilter(LeadStatus => EF.Property<bool>(LeadStatus, "IsDeleted") == false);
+
+            modelBuilder.Entity<OpportunityStatus>()
+              .HasQueryFilter(OpportunityStatus => EF.Property<bool>(OpportunityStatus, "IsDeleted") == false);
+
+            modelBuilder.Entity<ProspectStatus>()
+              .HasQueryFilter(ProspectStatus => EF.Property<bool>(ProspectStatus, "IsDeleted") == false);
+
+            modelBuilder.Entity<LeadStatus>()
+              .HasQueryFilter(LeadStatus => EF.Property<bool>(LeadStatus, "IsDeleted") == false);
+
+            modelBuilder.Entity<Pool>()
+              .HasQueryFilter(Pool => EF.Property<bool>(Pool, "IsDeleted") == false);
+
+            modelBuilder.Entity<LeadStatus>()
+              .HasQueryFilter(LeadStatus => EF.Property<bool>(LeadStatus, "IsDeleted") == false);
+
+            modelBuilder.Entity<Activity>()
+              .HasQueryFilter(Activity => EF.Property<bool>(Activity, "IsDeleted") == false);
+
+            modelBuilder.Entity<ActivityType>()
+              .HasQueryFilter(ActivityType => EF.Property<bool>(ActivityType, "IsDeleted") == false);
+
+            modelBuilder.Entity<Section>()
+             .HasQueryFilter(Section => EF.Property<bool>(Section, "IsDeleted") == false);
+
+            modelBuilder.Entity<SectionQuestion>()
+             .HasQueryFilter(SectionQuestion => EF.Property<bool>(SectionQuestion, "IsDeleted") == false);
+
+            modelBuilder.Entity<SectionQuestionAnswer>()
+             .HasQueryFilter(SectionQuestionAnswer => EF.Property<bool>(SectionQuestionAnswer, "IsDeleted") == false);
+
+            modelBuilder.Entity<SectionQuestionOption>()
+             .HasQueryFilter(SectionQuestionOption => EF.Property<bool>(SectionQuestionOption, "IsDeleted") == false);
+
+            modelBuilder.Entity<ProcessFlow>()
+             .HasQueryFilter(ProcessFlow => EF.Property<bool>(ProcessFlow, "IsDeleted") == false);
 
 
-            modelBuilder.Entity<Employee>()
-               .HasQueryFilter(Employee => EF.Property<bool>(Employee, "IsDeleted") == false);
+            modelBuilder.Entity<Area_Pool>().HasKey(x => new { x.AreaID, x.PoolID });
+            modelBuilder.Entity<Area_Pool>()
+            .HasOne(pr => pr.Area)
+            .WithMany(p => p.Pools)
+            .HasForeignKey(pr => pr.AreaID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Area_Pool>()
+            .HasOne(pr => pr.Pool)
+            .WithMany(p => p.Area_Pools)
+            .HasForeignKey(pr => pr.PoolID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Employee>()
-                .HasQueryFilter(Employee => EF.Property<bool>(Employee, "IsDeleted") == false);
-
-            modelBuilder.Entity<CompanyCode>()
-                .HasQueryFilter(CompanyCode => EF.Property<bool>(CompanyCode, "IsDeleted") == false);
-
-            modelBuilder.Entity<CostCenter>()
-                .HasQueryFilter(CostCenter => EF.Property<bool>(CostCenter, "IsDeleted") == false);
-
-            modelBuilder.Entity<ProfitCenter>()
-               .HasQueryFilter(ProfitCenter => EF.Property<bool>(ProfitCenter, "IsDeleted") == false);
-
-            modelBuilder.Entity<OrgUnit>()
-                .HasQueryFilter(OrgUnit => EF.Property<bool>(OrgUnit, "IsDeleted") == false);
-
-            modelBuilder.Entity<Action>()
-                .HasQueryFilter(Action => EF.Property<bool>(Action, "IsDeleted") == false);
-
-            modelBuilder.Entity<Material>()
-                .HasQueryFilter(Material => EF.Property<bool>(Material, "IsDeleted") == false);
-
-            modelBuilder.Entity<MaterialGroup>()
-                .HasQueryFilter(MaterialGroup => EF.Property<bool>(MaterialGroup, "IsDeleted") == false);
-
-            modelBuilder.Entity<MaterialType>()
-                .HasQueryFilter(MaterialType => EF.Property<bool>(MaterialType, "IsDeleted") == false);
-
-            modelBuilder.Entity<Plant>()
-                .HasQueryFilter(Plant => EF.Property<bool>(Plant, "IsDeleted") == false);
-
-            modelBuilder.Entity<StorageLocation>()
-                .HasQueryFilter(StorageLocation => EF.Property<bool>(StorageLocation, "IsDeleted") == false);
-
-            modelBuilder.Entity<UOM>()
-                .HasQueryFilter(UOM => EF.Property<bool>(UOM, "IsDeleted") == false);
-
-            modelBuilder.Entity<GLAccount>()
-             .HasQueryFilter(GLAccount => EF.Property<bool>(GLAccount, "IsDeleted") == false);
-
-            modelBuilder.Entity<PR>()
-             .HasQueryFilter(PR => EF.Property<bool>(PR, "IsDeleted") == false);
-
-            modelBuilder.Entity<PRMainItem>()
-             .HasQueryFilter(PRMainItem => EF.Property<bool>(PRMainItem, "IsDeleted") == false);
-
-            modelBuilder.Entity<PRSubItem>()
-             .HasQueryFilter(PRSubItem => EF.Property<bool>(PRSubItem, "IsDeleted") == false);
-
-            modelBuilder.Entity<PRType>()
-             .HasQueryFilter(PRType => EF.Property<bool>(PRType, "IsDeleted") == false);
-
-            modelBuilder.Entity<Condition>()
-            .HasQueryFilter(Condition => EF.Property<bool>(Condition, "IsDeleted") == false);
+            modelBuilder.Entity<Area_LOneInterest>().HasKey(x => new { x.AreaID, x.LOneInterestID });
+            modelBuilder.Entity<Area_LOneInterest>()
+            .HasOne(pr => pr.Area)
+            .WithMany(p => p.Interests)
+            .HasForeignKey(pr => pr.AreaID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Area_LOneInterest>()
+            .HasOne(pr => pr.Interest)
+            .WithMany(p => p.Area_LOneInterests)
+            .HasForeignKey(pr => pr.LOneInterestID).OnDelete(DeleteBehavior.NoAction);
 
 
-            modelBuilder.Entity<RFQ>()
-             .HasQueryFilter(RFQ => EF.Property<bool>(RFQ, "IsDeleted") == false);
+            modelBuilder.Entity<LOneInterest_InterestAttributes>().HasKey(x => new { x.LOneInterestID, x.InterestAttributeID });
+            modelBuilder.Entity<LOneInterest_InterestAttributes>()
+            .HasOne(pr => pr.LOneInterest)
+            .WithMany(p => p.Attributes)
+            .HasForeignKey(pr => pr.LOneInterestID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LOneInterest_InterestAttributes>()
+            .HasOne(pr => pr.InterestAttribute)
+            .WithMany(p => p.LevelOne)
+            .HasForeignKey(pr => pr.LOneInterestID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<RFQMainItem>()
-             .HasQueryFilter(RFQMainItem => EF.Property<bool>(RFQMainItem, "IsDeleted") == false);
 
-            modelBuilder.Entity<RFQSubItem>()
-             .HasQueryFilter(RFQSubItem => EF.Property<bool>(RFQSubItem, "IsDeleted") == false);
+            modelBuilder.Entity<LOneInterest_LOneInterestInput>().HasKey(x => new { x.LOneInterestID, x.LOneInterestInputID });
+            modelBuilder.Entity<LOneInterest_LOneInterestInput>()
+            .HasOne(pr => pr.LOneInterest)
+            .WithMany(p => p.Inputs)
+            .HasForeignKey(pr => pr.LOneInterestID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LOneInterest_LOneInterestInput>()
+            .HasOne(pr => pr.LOneInterestInput)
+            .WithMany(p => p.LOneInterest_LOneInterestInputs)
+            .HasForeignKey(pr => pr.LOneInterestInputID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<RFQType>()
-             .HasQueryFilter(RFQType => EF.Property<bool>(RFQType, "IsDeleted") == false);
 
-            modelBuilder.Entity<ExchangeRate>()
-            .HasQueryFilter(ExchangeRate => EF.Property<bool>(ExchangeRate, "IsDeleted") == false);
 
-            modelBuilder.Entity<Position>()
-            .HasQueryFilter(Position => EF.Property<bool>(Position, "IsDeleted") == false);
+            modelBuilder.Entity<LTwoInterest_InterestAttributes>().HasKey(x => new { x.LTwoInterestID, x.InterestAttributeID });
+            modelBuilder.Entity<LTwoInterest_InterestAttributes>()
+            .HasOne(pr => pr.LTwoInterest)
+            .WithMany(p => p.Attributes)
+            .HasForeignKey(pr => pr.LTwoInterestID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LTwoInterest_InterestAttributes>()
+            .HasOne(pr => pr.InterestAttribute)
+            .WithMany(p => p.LevelTwo)
+            .HasForeignKey(pr => pr.LTwoInterestID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<EmployeeSubGroup>()
-             .HasQueryFilter(EmployeeSubGroup => EF.Property<bool>(EmployeeSubGroup, "IsDeleted") == false);
 
-            modelBuilder.Entity<EmployeeGroup>()
-            .HasQueryFilter(EmployeeGroup => EF.Property<bool>(EmployeeGroup, "IsDeleted") == false);
+            modelBuilder.Entity<LTwoInterest_LTwoInterestInput>().HasKey(x => new { x.LTwoInterestID, x.LTwoInterestInputID });
+            modelBuilder.Entity<LTwoInterest_LTwoInterestInput>()
+            .HasOne(pr => pr.LTwoInterest)
+            .WithMany(p => p.Inputs)
+            .HasForeignKey(pr => pr.LTwoInterestID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LTwoInterest_LTwoInterestInput>()
+            .HasOne(pr => pr.LTwoInterestInput)
+            .WithMany(p => p.LTwoInterest_LTwoInterestInputs)
+            .HasForeignKey(pr => pr.LTwoInterestInputID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Employee_PhoneNumber>()
-            .HasQueryFilter(Employee_PhoneNumber => EF.Property<bool>(Employee_PhoneNumber, "IsDeleted") == false);
-            modelBuilder.Entity<PurchasingGroup>()
-           .HasQueryFilter(PurchasingGroup => EF.Property<bool>(PurchasingGroup, "IsDeleted") == false);
 
-            //Many to many relationships configuration . 
-            modelBuilder.Entity<Employee_Action>().HasKey(x => new { x.EmployeeID, x.ActionID });
-            modelBuilder.Entity<Employee_Action>()
-            .HasOne(pr => pr.Employee)
-            .WithMany(p => p.Employee_Actions)
-            .HasForeignKey(pr => pr.EmployeeID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Employee_Action>()
-            .HasOne(pr => pr.Action)
-            .WithMany(p => p.Employee_Actions)
-            .HasForeignKey(pr => pr.ActionID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Employee_PurchasingGroup>().HasKey(x => new { x.EmployeeID, x.PurchasingGroupID });
-            modelBuilder.Entity<Employee_PurchasingGroup>()
-            .HasOne(pr => pr.Employee)
-            .WithMany(p => p.Employee_PurchasingGroups)
-            .HasForeignKey(pr => pr.EmployeeID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Employee_PurchasingGroup>()
-            .HasOne(pr => pr.PurchasingGroup)
-            .WithMany(p => p.PurchasingGroup_Employees)
-            .HasForeignKey(pr => pr.PurchasingGroupID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LThreeInterest_InterestAttributes>().HasKey(x => new { x.LThreeInterestID, x.InterestAttributeID });
+            modelBuilder.Entity<LThreeInterest_InterestAttributes>()
+            .HasOne(pr => pr.LThreeInterest)
+            .WithMany(p => p.Attributes)
+            .HasForeignKey(pr => pr.LThreeInterestID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LThreeInterest_InterestAttributes>()
+            .HasOne(pr => pr.InterestAttribute)
+            .WithMany(p => p.LevelThree)
+            .HasForeignKey(pr => pr.LThreeInterestID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Material_UOM>().HasKey(x => new { x.MaterialID, x.UOMID });
-            modelBuilder.Entity<Material_UOM>()
-            .HasOne(pr => pr.Material)
-            .WithMany(p => p.Material_UOMS)
-            .HasForeignKey(pr => pr.MaterialID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Material_UOM>()
-            .HasOne(pr => pr.UOM)
-            .WithMany(p => p.UOM_Materials)
-            .HasForeignKey(pr => pr.UOMID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Plant_Material>().HasKey(x => new { x.PlantID, x.MaterialID });
-            modelBuilder.Entity<Plant_Material>()
-            .HasOne(pr => pr.Plant)
-            .WithMany(p => p.Plant_Materials)
-            .HasForeignKey(pr => pr.PlantID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Plant_Material>()
-            .HasOne(pr => pr.Material)
-            .WithMany(p => p.Material_Plants)
-            .HasForeignKey(pr => pr.MaterialID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LThreeInterest_LThreeInterestInput>().HasKey(x => new { x.LThreeInterestID, x.LThreeInterestInputID });
+            modelBuilder.Entity<LThreeInterest_LThreeInterestInput>()
+            .HasOne(pr => pr.LThreeInterest)
+            .WithMany(p => p.Inputs)
+            .HasForeignKey(pr => pr.LThreeInterestID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LThreeInterest_LThreeInterestInput>()
+            .HasOne(pr => pr.LThreeInterestInput)
+            .WithMany(p => p.LThreeInterest_LThreeInterestInput)
+            .HasForeignKey(pr => pr.LThreeInterestInputID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<PRMainItem_Condition>().HasKey(x => new { x.ConditionID, x.PRMainItemID });
-            modelBuilder.Entity<PRMainItem_Condition>()
-            .HasOne(pr => pr.PRMainItem)
-            .WithMany(p => p.MainItem_Conditions)
-            .HasForeignKey(pr => pr.PRMainItemID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<PRMainItem_Condition>()
-            .HasOne(pr => pr.Condition)
-            .WithMany(p => p.Condition_PRMainItems)
-            .HasForeignKey(pr => pr.ConditionID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<RFQMainItem_Condition>().HasKey(x => new { x.RFQMainItemID, x.ConditionID });
-            modelBuilder.Entity<RFQMainItem_Condition>()
-            .HasOne(pr => pr.RFQMainItem)
-            .WithMany(p => p.MainItem_Conditions)
-            .HasForeignKey(pr => pr.RFQMainItemID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<RFQMainItem_Condition>()
-            .HasOne(pr => pr.Condition)
-            .WithMany(p => p.Condition_RFQMainItems)
-            .HasForeignKey(pr => pr.ConditionID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Pool_Users>().HasKey(x => new { x.PoolID, x.UserID });
+            modelBuilder.Entity<Pool_Users>()
+            .HasOne(pr => pr.Pool)
+            .WithMany(p => p.Pool_Users)
+            .HasForeignKey(pr => pr.PoolID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Pool_Users>()
+            .HasOne(pr => pr.User)
+            .WithMany(p => p.Pools)
+            .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Vendor_Bank>().HasKey(x => new { x.VendorID, x.BankID });
-            modelBuilder.Entity<Vendor_Bank>()
-            .HasOne(pr => pr.Vendor)
-            .WithMany(p => p.Vendor_Banks)
-            .HasForeignKey(pr => pr.VendorID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Vendor_Bank>()
-            .HasOne(pr => pr.Bank)
-            .WithMany(p => p.Bank_Vendors)
-            .HasForeignKey(pr => pr.BankID).OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<Pool_Admin>().HasKey(x => new { x.PoolID, x.UserID });
+            modelBuilder.Entity<Pool_Admin>()
+            .HasOne(pr => pr.Pool)
+            .WithMany(p => p.Pool_Admins)
+            .HasForeignKey(pr => pr.PoolID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Pool_Admin>()
+            .HasOne(pr => pr.User)
+            .WithMany(p => p.Pool_Admins)
+            .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<Vendor_Tax>().HasKey(x => new { x.VendorID, x.TaxID });
-            modelBuilder.Entity<Vendor_Tax>()
-            .HasOne(pr => pr.Vendor)
-            .WithMany(p => p.Vendor_Taxes)
-            .HasForeignKey(pr => pr.VendorID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Vendor_Tax>()
-            .HasOne(pr => pr.Tax)
-            .WithMany(p => p.Tax_Vendors)
-            .HasForeignKey(pr => pr.TaxID).OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Vendor_CompanyCode>().HasKey(x => new { x.VendorID, x.CompanyCodeID });
-            modelBuilder.Entity<Vendor_CompanyCode>()
-            .HasOne(pr => pr.Vendor)
-            .WithMany(p => p.Vendor_CompanyCodes)
-            .HasForeignKey(pr => pr.VendorID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Vendor_CompanyCode>()
-            .HasOne(pr => pr.CompanyCode)
-            .WithMany(p => p.CompanyCode_Vendors)
-            .HasForeignKey(pr => pr.CompanyCodeID).OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Employee_Position>().HasKey(x => new { x.EmployeeID, x.PositionID });
-            modelBuilder.Entity<Employee_Position>()
-            .HasOne(pr => pr.Employee)
-            .WithMany(p => p.Employee_Positions)
-            .HasForeignKey(pr => pr.EmployeeID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Employee_Position>()
-            .HasOne(pr => pr.Position)
-            .WithMany(p => p.Position_Employees)
-            .HasForeignKey(pr => pr.PositionID).OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Employee_SubGroup>().HasKey(x => new { x.EmployeeID, x.SubGroupID });
-            modelBuilder.Entity<Employee_SubGroup>()
-            .HasOne(pr => pr.Employee)
-            .WithMany(p => p.Employee_SubGroups)
-            .HasForeignKey(pr => pr.EmployeeID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Employee_SubGroup>()
-            .HasOne(pr => pr.SubGroup)
-            .WithMany(p => p.SubGroup_Employees)
-            .HasForeignKey(pr => pr.SubGroupID).OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Employee_PurchasingGroup>().HasKey(x => new { x.EmployeeID, x.PurchasingGroupID });
-            modelBuilder.Entity<Employee_PurchasingGroup>()
-            .HasOne(pr => pr.Employee)
-            .WithMany(p => p.Employee_PurchasingGroups)
-            .HasForeignKey(pr => pr.EmployeeID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Employee_PurchasingGroup>()
-            .HasOne(pr => pr.PurchasingGroup)
-            .WithMany(p => p.PurchasingGroup_Employees)
-            .HasForeignKey(pr => pr.PurchasingGroupID).OnDelete(DeleteBehavior.NoAction);
         }
 
-        public virtual DbSet<Employee> Employees { get; set; }
-        public virtual DbSet<Action> Actions { get; set; }
-        public virtual DbSet<Employee_Action> Employee_Action { get; set; }
-        public virtual DbSet<EmployeeAddress> EmployeeAddresses { get; set; }
-        public virtual DbSet<CompanyCode> CompanyCodes { get; set; }
-        public virtual DbSet<CostCenter> CostCenters { get; set; }
-        public virtual DbSet<ProfitCenter> ProfitCenters { get; set; }
-        public virtual DbSet<OrgUnit> OrgUnits { get; set; }
-        public virtual DbSet<PurchasingGroup> PurchasingGroups { get; set; }
-        public virtual DbSet<Employee_PurchasingGroup> Employee_PurchasingGroup { get; set; }
-        public virtual DbSet<GLAccount> GLAccounts { get; set; }
-        public virtual DbSet<PRType> PRTypes { get; set; }
-        public virtual DbSet<PR> PRS { get; set; }
-        public virtual DbSet<PRMainItem> PRMainItems { get; set; }
-        public virtual DbSet<PRSubItem> PRSubItem { get; set; }
-        public virtual DbSet<Condition> Condition { get; set; }
-        public virtual DbSet<PRMainItem_Condition> PRMainItem_Condition { get; set; }
-        public virtual DbSet<RFQType> RFQTypes { get; set; }
-        public virtual DbSet<RFQ> RFQS { get; set; }
-        public virtual DbSet<RFQMainItem> RFQMainItems { get; set; }
-        public virtual DbSet<RFQSubItem> RFQSubItems { get; set; }
-        public virtual DbSet<RFQMainItem_Condition> RFQMainItem_Condition { get; set; }
-        public virtual DbSet<ExchangeRate> ExchangeRates { get; set; }
-        public virtual DbSet<Vendor> Vendors { get; set; }
-        public virtual DbSet<VendorAddress> VendorAddresses { get; set; }
-        public virtual DbSet<VendorPhoneNumber> VendorPhoneNumbers { get; set; }
-        public virtual DbSet<VendorEmail> VendorEmails { get; set; }
-        public virtual DbSet<Tax> Taxes { get; set; }
-        public virtual DbSet<Bank> Banks { get; set; }
-        public virtual DbSet<Vendor_Tax> Vendor_Tax { get; set; }
-        public virtual DbSet<Vendor_Bank> Vendor_Bank { get; set; }
-        public virtual DbSet<Vendor_CompanyCode> Vendor_CompanyCode { get; set; }
-        public virtual DbSet<Position> Positions { get; set; }
-        public virtual DbSet<Employee_Position> Employee_Position { get; set; }
-        public virtual DbSet<EmployeeGroup> EmployeeGroup { get; set; }
-        public virtual DbSet<EmployeeSubGroup> EmployeeSubGroup { get; set; }
-        public virtual DbSet<Employee_SubGroup> Employee_SubGroup { get; set; }
-        public virtual DbSet<Employee_PhoneNumber> Employee_PhoneNumbers { get; set; }
+
+        public virtual DbSet<Area> Areas { get; set; }
+        public virtual DbSet<Area_Pool> Area_Pools { get; set; }
+        public virtual DbSet<Contact> Contacts { get; set; }
+        public virtual DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<Lead> Leads { get; set; }
+        public virtual DbSet<LeadStatus> LeadStatuses { get; set; }
+        public virtual DbSet<Opportunity> Opportunities { get; set; }
+        public virtual DbSet<OpportunityStatus> OpportunityStatuses { get; set; }
+        public virtual DbSet<Prospect> Prospects { get; set; }
+        public virtual DbSet<ProspectStatus> ProspectStatuses { get; set; }
+        public virtual DbSet<Deal> Deals { get; set; }
+        public virtual DbSet<Pool> Pools { get; set; }
+        public virtual DbSet<Pool_Users> Pool_Users { get; set; }
+        public virtual DbSet<Pool_Admin> Pool_Admins { get; set; }
+        public virtual DbSet<Activity> Activities { get; set; }
+        public virtual DbSet<ActivitySection> Activity_Sectiosn { get; set; }
+        public virtual DbSet<ActivityType> ActivityTypes { get; set; }
+        public virtual DbSet<Section> Sections { get; set; }
+        public virtual DbSet<SectionQuestion> SectionQuestions { get; set; }
+        public virtual DbSet<SectionQuestionAnswer> SectionQuestionAnswers { get; set; }
+        public virtual DbSet<SectionQuestionOption> SectionQuestionOptions { get; set; }
+        public virtual DbSet<ProcessFlow> ProcessFlows { get; set; }
+        public virtual DbSet<Region> Regions { get; set; }
+        public virtual DbSet<Area_LOneInterest> Area_LOneInterests { get; set; }
+        public virtual DbSet<LOneInterest> LOneInterests { get; set; }
+        public virtual DbSet<LOneInterestInput> LOneInterestInputs { get; set; }
+        public virtual DbSet<LTwoInterest> LTwoInterests { get; set; }
+        public virtual DbSet<LTwoInterestInput> LTwoInterestInputs { get; set; }
+        public virtual DbSet<LTwoInterest_InterestAttributes> LTwoInterest_InterestAttributes { get; set; }
+        public virtual DbSet<LTwoInterest_LTwoInterestInput> LTwoInterest_LTwoInterestInputs { get; set; }
+        public virtual DbSet<LThreeInterest> LThreeInterests { get; set; }
+        public virtual DbSet<LThreeInterestInput> LThreeInterestInputs { get; set; }
+        public virtual DbSet<LThreeInterest_InterestAttributes> LThreeInterest_InterestAttributes { get; set; }
+        public virtual DbSet<LThreeInterest_LThreeInterestInput> LThreeInterest_LThreeInterestInputs { get; set; }
+        public virtual DbSet<InterestAttribute> InterestAttributes { get; set; }
 
     }
 

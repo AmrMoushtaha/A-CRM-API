@@ -1,20 +1,9 @@
 ﻿using AutoMapper;
-using Stack.DTOs.Models;
 using Stack.DTOs.Models.Modules.Auth;
-using Stack.DTOs.Models.Modules.Employees;
-using Stack.DTOs.Models.Modules.Organizations.CompanyCodes;
-using Stack.DTOs.Models.Modules.Organizations.CostCenters;
-using Stack.DTOs.Models.Modules.Organizations.OrgUnits;
-using Stack.DTOs.Models.Modules.Organizations.PurchasingGroups;
-using Stack.DTOs.Requests;
-using Stack.Entities.Models;
+using Stack.DTOs.Models.Modules.Pool;
+using Stack.DTOs.Requests.Modules.Pool;
 using Stack.Entities.Models.Modules.Auth;
-using Stack.Entities.Models.Modules.Employees;
-using Stack.Entities.Models.Modules.Organizations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Stack.Entities.Models.Modules.CustomerStage;
 
 namespace Stack.API.AutoMapperConfig
 {
@@ -22,21 +11,19 @@ namespace Stack.API.AutoMapperConfig
     {
         public AutoMapperProfile()
         {
-
             CreateMap<ApplicationUser, ApplicationUserDTO>()
             .ReverseMap();
 
-            CreateMap<CompanyCode, CompanyCodeDTO>()
+            CreateMap<Pool_Users, PoolSidebarViewModel>()
+            .ForMember(dist => dist.NameEN, opt => opt.MapFrom(t => t.Pool.NameEN))
+            .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.Pool.NameAR))
             .ReverseMap();
 
-            CreateMap<CostCenter, CostCenterDTO>()
+             CreateMap<Pool_Admin, PoolSidebarViewModel>()
+            .ForMember(dist => dist.NameEN, opt => opt.MapFrom(t => t.Pool.NameEN))
+            .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.Pool.NameAR))
             .ReverseMap();
 
-            CreateMap<OrgUnit, OrgUnitDTO>()
-            .ReverseMap();
-
-            CreateMap<PurchasingGroup, PurchasingGroupDTO>()
-            .ReverseMap();
 
         }
 
