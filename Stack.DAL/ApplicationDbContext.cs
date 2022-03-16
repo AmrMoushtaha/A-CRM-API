@@ -338,6 +338,7 @@ namespace Stack.DAL
         public virtual DbSet<Area> Areas { get; set; }
         public virtual DbSet<Area_Pool> Area_Pools { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
+        public virtual DbSet<ContactPhoneNumber> ContactPhoneNumbers { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Lead> Leads { get; set; }
         public virtual DbSet<LeadStatus> LeadStatuses { get; set; }

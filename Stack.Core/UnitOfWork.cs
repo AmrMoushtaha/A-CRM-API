@@ -56,6 +56,20 @@ namespace Stack.Core
                 return contactManager;
             }
         }
+        
+
+        private ContactPhoneNumberManager contactPhoneNumberManager;
+        public ContactPhoneNumberManager ContactPhoneNumberManager
+        {
+            get
+            {
+                if (contactPhoneNumberManager == null)
+                {
+                    contactPhoneNumberManager = new ContactPhoneNumberManager(context);
+                }
+                return contactPhoneNumberManager;
+            }
+        }
 
         private CustomerManager customerManager;
         public CustomerManager CustomerManager

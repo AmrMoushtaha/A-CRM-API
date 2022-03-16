@@ -58,10 +58,8 @@ namespace Stack.Core.Managers.Modules.pool
                             filteredContacts.Select(p => new ContactListViewModel
                             {
                                 ID = p.ID,
-                                FirstNameEN = p.FirstNameEN,
-                                LastNameEN = p.LastNameEN,
-                                FirstNameAR = p.FirstNameAR,
-                                LastNameAR = p.LastNameAR,
+                                FullNameEN = p.FullNameEN,
+                                FullNameAR = p.FullNameAR,
                                 PrimaryPhoneNumber = p.PrimaryPhoneNumber
                             }));
 

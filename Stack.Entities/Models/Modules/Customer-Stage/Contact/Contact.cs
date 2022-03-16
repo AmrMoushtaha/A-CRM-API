@@ -9,18 +9,24 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public long ID { get; set; }
         public long PoolID { get; set; }
         public long StatusID { get; set; }
-        public string AssignedUserID { get; set; }
 
-        public string FirstNameEN { get; set; }
-        public string LastNameEN { get; set; }
-        public string FirstNameAR { get; set; }
-        public string LastNameAR { get; set; }
+        public string? AssignedUserID { get; set; }
+
+        public string FullNameEN { get; set; }
+        public string FullNameAR { get; set; }
+
+        public string Email { get; set; }
+        public string Address { get; set; }
+        public string Occupation { get; set; }
+        public string LeadSourceType { get; set; }
+        public string LeadSourceName { get; set; }
+
         public string PrimaryPhoneNumber { get; set; }
 
         public virtual List<ContactPhoneNumber> PhoneNumbers { get; set; }
 
         [ForeignKey("StatusID")]
-        public virtual ContactStatus Status { get; set; }
+        public virtual ContactStatus? Status { get; set; }
 
         [ForeignKey("AssignedUserID")]
         public virtual ApplicationUser AssignedUser { get; set; }
