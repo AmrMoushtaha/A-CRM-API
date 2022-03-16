@@ -23,6 +23,7 @@ using Stack.DTOs.Requests.Modules.Pool;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.DTOs.Models.Modules.Pool;
 
+
 namespace Stack.ServiceLayer.Modules.pool
 {
     public class PoolService
@@ -40,6 +41,52 @@ namespace Stack.ServiceLayer.Modules.pool
             _httpContextAccessor = httpContextAccessor;
             this.config = config;
             this.mapper = mapper;
+
+        }
+        //Get main pool details
+        public async Task<ApiResponse<PoolSidebarViewModel>> GetPoolDetails(long poolID)
+        {
+            ApiResponse<PoolSidebarViewModel> result = new ApiResponse<PoolSidebarViewModel>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    var userPools = await unitOfWork.PoolManager.GetPoolDetails(poolID);
+
+                    if (userPools != null)
+                    {
+                        result.Succeeded = true;
+                        result.Data = userPools;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("No pools found");
+                        result.Errors.Add("لا يوجد قوائم");
+                        result.ErrorType = ErrorType.NotFound;
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Not authorized");
+                    result.Errors.Add("غير مصرح");
+                    result.ErrorCode = ErrorCode.A500;
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
 
         }
 
@@ -209,6 +256,7 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
+        //Sidebar view
         public async Task<ApiResponse<List<PoolSidebarViewModel>>> GetUserAssignedPools()
         {
             ApiResponse<List<PoolSidebarViewModel>> result = new ApiResponse<List<PoolSidebarViewModel>>();
@@ -220,21 +268,19 @@ namespace Stack.ServiceLayer.Modules.pool
                 {
                     List<PoolSidebarViewModel> poolSidebarViewModel = new List<PoolSidebarViewModel>();
 
-                    var userPoolsQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.UserID == userID, includeProperties: "Pool");
-                    var userPools = userPoolsQuery.ToList();
+                    var userPools = await unitOfWork.PoolUserManager.GetUserPools(userID);
 
                     if (userPools != null && userPools.Count > 0)
                     {
-                        poolSidebarViewModel.AddRange(mapper.Map<List<PoolSidebarViewModel>>(userPools));
+                        poolSidebarViewModel.AddRange(userPools);
                     }
 
 
-                    var adminPoolsQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.UserID == userID, includeProperties: "Pool");
-                    var adminPools = adminPoolsQuery.ToList();
+                    var adminPools = await unitOfWork.PoolAdminManager.GetUserPools(userID);
 
                     if (adminPools != null && adminPools.Count > 0)
                     {
-                        poolSidebarViewModel.AddRange(mapper.Map<List<PoolSidebarViewModel>>(adminPools));
+                        poolSidebarViewModel.AddRange(adminPools);
                     }
 
 
@@ -262,6 +308,91 @@ namespace Stack.ServiceLayer.Modules.pool
                     return result;
                 }
 
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        //Pool Contacts
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetPoolContacts(long poolID)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    //Verify user pool permissions
+                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
+                    var userPool = userPoolQuery.FirstOrDefault();
+
+                    if (userPool != null)
+                    {
+                        var poolContacts = await unitOfWork.PoolAdminManager.GetPoolContacts(poolID, userID);
+
+                        if (poolContacts != null)
+                        {
+                            result.Succeeded = true;
+                            result.Data = poolContacts;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Data = null;
+                            result.Errors.Add("No contacts found");
+                            result.Errors.Add("No contacts found");
+                            return result;
+                        }
+                    }
+                    else //Attempt admin verification check
+                    {
+                        //Verify user pool permissions
+                        var adminPoolQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
+                        var adminPool = adminPoolQuery.FirstOrDefault();
+
+                        if (adminPool != null) //Get administrator contacts
+                        {
+                            var poolContacts = await unitOfWork.PoolAdminManager.GetPoolContacts(poolID, userID);
+
+                            if (poolContacts != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = poolContacts;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Data = null;
+                                result.Errors.Add("No contacts found");
+                                result.Errors.Add("No contacts found");
+                                return result;
+                            }
+                        }
+                        else //Unauthorized
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Unauthorized");
+                            result.Errors.Add("غير مصرح");
+                            return result;
+                        }
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
             }
             catch (Exception ex)
             {
