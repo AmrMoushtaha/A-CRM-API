@@ -18,13 +18,25 @@ namespace Stack.API.Controllers.Modules.Activities
         }
 
         [AllowAnonymous]
-        [HttpPost("CreaCreateActivityType")]
+        [HttpPost("CreateActivityType")]
         public async Task<IActionResult> CreateActivityType(CreateActivityTypeModel model)
         {
             return await AddItemResponseHandler(async () => await service.CreateActivityType(model));
         }
 
+        [AllowAnonymous]
+        [HttpPost("CreateNewActivity")]
+        public async Task<IActionResult> CreateNewActivity(CreateActivityModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.CreateNewActivity(model));
+        }
 
+        [AllowAnonymous]
+        [HttpGet("GetAllActiveActivityTypes")]
+        public async Task<IActionResult> GetAllActiveActivityTypes()
+        {
+            return await AddItemResponseHandler(async () => await service.GetAllActiveActivityTypes());
+        }
 
     }
 

@@ -18,6 +18,8 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public bool HasDecisionalQuestions { get; set; }
 
+        public bool IsSubmitSection { get; set; }
+
 
 
         //Navigation Properties

@@ -13,7 +13,7 @@ namespace Stack.DTOs.Models.Modules.Activities
 
         public string ValueEN { get; set; }
 
-        public string RoutesTo { get; set; }
+        public long RoutesTo { get; set; }
 
         public bool IsSelected { get; set; }
 

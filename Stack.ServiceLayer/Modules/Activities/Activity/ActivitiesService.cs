@@ -13,6 +13,7 @@ using Stack.DTOs.Enums;
 using System;
 using Stack.Repository.Common;
 using Stack.DTOs.Models.Modules.Activities;
+using Stack.Entities.Enums.Modules.Activities;
 
 namespace Stack.ServiceLayer.Modules.Activities
 {
@@ -24,6 +25,8 @@ namespace Stack.ServiceLayer.Modules.Activities
         private readonly IConfiguration config;
         private readonly IMapper mapper;
         private static readonly HttpClient client = new HttpClient();
+
+        public object AtivityTypeStatus { get; private set; }
 
         public ActivitiesService(UnitOfWork unitOfWork, IConfiguration config, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
@@ -64,6 +67,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 newActivityType.NameEN = model.NameEN;
 
+                newActivityType.Status = ActivityTypeStatus.Activated.ToString();
                
 
                 var createActivityTypeResult = await unitOfWork.ActivityTypesManager.CreateAsync(newActivityType);
@@ -106,7 +110,6 @@ namespace Stack.ServiceLayer.Modules.Activities
                 return result;
             }
         }
-
 
         public async Task<ApiResponse<SectionToAnswer>> CreateNewActivity(CreateActivityModel model)
         {
@@ -166,9 +169,13 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     sectionToReturn.NameAR = UpcomingSection.NameAR;
 
-                    sectionToReturn.Type = UpcomingSection.Type;
+                    sectionToReturn.IsSubmitSection = UpcomingSection.IsSubmitSection;
 
-                    sectionToReturn.Order = 0;
+                    sectionToReturn.ActivityID = newActivity.ID;
+
+                    sectionToReturn.ActivityTypeID = newActivity.ActivityTypeID;
+
+                    sectionToReturn.Order = 0; // Initial activity section order . 
 
                     sectionToReturn.HasDecisionalQuestions = UpcomingSection.HasDecisionalQuestions;
 
@@ -225,7 +232,6 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     }
 
-
                     //Re-arrange section questions . 
                     sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
 
@@ -258,6 +264,263 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+        public async Task<ApiResponse<SectionToAnswer>> GetNextActivitySection(SectionToAnswer model)
+        {
+            ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
+            try
+            {
+
+                //Get an update the end date of the current activity section . 
+                var activitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.ID == model.ID);
+
+                ActivitySection currentSection = activitySectionsResult.FirstOrDefault();
+
+                currentSection.EndDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                var updateCurrentSectionResult = await unitOfWork.ActivitySectionsManager.UpdateAsync(currentSection);
+
+                await unitOfWork.SaveChangesAsync();
+
+                long sectionToRouteToID = 0;
+
+                //Save question answers for the current section  .
+                for(int i = 0; i < model.Questions.Count; i++)
+                {
+                    SectionQuestionAnswer newSectionQuestionAnswer = new SectionQuestionAnswer();
+
+                    newSectionQuestionAnswer.QuestionID = model.Questions[i].ID;
+
+                    newSectionQuestionAnswer.Value = model.Questions[i].Answer;
+
+                    newSectionQuestionAnswer.ActivitySectionID = model.ID;
+
+                    var createSectionQuestionAnswer = await unitOfWork.SectionQuestionAnswersManager.CreateAsync(newSectionQuestionAnswer);
+
+                    await unitOfWork.SaveChangesAsync();
+
+                    //If the question had options to choose from . save the selected answer . 
+                    if(model.Questions[i].Options.Count > 0)
+                    {
+
+                        QuestionOption SelectedOption = model.Questions[i].Options.Find(a => a.IsSelected == true);
+
+                        //Get the id of the section to route to in case the question is a decisional question . 
+                        if (model.Questions[i].IsDecisional == true)
+                        {
+
+                            sectionToRouteToID = SelectedOption.RoutesTo;
+
+                        }
+
+                        SelectedOption newSelectedOption = new SelectedOption();
+
+                        newSelectedOption.SectionQuestionOptionID = SelectedOption.ID;
+
+                        newSelectedOption.SectionQuestionAnswerID = newSectionQuestionAnswer.ID;
+
+
+                        var createSelectedOptionResult = await unitOfWork.SelectedOptionsManager.CreateAsync(newSelectedOption);
+
+                        await unitOfWork.SaveChangesAsync();
+
+                                                                   
+                    }
+
+                }
+
+                Section nextSectionReference = new Section();
+
+                int nextSectionOrder = model.ActivityTypeSectionOrder + 1;
+
+                // If the activity has no decisional questions get the next activity section by order . 
+                if (model.HasDecisionalQuestions == false)
+                {
+
+                    var activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ActivityTypeID == model.ActivityTypeID && a.Order == nextSectionOrder, includeProperties: "Questions,Questions.QuestionOptions");
+
+                    nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
+                            
+                }
+                else // if the activity has decisional questions find the section that the activity routes to . 
+                {
+
+                                    
+                    var activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ID == sectionToRouteToID, includeProperties: "Questions,Questions.QuestionOptions");
+
+                    nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
+
+                }
+
+
+                //Create the new activity section .
+
+                ActivitySection nextSection = new ActivitySection();
+
+                nextSection.ActivityID = model.ActivityID;
+
+                nextSection.Order = model.Order + 1; // default value for the initial section .
+
+                nextSection.SectionID = nextSectionReference.ID;
+
+                nextSection.StartDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                var createNextSectionResult = await unitOfWork.ActivitySectionsManager.CreateAsync(nextSection);
+
+                await unitOfWork.SaveChangesAsync();
+
+                //Create the upcoming section model and return it . 
+
+                SectionToAnswer sectionToReturn = new SectionToAnswer();
+
+                sectionToReturn.ID = nextSection.ID;
+
+                sectionToReturn.NameAR = nextSectionReference.NameAR;
+
+                sectionToReturn.NameAR = nextSectionReference.NameAR;
+
+                sectionToReturn.IsSubmitSection = nextSectionReference.IsSubmitSection;
+
+                sectionToReturn.ActivityID = model.ActivityID;
+
+                sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+
+                sectionToReturn.Order = nextSectionOrder;
+
+                sectionToReturn.ActivityTypeSectionOrder = nextSectionReference.Order;
+
+                sectionToReturn.HasDecisionalQuestions = nextSectionReference.HasDecisionalQuestions;
+
+                sectionToReturn.Questions = new List<QuestionToAnswer>();
+
+                if (sectionToReturn.IsSubmitSection == false)
+                {
+
+                    //Append section questions . 
+                    for (int i = 0; i < nextSectionReference.Questions.Count; i++)
+                    {
+
+                        QuestionToAnswer question = new QuestionToAnswer();
+
+                        question.ID = nextSectionReference.Questions[i].ID;
+
+                        question.DescriptionAR = nextSectionReference.Questions[i].DescriptionAR;
+
+                        question.DescriptionEN = nextSectionReference.Questions[i].DescriptionEN;
+
+                        question.isRequired = nextSectionReference.Questions[i].isRequired;
+
+                        question.IsDecisional = nextSectionReference.Questions[i].IsDecisional;
+
+                        question.Order = nextSectionReference.Questions[i].Order;
+
+                        question.Answer = "";
+
+                        //Append section question options . 
+                        if (nextSectionReference.Questions[i].QuestionOptions.Count > 0)
+                        {
+
+                            question.Options = new List<QuestionOption>();
+
+                            for (int k = 0; k < nextSectionReference.Questions[i].QuestionOptions.Count; k++)
+                            {
+
+                                QuestionOption questionOption = new QuestionOption();
+
+                                questionOption.ValueEN = nextSectionReference.Questions[i].QuestionOptions[k].ValueEN;
+
+                                questionOption.ValueAR = nextSectionReference.Questions[i].QuestionOptions[k].ValueAR;
+
+                                questionOption.RoutesTo = nextSectionReference.Questions[i].QuestionOptions[k].RoutesTo;
+
+                                questionOption.ID = nextSectionReference.Questions[i].QuestionOptions[k].ID;
+
+                                questionOption.IsSelected = false;
+
+                                question.Options.Add(questionOption);
+
+                            }
+
+                        }
+
+                        sectionToReturn.Questions.Add(question);
+
+                    }
+
+                    //Re-arrange section questions . 
+                    sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
+
+
+                }
+
+
+                result.Data = sectionToReturn;
+
+                result.Succeeded = true;
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
+        /// <summary>
+        ///  Returns a list of activity types that are not disabled by the administrator . 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ApiResponse<List<ActivityTypeMainViewDTO>>> GetAllActiveActivityTypes()
+        {
+            ApiResponse<List<ActivityTypeMainViewDTO>> result = new ApiResponse<List<ActivityTypeMainViewDTO>>();
+            try
+            {
+
+                var activityTypesResult = await unitOfWork.ActivityTypesManager.GetAsync(a => a.Status == ActivityTypeStatus.Activated.ToString());
+
+                List<ActivityType> activityTypesList = activityTypesResult.ToList();
+
+                if(activityTypesList != null && activityTypesList.Count > 0)
+                {
+
+                    result.Data = mapper.Map<List<ActivityTypeMainViewDTO>>(activityTypesList);
+
+                    result.Succeeded = true;
+
+                    return result;
+
+                }
+                else
+                {
+
+                    result.ErrorType = ErrorType.SystemError;
+
+                    result.Succeeded = false;
+
+                    result.Errors.Add("No activity types were found, Please contact your system administrator !");
+
+                    result.Errors.Add("لم يتم العثور على أنواع الأنشطة ، يرجى الاتصال بمسؤول النظام!");
+
+                    return result;
+
+
+                }
+              
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
 
 
     }

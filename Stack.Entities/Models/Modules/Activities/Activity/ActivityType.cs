@@ -10,6 +10,8 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public string NameEN { get; set; }
 
+        public string Status { get; set; }
+
         public string CreatedBy { get; set; }
 
         //Navigation Properties . 

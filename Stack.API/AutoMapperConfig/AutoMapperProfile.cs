@@ -24,7 +24,6 @@ namespace Stack.API.AutoMapperConfig
             .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.Pool.NameAR))
             .ReverseMap();
 
-
         }
 
     }

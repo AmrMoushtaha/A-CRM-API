@@ -72,6 +72,8 @@ namespace Stack.API
             //Configure Auto Mapper .
             services.AddAutoMapper(typeof(AutoMapperProfile));
 
+            services.AddAutoMapper(typeof(ActivitiesMapperProfile));
+
 
             /////////////////////////////////////////
 

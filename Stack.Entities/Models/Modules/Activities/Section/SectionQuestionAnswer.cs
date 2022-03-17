@@ -21,6 +21,10 @@ namespace Stack.Entities.Models.Modules.Activities
         [ForeignKey("QuestionID")]
         public virtual SectionQuestion Question { get; set; }
 
+
+        public virtual SelectedOption SelectedOption { get; set; }
+
+
     }
 
 }

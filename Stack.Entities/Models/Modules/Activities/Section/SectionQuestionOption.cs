@@ -13,7 +13,7 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public string ValueEN { get; set; }
 
-        public string RoutesTo { get; set; } 
+        public long RoutesTo { get; set; } 
 
 
         //Navigation Properties . 
@@ -21,6 +21,8 @@ namespace Stack.Entities.Models.Modules.Activities
 
         [ForeignKey("QuestionID")]
         public virtual SectionQuestion Question { get; set; }
+
+        public virtual List<SelectedOption> SelectedOptions { get; set; }
 
 
     }

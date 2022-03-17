@@ -356,6 +356,7 @@ namespace Stack.DAL
         public virtual DbSet<SectionQuestion> SectionQuestions { get; set; }
         public virtual DbSet<SectionQuestionAnswer> SectionQuestionAnswers { get; set; }
         public virtual DbSet<SectionQuestionOption> SectionQuestionOptions { get; set; }
+        public virtual DbSet<SelectedOption> SelectedOptions { get; set; }
         public virtual DbSet<ProcessFlow> ProcessFlows { get; set; }
         public virtual DbSet<Region> Regions { get; set; }
         public virtual DbSet<Area_LOneInterest> Area_LOneInterests { get; set; }
