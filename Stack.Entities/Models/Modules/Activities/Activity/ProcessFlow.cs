@@ -1,4 +1,5 @@
 ﻿using Stack.Entities.Models.Modules.CustomerStage;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -7,6 +8,10 @@ namespace Stack.Entities.Models.Modules.Activities
     public class ProcessFlow
     {
         public long ID { get; set; }
+
+        public DateTime CreationDate { get; set; }
+
+        public bool IsComplete {get;set;} // Default value equals false . 
 
         //Navigation Properties 
 

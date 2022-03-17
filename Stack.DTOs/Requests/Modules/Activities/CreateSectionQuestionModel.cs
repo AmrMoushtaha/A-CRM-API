@@ -12,6 +12,7 @@ namespace Stack.DTOs.Requests.Modules.Activities
         public string DescriptionEN { get; set; }
         public string Type { get; set; }
         public bool IsRequired { get; set; }
+        public bool IsDecisional { get; set; }
 
     }
 

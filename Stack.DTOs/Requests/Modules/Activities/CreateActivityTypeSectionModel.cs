@@ -13,7 +13,7 @@ namespace Stack.DTOs.Requests.Modules.Activities
 
         public string Type { get; set; }
 
-        public long RoutesTo { get; set; }
+        public int Order { get; set; }
 
         public long ActivityTypeID { get; set; }
 

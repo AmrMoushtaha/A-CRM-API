@@ -43,6 +43,8 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 newProcessFlow.DealID = model.DealID;
 
+                newProcessFlow.IsComplete = false; // Default value . 
+
                 var createProcessFlowResult = await unitOfWork.ProcessFlowsManager.CreateAsync(newProcessFlow);
 
                 await unitOfWork.SaveChangesAsync();

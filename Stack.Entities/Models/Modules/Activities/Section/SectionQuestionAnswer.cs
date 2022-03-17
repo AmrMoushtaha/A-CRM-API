@@ -7,7 +7,7 @@ namespace Stack.Entities.Models.Modules.Activities
     public class SectionQuestionAnswer
     {
         public long ID { get; set; }
-        public long QuestionID { get; set; }
+
         public string Value { get; set; }
 
         //Navigation Properties . 
@@ -15,6 +15,8 @@ namespace Stack.Entities.Models.Modules.Activities
 
         [ForeignKey("ActivitySectionID")]
         public virtual ActivitySection ActivitySection { get; set; }
+
+        public long? QuestionID { get; set; }
 
         [ForeignKey("QuestionID")]
         public virtual SectionQuestion Question { get; set; }

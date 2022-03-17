@@ -8,10 +8,19 @@ namespace Stack.Entities.Models.Modules.Activities
     public class Activity
     {
         public long ID { get; set; }
+
         public long ProcessFlowID { get; set; }
+
         public long ActivityTypeID { get; set; }
+
         public DateTime? CreationDate { get; set; }
+
         public string CreatedBy { get; set; }
+
+        public DateTime? SubtmissionDate { get; set; }
+
+
+        public bool IsSubmitted { get; set; }
 
         //Navigation Properties .
         public virtual List<ActivitySection> ActivitySections { get; set; }
