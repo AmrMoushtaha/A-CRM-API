@@ -23,9 +23,24 @@ namespace Stack.API.Controllers.Modules.Pool
         [HttpGet("GetUserAssignedPools")]
         public async Task<IActionResult> GetUserAssignedPools()
         {
-            return await AddItemResponseHandler(async () => await service.GetUserAssignedPools());
-        }   
-        
+            return await GetResponseHandler(async () => await service.GetUserAssignedPools());
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetPoolDetails/{poolID}")]
+        public async Task<IActionResult> GetPoolDetails(long poolID)
+        {
+            return await GetResponseHandler(async () => await service.GetPoolDetails(poolID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetPoolContacts/{poolID}")]
+        public async Task<IActionResult> GetPoolContacts(long poolID)
+        {
+            return await GetResponseHandler(async () => await service.GetPoolContacts(poolID));
+        }
+
+
         [AllowAnonymous]
         [HttpPost("CreatePool")]
         public async Task<IActionResult> CreatePool(PoolCreationModel model)
@@ -39,6 +54,7 @@ namespace Stack.API.Controllers.Modules.Pool
         {
             return await AddItemResponseHandler(async () => await service.AssignUsersToPool(model));
         }
+
 
     }
 

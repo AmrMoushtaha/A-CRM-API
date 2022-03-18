@@ -19,6 +19,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Stack.DTOs.Requests.Modules.Auth;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.DTOs.Models.Modules.Auth;
+using Stack.DTOs.Models.Modules.CustomerStage;
 
 namespace Stack.ServiceLayer.Modules.CustomerStage
 {
@@ -41,6 +42,35 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
         }
 
 
+
+        public async Task<ApiResponse<ContactViewModel>> GetContact(long id)
+        {
+            ApiResponse<ContactViewModel> result = new ApiResponse<ContactViewModel>();
+            try
+            {
+                var modelQuery = await unitOfWork.ContactManager.GetContactDetails(id);
+                if (modelQuery != null)
+                {
+                    result.Succeeded = true;
+                    result.Data = modelQuery;
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.ErrorCode = ErrorCode.A500;
+                    result.Errors.Add("Contact not found");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
     }
 
 }

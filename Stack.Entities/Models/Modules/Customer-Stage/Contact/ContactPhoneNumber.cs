@@ -6,7 +6,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
     {
         public long ID { get; set; }
 
-        public virtual string Number { get; set; }
+        public string Number { get; set; }
 
         public long ContactID { get; set; }
 
