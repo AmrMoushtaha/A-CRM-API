@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
+using Stack.DTOs.Models.Modules.Activities;
 using Stack.DTOs.Requests.Modules.Activities;
 using Stack.ServiceLayer.Modules.Activities;
 using System.Threading.Tasks;
@@ -18,13 +19,32 @@ namespace Stack.API.Controllers.Modules.Activities
         }
 
         [AllowAnonymous]
-        [HttpPost("CreaCreateActivityType")]
+        [HttpPost("CreateActivityType")]
         public async Task<IActionResult> CreateActivityType(CreateActivityTypeModel model)
         {
             return await AddItemResponseHandler(async () => await service.CreateActivityType(model));
         }
 
+        [AllowAnonymous]
+        [HttpPost("CreateNewActivity")]
+        public async Task<IActionResult> CreateNewActivity(CreateActivityModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.CreateNewActivity(model));
+        }
 
+        [AllowAnonymous]
+        [HttpGet("GetAllActiveActivityTypes")]
+        public async Task<IActionResult> GetAllActiveActivityTypes()
+        {
+            return await AddItemResponseHandler(async () => await service.GetAllActiveActivityTypes());
+        }
+
+        [AllowAnonymous]
+        [HttpPost("GetNextActivitySection")]
+        public async Task<IActionResult> GetNextActivitySection(SectionToAnswer model)
+        {
+            return await GetResponseHandler(async () => await service.GetNextActivitySection(model));
+        }
 
     }
 

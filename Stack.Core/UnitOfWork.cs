@@ -110,6 +110,22 @@ namespace Stack.Core
             }
         }
 
+
+        private SelectedOptionsManager selectedOptionsManager;
+        public SelectedOptionsManager SelectedOptionsManager
+        {
+            get
+            {
+                if (selectedOptionsManager == null)
+                {
+                    selectedOptionsManager = new SelectedOptionsManager(context);
+                }
+                return selectedOptionsManager;
+            }
+        }
+
+
+
         private DealManager dealManager;
         public DealManager DealManager
         {

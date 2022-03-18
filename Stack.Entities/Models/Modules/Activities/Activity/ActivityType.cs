@@ -7,8 +7,12 @@ namespace Stack.Entities.Models.Modules.Activities
         public long ID { get; set; }
 
         public string NameAR { get; set; }
+
         public string NameEN { get; set; }
 
+        public string Status { get; set; }
+
+        public string CreatedBy { get; set; }
 
         //Navigation Properties . 
 

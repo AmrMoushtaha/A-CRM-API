@@ -60,7 +60,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 newSection.ActivityTypeID = model.ActivityTypeID;   
 
-                newSection.RoutesTo = model.RoutesTo;
+                newSection.Order = model.Order;
 
                 newSection.Type = model.Type;
 
@@ -117,7 +117,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                 {
                     result.Succeeded = false;
                     result.Data = false;
-                    result.Errors.Add("Failed to create the new question, an question with a duplicate name arlready exists for this section !");
+                    result.Errors.Add("Failed to create the new question, an question with a duplicate name already exists for this section !");
                     return result;
                 }
 
@@ -133,6 +133,8 @@ namespace Stack.ServiceLayer.Modules.Activities
                 newSectionQuestion.SectionID = model.SectionID;
 
                 newSectionQuestion.isRequired = model.IsRequired;
+
+                newSectionQuestion.IsDecisional = model.IsDecisional;
 
                 var createSectionQuestionResult = await unitOfWork.SectionQuestionsManager.CreateAsync(newSectionQuestion);
 
@@ -192,17 +194,17 @@ namespace Stack.ServiceLayer.Modules.Activities
                 }
 
 
-                SectionQuestionOption newSectionQuestion = new SectionQuestionOption();
+                SectionQuestionOption newSectionQuestionOption = new SectionQuestionOption();
 
-                newSectionQuestion.ValueAR = model.ValueAR;
+                newSectionQuestionOption.ValueAR = model.ValueAR;
 
-                newSectionQuestion.ValueEN = model.ValueEN;
+                newSectionQuestionOption.ValueEN = model.ValueEN;
 
-                newSectionQuestion.RoutesTo = model.RoutesTo;
+                newSectionQuestionOption.RoutesTo = model.RoutesTo; // Routes to would be equal to 'Submit' if the question routes to the submit section .
 
-                newSectionQuestion.QuestionID = model.QuestionID;
+                newSectionQuestionOption.QuestionID = model.QuestionID;
 
-                var CreateSectionQuestionOptionResult = await unitOfWork.SectionQuestionOptionsManager.CreateAsync(newSectionQuestion);
+                var CreateSectionQuestionOptionResult = await unitOfWork.SectionQuestionOptionsManager.CreateAsync(newSectionQuestionOption);
 
                 await unitOfWork.SaveChangesAsync();
 
@@ -241,6 +243,77 @@ namespace Stack.ServiceLayer.Modules.Activities
             }
         }
 
+        //public async Task<ApiResponse<bool>> CreateSectionQuestion(CreateSectionQuestionModel model)
+        //{
+        //    ApiResponse<bool> result = new ApiResponse<bool>();
+        //    try
+        //    {
+
+        //        var duplicateSectionQuestionsResult = await unitOfWork.SectionQuestionsManager.GetAsync(a => a.SectionID == model.SectionID && a.DescriptionAR == model.DescriptionAR || a.DescriptionEN == model.DescriptionEN);
+
+        //        List<SectionQuestion> duplicateQuestionList = duplicateSectionQuestionsResult.ToList();
+
+        //        if (duplicateQuestionList.Count > 0)
+        //        {
+        //            result.Succeeded = false;
+        //            result.Data = false;
+        //            result.Errors.Add("Failed to create the new question, an question with a duplicate name already exists for this section !");
+        //            return result;
+        //        }
+
+
+        //        SectionQuestion newSectionQuestion = new SectionQuestion();
+
+        //        newSectionQuestion.DescriptionEN = model.DescriptionEN;
+
+        //        newSectionQuestion.DescriptionAR = model.DescriptionAR;
+
+        //        newSectionQuestion.Type = model.Type;
+
+        //        newSectionQuestion.SectionID = model.SectionID;
+
+        //        newSectionQuestion.isRequired = model.IsRequired;
+
+        //        newSectionQuestion.IsDecisional = model.IsDecisional;
+
+        //        var createSectionQuestionResult = await unitOfWork.SectionQuestionsManager.CreateAsync(newSectionQuestion);
+
+        //        await unitOfWork.SaveChangesAsync();
+
+        //        if (createSectionQuestionResult != null)
+        //        {
+
+        //            result.Succeeded = true;
+
+        //            result.Data = true;
+
+        //            return result;
+
+        //        }
+        //        else
+        //        {
+
+        //            result.Succeeded = false;
+
+        //            result.Data = false;
+
+        //            result.ErrorType = ErrorType.SystemError;
+
+        //            result.Errors.Add("Failed to create the new section question !");
+
+        //            return result;
+
+        //        }
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        result.Succeeded = false;
+        //        result.Errors.Add(ex.Message);
+        //        result.ErrorType = ErrorType.SystemError;
+        //        return result;
+        //    }
+        //}
 
     }
 
