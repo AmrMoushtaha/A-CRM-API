@@ -6,7 +6,7 @@ namespace Stack.DTOs.Enums
 {
     public enum ErrorCode
     {
-       A500, //Not authorized
-
+        A500, //Not authorized
+        CS500, //Contact status not initialized
     }
 }

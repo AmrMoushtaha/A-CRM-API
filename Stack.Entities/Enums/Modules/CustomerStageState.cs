@@ -4,12 +4,13 @@ using System.Text;
 
 namespace Stack.Entities.Enums.Modules.CustomerStage
 {
-    public enum ContactState
+    public enum CustomerStageState
     {
         Assigned,
         Unassigned,
         Junked,
-        NotInterested
+        NotInterested,
+        Initial,
     }
 
 }

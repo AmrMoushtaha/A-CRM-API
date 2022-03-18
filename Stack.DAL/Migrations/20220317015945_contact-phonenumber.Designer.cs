@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220317015945_contact-phonenumber")]
+    partial class contactphonenumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -797,35 +799,6 @@ namespace Stack.DAL.Migrations
                     b.ToTable("Contacts");
                 });
 
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.ContactComment", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("ContactID")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("ContactID");
-
-                    b.ToTable("ContactComments");
-                });
-
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.ContactPhoneNumber", b =>
                 {
                     b.Property<long>("ID")
@@ -871,21 +844,6 @@ namespace Stack.DAL.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("ContactStatuses");
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Contact_Tag", b =>
-                {
-                    b.Property<long>("ContactID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TagID")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("ContactID", "TagID");
-
-                    b.HasIndex("TagID");
-
-                    b.ToTable("Contact_Tags");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Customer", b =>
@@ -938,21 +896,6 @@ namespace Stack.DAL.Migrations
                     b.HasIndex("CustomerID");
 
                     b.ToTable("CustomerPhoneNumber");
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Customer_Tag", b =>
-                {
-                    b.Property<long>("CustomerID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TagID")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("CustomerID", "TagID");
-
-                    b.HasIndex("TagID");
-
-                    b.ToTable("Customer_Tags");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Deal", b =>
@@ -1216,24 +1159,6 @@ namespace Stack.DAL.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("ProspectStatuses");
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Tag", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Region.Region", b =>
@@ -1548,36 +1473,12 @@ namespace Stack.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.ContactComment", b =>
-                {
-                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
-                        .WithMany("Comments")
-                        .HasForeignKey("ContactID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.ContactPhoneNumber", b =>
                 {
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
                         .WithMany("PhoneNumbers")
                         .HasForeignKey("ContactID")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Contact_Tag", b =>
-                {
-                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
-                        .WithMany("Tags")
-                        .HasForeignKey("ContactID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Tag", "Tag")
-                        .WithMany("ContactTags")
-                        .HasForeignKey("TagID")
-                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -1594,21 +1495,6 @@ namespace Stack.DAL.Migrations
                         .WithMany("PhoneNumbers")
                         .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Customer_Tag", b =>
-                {
-                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Customer")
-                        .WithMany("Tags")
-                        .HasForeignKey("CustomerID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Tag", "Tag")
-                        .WithMany("CustomerTags")
-                        .HasForeignKey("TagID")
-                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 

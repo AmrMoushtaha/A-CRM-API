@@ -23,12 +23,27 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
         public string AssignedUserName { get; set; }
 
         public List<ContactPhoneNumberDTO> ContactPhoneNumbers { get; set; }
+        public List<ContactCommentDTO> Comments { get; set; }
+        public List<ContactTagDTO> Tags { get; set; }
     }
 
     public class ContactPhoneNumberDTO
     {
-        public long ID { get; set; }
+        public long? ID { get; set; }
         public string Number { get; set; }
+    }
+    public class ContactCommentDTO
+    {
+        public string Comment { get; set; }
+        public string CreatorImage { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime CreationDate { get; set; }
+    }
+
+    public class ContactTagDTO
+    {
+        public long ID { get; set; }
+        public string title { get; set; }
     }
 
 }

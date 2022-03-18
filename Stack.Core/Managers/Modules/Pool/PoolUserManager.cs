@@ -37,8 +37,8 @@ namespace Stack.Core.Managers.Modules.pool
                        {
                            ID = p.ID,
                            NameEN = p.NameEN,
-                           NameAR = p.NameEN,
-                           ContactCount = p.Contacts.Where(t => t.Status.Status == ContactState.Unassigned.ToString()).Count()
+                           NameAR = p.NameAR,
+                           ContactCount = p.Contacts.Where(t => t.Status.Status == CustomerStageState.Unassigned.ToString()).Count()
                        }).ToList();
             });
         }
@@ -52,7 +52,7 @@ namespace Stack.Core.Managers.Modules.pool
                             .Select(a => new
                             {
                                 ID = a.PoolID,
-                                filteredContacts = a.Pool.Contacts.Where(t => t.Status.Status == ContactState.Unassigned.ToString())
+                                filteredContacts = a.Pool.Contacts.Where(t => t.Status.Status == CustomerStageState.Unassigned.ToString())
                             })
                             .Select(a => a.
                             filteredContacts.Select(p => new ContactListViewModel
