@@ -37,7 +37,6 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<ContactPhoneNumber, ContactPhoneNumberDTO>()
            .ReverseMap();
 
-
         }
 
     }

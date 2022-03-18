@@ -7,10 +7,18 @@ namespace Stack.Entities.Models.Modules.Activities
     public class SectionQuestion
     {
         public long ID { get; set; }
+
         public string DescriptionAR { get; set; }
+
         public string DescriptionEN { get; set; }
+
         public string Type { get; set; }
+
         public bool isRequired { get; set; }
+
+        public int Order { get; set; }
+
+        public bool IsDecisional { get; set; }
 
         //Navigation Properties
 
