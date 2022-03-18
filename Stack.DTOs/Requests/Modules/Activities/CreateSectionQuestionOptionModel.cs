@@ -13,7 +13,7 @@ namespace Stack.DTOs.Requests.Modules.Activities
 
         public string ValueAR { get; set; }
 
-        public string RoutesTo { get; set; } // if value equals Submit - Return the submit section as the upcoming section . 
+        public long RoutesTo { get; set; } // if value equals Submit - Return the submit section as the upcoming section . 
 
     }
 
