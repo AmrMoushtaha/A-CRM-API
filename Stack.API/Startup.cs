@@ -41,8 +41,8 @@ namespace Stack.API
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=tcp:162.214.98.181,1433; Database = RFQDB; User Id = sa; Password = P@ssw0rd@./;"));
 
             //Local server connection string
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=BOLT-NADER\\SQLEXPRESS; Database=CRMDB;User ID=sa;Password=P@ssw0rd;"));
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=BOLT-NADER\\SQLEXPRESS; Database=CRMDB;User ID=sa;Password=P@ssw0rd;"));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
 
 
             //Hangfire connection string
