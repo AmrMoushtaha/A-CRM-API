@@ -56,7 +56,20 @@ namespace Stack.Core
                 return contactManager;
             }
         }
-        
+
+        private ContactStatusManager contactStatusManager;
+        public ContactStatusManager ContactStatusManager
+        {
+            get
+            {
+                if (contactStatusManager == null)
+                {
+                    contactStatusManager = new ContactStatusManager(context);
+                }
+                return contactStatusManager;
+            }
+        }
+
 
         private ContactPhoneNumberManager contactPhoneNumberManager;
         public ContactPhoneNumberManager ContactPhoneNumberManager
@@ -68,6 +81,19 @@ namespace Stack.Core
                     contactPhoneNumberManager = new ContactPhoneNumberManager(context);
                 }
                 return contactPhoneNumberManager;
+            }
+        }
+
+        private ContactCommentManager contactCommentManager;
+        public ContactCommentManager ContactCommentManager
+        {
+            get
+            {
+                if (contactCommentManager == null)
+                {
+                    contactCommentManager = new ContactCommentManager(context);
+                }
+                return contactCommentManager;
             }
         }
 
@@ -334,6 +360,45 @@ namespace Stack.Core
                     poolAdminManager = new PoolAdminManager(context);
                 }
                 return poolAdminManager;
+            }
+        }
+
+        private TagManager tagManager;
+        public TagManager TagManager
+        {
+            get
+            {
+                if (tagManager == null)
+                {
+                    tagManager = new TagManager(context);
+                }
+                return tagManager;
+            }
+        }
+
+        private ContactTagManager contactTagManager;
+        public ContactTagManager ContactTagManager
+        {
+            get
+            {
+                if (contactTagManager == null)
+                {
+                    contactTagManager = new ContactTagManager(context);
+                }
+                return contactTagManager;
+            }
+        }
+
+        private CustomerTagManager customerTagManager;
+        public CustomerTagManager CustomerTagManager
+        {
+            get
+            {
+                if (customerTagManager == null)
+                {
+                    customerTagManager = new CustomerTagManager(context);
+                }
+                return customerTagManager;
             }
         }
     }

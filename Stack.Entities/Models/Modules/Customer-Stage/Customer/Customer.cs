@@ -19,6 +19,8 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public virtual List<Contact> Contacts { get; set; }
         public virtual List<Deal> Deals { get; set; }
         public virtual List<ProcessFlow> ProcessFlows { get; set; }
+        public virtual List<Customer_Tag> Tags { get; set; }
+
 
         [ForeignKey("AssignedUserID")]
         public virtual ApplicationUser AssignedUser { get; set; }

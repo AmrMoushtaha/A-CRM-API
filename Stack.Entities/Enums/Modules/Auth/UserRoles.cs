@@ -7,7 +7,9 @@ namespace Stack.Entities.Enums.Modules.Auth
     public enum UserRoles
     {
         Administrator,
-
+        Agent,
+        TeamLeader,
+        DataEntry,
     }
 
 }

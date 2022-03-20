@@ -20,6 +20,10 @@ using Stack.DTOs.Requests.Modules.Auth;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.DTOs.Models.Modules.Auth;
 using Stack.DTOs.Models.Modules.CustomerStage;
+using Stack.DTOs.Requests.Modules.CustomerStage;
+using Stack.Entities.Enums.Modules.CustomerStage;
+using Stack.Entities.Enums.Modules.Auth;
+using Stack.Entities.Models.Modules.CustomerStage;
 
 namespace Stack.ServiceLayer.Modules.CustomerStage
 {
@@ -60,6 +64,436 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     result.Succeeded = false;
                     result.ErrorCode = ErrorCode.A500;
                     result.Errors.Add("Contact not found");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> CreateContact(ContactCreationModel creationModel)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    var modelQuery = await unitOfWork.ContactManager.GetAsync(t => t.PrimaryPhoneNumber == creationModel.PrimaryPhoneNumber, includeProperties: "PhoneNumbers,Status");
+                    var model = modelQuery.FirstOrDefault();
+
+                    //Phone number not duplicated
+                    if (model == null)
+                    {
+                        //Get user role
+                        var user = await unitOfWork.UserManager.GetUserById(userID);
+                        if (user != null)
+                        {
+
+                            //Agent role - assign contact to self
+                            if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
+                            {
+                                var modelToCreate = new Contact
+                                {
+                                    PoolID = creationModel.PoolID,
+                                    FullNameEN = creationModel.FullNameEN,
+                                    FullNameAR = creationModel.FullNameAR,
+                                    Address = creationModel.Address,
+                                    AssignedUserID = userID,
+                                    Email = creationModel.Email,
+                                    LeadSourceName = creationModel.LeadSourceName,
+                                    LeadSourceType = creationModel.LeadSourceType,
+                                    Occupation = creationModel.Occupation,
+                                    PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                };
+
+                                var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                                var assignedStatus = assignedStatusQuery.FirstOrDefault();
+                                if (assignedStatus != null)
+                                {
+                                    modelToCreate.StatusID = assignedStatus.ID;
+
+                                    var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                    if (creationModelResult != null)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+                                        result.Succeeded = true;
+                                        result.Data = true;
+                                        return result;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Unable to create contact, please try again later ");
+                                        return result;
+                                    }
+                                }
+                                else //Return error for system statuses not initialized
+                                {
+                                    result.Succeeded = false;
+                                    result.ErrorCode = ErrorCode.CS500;
+                                    result.Errors.Add("Please refer to error code ");
+                                    return result;
+                                }
+                            }
+                            else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
+                            {
+                                if (creationModel.AssigneeID == null) //assign to self
+                                {
+                                    var modelToCreate = new Contact
+                                    {
+                                        PoolID = creationModel.PoolID,
+                                        FullNameEN = creationModel.FullNameEN,
+                                        FullNameAR = creationModel.FullNameAR,
+                                        Address = creationModel.Address,
+                                        AssignedUserID = userID,
+                                        Email = creationModel.Email,
+                                        LeadSourceName = creationModel.LeadSourceName,
+                                        LeadSourceType = creationModel.LeadSourceType,
+                                        Occupation = creationModel.Occupation,
+                                        PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                    };
+
+                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                                    var assignedStatus = assignedStatusQuery.FirstOrDefault();
+                                    if (assignedStatus != null)
+                                    {
+                                        modelToCreate.StatusID = assignedStatus.ID;
+
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult != null)
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+                                            result.Succeeded = true;
+                                            result.Data = true;
+                                            return result;
+                                        }
+                                        else
+                                        {
+                                            result.Succeeded = false;
+                                            result.Errors.Add("Unable to create contact, please try again later ");
+                                            return result;
+                                        }
+                                    }
+                                    else //Return error for system statuses not initialized
+                                    {
+                                        result.Succeeded = false;
+                                        result.ErrorCode = ErrorCode.CS500;
+                                        result.Errors.Add("Please refer to error code ");
+                                        return result;
+                                    }
+                                }
+                                else //assign to employee
+                                {
+                                    var modelToCreate = new Contact
+                                    {
+                                        PoolID = creationModel.PoolID,
+                                        FullNameEN = creationModel.FullNameEN,
+                                        FullNameAR = creationModel.FullNameAR,
+                                        Address = creationModel.Address,
+                                        AssignedUserID = creationModel.AssigneeID,
+                                        Email = creationModel.Email,
+                                        LeadSourceName = creationModel.LeadSourceName,
+                                        LeadSourceType = creationModel.LeadSourceType,
+                                        Occupation = creationModel.Occupation,
+                                        PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                    };
+
+                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                                    var assignedStatus = assignedStatusQuery.FirstOrDefault();
+                                    if (assignedStatus != null)
+                                    {
+                                        modelToCreate.StatusID = assignedStatus.ID;
+
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult != null)
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+                                            result.Succeeded = true;
+                                            result.Data = true;
+                                            return result;
+                                        }
+                                        else
+                                        {
+                                            result.Succeeded = false;
+                                            result.Errors.Add("Unable to create contact, please try again later ");
+                                            return result;
+                                        }
+                                    }
+                                    else //Return error for system statuses not initialized
+                                    {
+                                        result.Succeeded = false;
+                                        result.ErrorCode = ErrorCode.CS500;
+                                        result.Errors.Add("Please refer to error code ");
+                                        return result;
+                                    }
+                                }
+
+                            }
+                            else // Create contact as unassigned
+                            {
+                                var modelToCreate = new Contact
+                                {
+                                    PoolID = creationModel.PoolID,
+                                    FullNameEN = creationModel.FullNameEN,
+                                    FullNameAR = creationModel.FullNameAR,
+                                    Address = creationModel.Address,
+                                    Email = creationModel.Email,
+                                    LeadSourceName = creationModel.LeadSourceName,
+                                    LeadSourceType = creationModel.LeadSourceType,
+                                    Occupation = creationModel.Occupation,
+                                    PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                };
+
+                                var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Unassigned.ToString());
+                                var assignedStatus = assignedStatusQuery.FirstOrDefault();
+                                if (assignedStatus != null)
+                                {
+                                    modelToCreate.StatusID = assignedStatus.ID;
+
+                                    var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                    if (creationModelResult != null)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+                                        result.Succeeded = true;
+                                        result.Data = true;
+                                        return result;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Unable to create contact, please try again later ");
+                                        return result;
+                                    }
+                                }
+                                else //Return error for system statuses not initialized
+                                {
+                                    result.Succeeded = false;
+                                    result.ErrorCode = ErrorCode.CS500;
+                                    result.Errors.Add("Please refer to error code ");
+                                    return result;
+                                }
+                            }
+                        }
+                        else // user not found
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Unauthorized");
+                            return result;
+                        }
+                    }
+                    else //Duplicate Contact
+                    {
+                        //duplicated contact is unassigned
+                        if (model.AssignedUserID == null && model.Status.Status == CustomerStageState.Unassigned.ToString())
+                        {
+                            //assign contact to user
+                            model.AssignedUserID = userID;
+
+                            var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                            var assignedStatus = assignedStatusQuery.FirstOrDefault();
+                            if (assignedStatus != null)
+                            {
+                                model.StatusID = assignedStatus.ID;
+
+                                var assignModelResult = await unitOfWork.ContactManager.UpdateAsync(model);
+                                if (assignModelResult)
+                                {
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    result.Data = true;
+                                    return result;
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Unable to assign existing contact, please try again later ");
+                                    return result;
+                                }
+                            }
+                            else //Return error for system statuses not initialized
+                            {
+                                result.Succeeded = false;
+                                result.ErrorCode = ErrorCode.CS500;
+                                result.Errors.Add("Please refer to error code ");
+                                return result;
+                            }
+                        }
+                        else //duplicate contact is assigned
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Phone number cannot be duplicated");
+                            return result;
+                        }
+                    }
+                }
+                else //Phone number duplicated
+                {
+                    result.Succeeded = false;
+                    result.ErrorCode = ErrorCode.A500;
+                    result.Errors.Add("Unauthorized");
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> AddComment(AddCommentModel commentModel)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    var user = await unitOfWork.UserManager.GetUserById(userID);
+
+                    var modelQuery = await unitOfWork.ContactManager.GetAsync(t => t.ID == commentModel.ReferenceID);
+                    var model = modelQuery.FirstOrDefault();
+
+                    if (model != null)
+                    {
+                        if (model.AssignedUserID == userID)
+                        {
+                            ContactComment newComment = new ContactComment
+                            {
+                                ContactID = commentModel.ReferenceID,
+                                CreatedBy = user.FirstName + " " + user.LastName,
+                                Comment = commentModel.Comment,
+                            };
+
+                            var creationRes = await unitOfWork.ContactCommentManager.CreateAsync(newComment);
+                            if (creationRes != null)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                result.Data = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Unable to add comment, please try again later");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Contact is not assigned to you");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.ErrorCode = ErrorCode.A500;
+                        result.Errors.Add("Contact not found");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.ErrorCode = ErrorCode.A500;
+                    result.Errors.Add("Unauthorized");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+
+        //get available tags for contact (filters out current contact tags)
+        public async Task<ApiResponse<List<TagsDTO>>> GetAvailableTags(long id)
+        {
+            ApiResponse<List<TagsDTO>> result = new ApiResponse<List<TagsDTO>>();
+            try
+            {
+                //Filter contact tags - Todo
+                var modelQuery = await unitOfWork.TagManager.GetAsync();
+                var list = modelQuery.ToList();
+
+                if (list != null && list.Count > 0)
+                {
+                    //Get existing contact tags
+                    var existingTagsQuery = await unitOfWork.ContactTagManager.GetAsync(t => t.ContactID == id, includeProperties: "Tag");
+                    var existingTags = existingTagsQuery.ToList();
+                    if (existingTags != null && existingTags.Count > 0)
+                    {
+                        //Filter existing tags
+                        foreach (var tag in existingTags)
+                        {
+                            list.Remove(tag.Tag);
+                        }
+                    }
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<TagsDTO>>(list);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.ErrorCode = ErrorCode.A500;
+                    result.Errors.Add("No tags found");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> AppendTagToContact(TagAppendanceModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                Contact_Tag appendanceModel = new Contact_Tag
+                {
+                    TagID = model.TagID,
+                    ContactID = model.ReferenceID,
+                };
+
+                var appendanceResult = await unitOfWork.ContactTagManager.CreateAsync(appendanceModel);
+
+
+                if (appendanceResult != null)
+                {
+                    await unitOfWork.SaveChangesAsync();
+                    result.Succeeded = true;
+                    result.Data = true;
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.ErrorCode = ErrorCode.A500;
+                    result.Errors.Add("Could not append tag to contact");
                     return result;
                 }
             }

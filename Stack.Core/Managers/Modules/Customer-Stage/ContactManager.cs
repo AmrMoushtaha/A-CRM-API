@@ -46,13 +46,34 @@ namespace Stack.Core.Managers.Modules.Materials
 
                 if (Contact != null)
                 {
-                    //var phoneNumbers = context.ContactPhoneNumbers.Where(t => t.ContactID == contactID).ToList();
-                    //.Select(t => new ContactPhoneNumberDTO
-                    //{
-                    //    ID = t.ID,
-                    //    Number = t.Number,
-                    //}).ToList();
+                    var phoneNumbers = context.ContactPhoneNumbers.Where(t => t.ContactID == contactID)
+                    .Select(t => new ContactPhoneNumberDTO
+                    {
+                        ID = t.ID,
+                        Number = t.Number,
+                    }).ToList();
 
+                    Contact.ContactPhoneNumbers = phoneNumbers;
+
+                    var comments = context.ContactComments.Where(t => t.ContactID == contactID)
+                    .Select(t => new ContactCommentDTO
+                    {
+                        Comment = t.Comment,
+                        CreatedBy = t.CreatedBy,
+                        CreationDate = t.CreationDate
+                    }).ToList();
+
+                    Contact.Comments = comments;
+
+                    var tags = context.Contact_Tags.Where(t => t.ContactID == contactID)
+                    .Select(t => new ContactTagDTO
+                    {
+                        ID = t.TagID,
+                        title = t.Tag.Title
+
+                    }).ToList();
+
+                    Contact.Tags = tags;
 
                     return Contact;
                 }

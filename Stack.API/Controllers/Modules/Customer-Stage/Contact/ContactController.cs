@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
+using Stack.DTOs.Requests.Modules.CustomerStage;
 using Stack.ServiceLayer.Modules.Areas;
 using Stack.ServiceLayer.Modules.CustomerStage;
 using System.Threading.Tasks;
@@ -25,5 +26,32 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.GetContact(id));
         }
 
+        [AllowAnonymous]
+        [HttpPost("CreateContact")]
+        public async Task<IActionResult> CreateContact(ContactCreationModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.CreateContact(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("AddComment")]
+        public async Task<IActionResult> AddComment(AddCommentModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.AddComment(model));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetAvailableTags/{id}")]
+        public async Task<IActionResult> GetAvailableTags(long id)
+        {
+            return await GetResponseHandler(async () => await service.GetAvailableTags(id));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("AppendTagToContact")]
+        public async Task<IActionResult> AppendTagToContact(TagAppendanceModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.AppendTagToContact(model));
+        }
     }
 }

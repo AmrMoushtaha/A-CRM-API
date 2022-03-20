@@ -76,6 +76,16 @@ namespace Stack.DAL
             modelBuilder.Entity<Contact>()
             .Property<bool>("IsDeleted");
 
+            modelBuilder.Entity<ContactPhoneNumber>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<ContactStatus>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<ContactComment>()
+            .Property<bool>("IsDeleted");
+
+
             modelBuilder.Entity<Customer>()
             .Property<bool>("IsDeleted");
 
@@ -95,27 +105,30 @@ namespace Stack.DAL
             .Property<bool>("IsDeleted");
 
             modelBuilder.Entity<OpportunityStatus>()
-
            .Property<bool>("IsDeleted");
+
             modelBuilder.Entity<Pool>()
-
            .Property<bool>("IsDeleted");
-                modelBuilder.Entity<Activity>()
 
-           .Property<bool>("IsDeleted");
-                modelBuilder.Entity<ActivityType>()
-
-           .Property<bool>("IsDeleted");
-                modelBuilder.Entity<Section>()
-
-           .Property<bool>("IsDeleted");
-                modelBuilder.Entity<SectionQuestion>()
-
-           .Property<bool>("IsDeleted");
-                modelBuilder.Entity<SectionQuestionOption>()
+            modelBuilder.Entity<Activity>()
             .Property<bool>("IsDeleted");
 
-                modelBuilder.Entity<ProcessFlow>()
+            modelBuilder.Entity<ActivityType>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<Section>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<SectionQuestion>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<SectionQuestionOption>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<ProcessFlow>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<Tag>()
             .Property<bool>("IsDeleted");
 
             //Soft delete query filters . 
@@ -150,8 +163,14 @@ namespace Stack.DAL
             modelBuilder.Entity<Contact>()
                 .HasQueryFilter(Contact => EF.Property<bool>(Contact, "IsDeleted") == false);
 
+            modelBuilder.Entity<ContactStatus>()
+              .HasQueryFilter(ContactStatus => EF.Property<bool>(ContactStatus, "IsDeleted") == false);
+
             modelBuilder.Entity<ContactPhoneNumber>()
                .HasQueryFilter(ContactPhoneNumber => EF.Property<bool>(ContactPhoneNumber, "IsDeleted") == false);
+
+            modelBuilder.Entity<ContactComment>()
+               .HasQueryFilter(ContactComment => EF.Property<bool>(ContactComment, "IsDeleted") == false);
 
             modelBuilder.Entity<Customer>()
                .HasQueryFilter(Customer => EF.Property<bool>(Customer, "IsDeleted") == false);
@@ -209,6 +228,10 @@ namespace Stack.DAL
 
             modelBuilder.Entity<ProcessFlow>()
              .HasQueryFilter(ProcessFlow => EF.Property<bool>(ProcessFlow, "IsDeleted") == false);
+
+            modelBuilder.Entity<Tag>()
+             .HasQueryFilter(Tag => EF.Property<bool>(Tag, "IsDeleted") == false);
+
 
 
             modelBuilder.Entity<Area_Pool>().HasKey(x => new { x.AreaID, x.PoolID });
@@ -310,7 +333,7 @@ namespace Stack.DAL
             .WithMany(p => p.Pools)
             .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
 
-            
+
             modelBuilder.Entity<Pool_Admin>().HasKey(x => new { x.PoolID, x.UserID });
             modelBuilder.Entity<Pool_Admin>()
             .HasOne(pr => pr.Pool)
@@ -320,6 +343,27 @@ namespace Stack.DAL
             .HasOne(pr => pr.User)
             .WithMany(p => p.Pool_Admins)
             .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
+
+
+            modelBuilder.Entity<Contact_Tag>().HasKey(x => new { x.ContactID, x.TagID });
+            modelBuilder.Entity<Contact_Tag>()
+            .HasOne(pr => pr.Contact)
+            .WithMany(p => p.Tags)
+            .HasForeignKey(pr => pr.ContactID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Contact_Tag>()
+            .HasOne(pr => pr.Tag)
+            .WithMany(p => p.ContactTags)
+            .HasForeignKey(pr => pr.TagID).OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Customer_Tag>().HasKey(x => new { x.CustomerID, x.TagID });
+            modelBuilder.Entity<Customer_Tag>()
+            .HasOne(pr => pr.Customer)
+            .WithMany(p => p.Tags)
+            .HasForeignKey(pr => pr.CustomerID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Customer_Tag>()
+            .HasOne(pr => pr.Tag)
+            .WithMany(p => p.CustomerTags)
+            .HasForeignKey(pr => pr.TagID).OnDelete(DeleteBehavior.NoAction);
 
 
             modelBuilder.Entity<ActivitySection>()
@@ -337,8 +381,13 @@ namespace Stack.DAL
 
         public virtual DbSet<Area> Areas { get; set; }
         public virtual DbSet<Area_Pool> Area_Pools { get; set; }
+        public virtual DbSet<Tag> Tags { get; set; }
+        public virtual DbSet<Contact_Tag> Contact_Tags { get; set; }
+        public virtual DbSet<Customer_Tag> Customer_Tags { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
+        public virtual DbSet<ContactStatus> ContactStatuses { get; set; }
         public virtual DbSet<ContactPhoneNumber> ContactPhoneNumbers { get; set; }
+        public virtual DbSet<ContactComment> ContactComments { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Lead> Leads { get; set; }
         public virtual DbSet<LeadStatus> LeadStatuses { get; set; }
