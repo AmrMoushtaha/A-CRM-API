@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
+using Stack.DTOs.Models.Shared;
 using Stack.DTOs.Requests.Modules.Activities;
 using Stack.ServiceLayer.Modules.Activities;
 using System.Threading.Tasks;
@@ -38,8 +39,28 @@ namespace Stack.API.Controllers.Modules.Activities
             return await AddItemResponseHandler(async () => await service.CreateSectionQuestionOption(model));
         }
 
+        [AllowAnonymous]
+        [HttpPost("DeleteSectionQuestion")]
+        public async Task<IActionResult> DeleteSectionQuestion(DeletionModel model)
+        {
+            return await RemoveItemResponseHandler(async () => await service.DeleteSectionQuestion(model));
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("DeleteSection")]
+        public async Task<IActionResult> DeleteSection(DeletionModel model)
+        {
+            return await RemoveItemResponseHandler(async () => await service.DeleteSection(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("DeleteSectionQuestionOption")]
+        public async Task<IActionResult> DeleteSectionQuestionOption(DeletionModel model)
+        {
+            return await RemoveItemResponseHandler(async () => await service.DeleteSectionQuestionOption(model));
+        }
+
     }
-
-
 
 }

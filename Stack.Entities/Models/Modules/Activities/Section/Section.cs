@@ -12,15 +12,11 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public string NameEN { get; set; }
 
-        public string Type { get; set; }
-
         public int Order { get; set; }
 
         public bool HasDecisionalQuestions { get; set; }
 
-        public bool IsSubmitSection { get; set; }
-
-
+        public bool IsFinalSection { get; set; }
 
         //Navigation Properties
         public long ActivityTypeID { get; set; }
@@ -31,6 +27,7 @@ namespace Stack.Entities.Models.Modules.Activities
         public virtual List<ActivitySection> ActivitySections { get; set; }
 
         public virtual List<SectionQuestion> Questions { get; set; }
+
     }
 
 }

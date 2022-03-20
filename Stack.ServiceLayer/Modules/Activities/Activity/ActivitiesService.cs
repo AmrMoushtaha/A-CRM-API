@@ -14,6 +14,7 @@ using System;
 using Stack.Repository.Common;
 using Stack.DTOs.Models.Modules.Activities;
 using Stack.Entities.Enums.Modules.Activities;
+using Stack.DTOs.Models.Shared;
 
 namespace Stack.ServiceLayer.Modules.Activities
 {
@@ -26,15 +27,12 @@ namespace Stack.ServiceLayer.Modules.Activities
         private readonly IMapper mapper;
         private static readonly HttpClient client = new HttpClient();
 
-        public object AtivityTypeStatus { get; private set; }
-
         public ActivitiesService(UnitOfWork unitOfWork, IConfiguration config, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
-            _httpContextAccessor = httpContextAccessor;
             this.config = config;
             this.mapper = mapper;
-
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ApiResponse<bool>> CreateActivityType(CreateActivityTypeModel model) 
@@ -470,11 +468,6 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
-
-        /// <summary>
-        ///  Returns a list of activity types that are not disabled by the administrator . 
-        /// </summary>
-        /// <returns></returns>
         public async Task<ApiResponse<List<ActivityTypeMainViewDTO>>> GetAllActiveActivityTypes()
         {
             ApiResponse<List<ActivityTypeMainViewDTO>> result = new ApiResponse<List<ActivityTypeMainViewDTO>>();
@@ -522,6 +515,67 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+        public async Task<ApiResponse<bool>> DeleteActivity(DeletionModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+
+                var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ID == model.ID);
+
+                Activity activityToDelete = activitiesResult.ToList().FirstOrDefault();
+
+                if (activityToDelete != null)
+                {
+
+                    var deleteActivityResult = await unitOfWork.ActivitiesManager.RemoveAsync(activityToDelete);
+
+                    if (deleteActivityResult == true)
+                    {
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        result.Succeeded = true;
+                        result.Data = true;
+                        return result;
+
+                    }
+                    else
+
+                    {
+
+                        result.Succeeded = false;
+                        result.Data = false;
+                        result.Errors.Add("Failed to delete activity, Please try again !");
+                        result.ErrorCode = ErrorCode.A500;
+                        return result;
+
+                    }
+
+                }
+                else
+                {
+
+                    result.Succeeded = false;
+                    result.Data = false;
+                    result.Errors.Add("Failed to delete activity, Please try again !");
+                    result.ErrorCode = ErrorCode.A500;
+                    return result;
+
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
 
     }
                        

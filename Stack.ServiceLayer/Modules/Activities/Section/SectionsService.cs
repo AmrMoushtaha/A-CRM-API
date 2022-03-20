@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Stack.DTOs.Enums;
 using System;
+using Stack.DTOs.Models.Shared;
 
 namespace Stack.ServiceLayer.Modules.Activities
 {
@@ -62,7 +63,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 newSection.Order = model.Order;
 
-                newSection.Type = model.Type;
+                newSection.IsFinalSection = model.IsFinalSection;
 
                 var createSectionResult = await unitOfWork.SectionsManager.CreateAsync(newSection);
 
@@ -243,77 +244,191 @@ namespace Stack.ServiceLayer.Modules.Activities
             }
         }
 
-        //public async Task<ApiResponse<bool>> CreateSectionQuestion(CreateSectionQuestionModel model)
-        //{
-        //    ApiResponse<bool> result = new ApiResponse<bool>();
-        //    try
-        //    {
+        public async Task<ApiResponse<bool>> DeleteSection(DeletionModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
 
-        //        var duplicateSectionQuestionsResult = await unitOfWork.SectionQuestionsManager.GetAsync(a => a.SectionID == model.SectionID && a.DescriptionAR == model.DescriptionAR || a.DescriptionEN == model.DescriptionEN);
+                var sectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ID == model.ID);
 
-        //        List<SectionQuestion> duplicateQuestionList = duplicateSectionQuestionsResult.ToList();
+                Section SectionToDelete = sectionsResult.ToList().FirstOrDefault();
 
-        //        if (duplicateQuestionList.Count > 0)
-        //        {
-        //            result.Succeeded = false;
-        //            result.Data = false;
-        //            result.Errors.Add("Failed to create the new question, an question with a duplicate name already exists for this section !");
-        //            return result;
-        //        }
+                if (SectionToDelete != null)
+                {
+
+                    var deleteSectionResult = await unitOfWork.SectionsManager.RemoveAsync(SectionToDelete);
+
+                    if (deleteSectionResult == true)
+                    {
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        result.Succeeded = true;
+                        result.Data = true;
+                        return result;
+
+                    }
+                    else
+
+                    {
+
+                        result.Succeeded = false;
+                        result.Data = false;
+                        result.Errors.Add("Failed to delete activity type section, Please try again !");
+                        result.ErrorCode = ErrorCode.A500;
+                        return result;
+
+                    }
+
+                }
+                else
+                {
+
+                    result.Succeeded = false;
+                    result.Data = false;
+                    result.Errors.Add("Failed to  delete activity type section, Please try again !");
+                    result.ErrorCode = ErrorCode.A500;
+                    return result;
 
 
-        //        SectionQuestion newSectionQuestion = new SectionQuestion();
+                }
 
-        //        newSectionQuestion.DescriptionEN = model.DescriptionEN;
 
-        //        newSectionQuestion.DescriptionAR = model.DescriptionAR;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
 
-        //        newSectionQuestion.Type = model.Type;
+        }
 
-        //        newSectionQuestion.SectionID = model.SectionID;
+        public async Task<ApiResponse<bool>> DeleteSectionQuestion(DeletionModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
 
-        //        newSectionQuestion.isRequired = model.IsRequired;
+                var sectionQuestionResult = await unitOfWork.SectionQuestionsManager.GetAsync(a => a.ID == model.ID);
 
-        //        newSectionQuestion.IsDecisional = model.IsDecisional;
+                SectionQuestion sectionQuestionToDelete = sectionQuestionResult.ToList().FirstOrDefault();
 
-        //        var createSectionQuestionResult = await unitOfWork.SectionQuestionsManager.CreateAsync(newSectionQuestion);
+                if (sectionQuestionToDelete != null)
+                {
 
-        //        await unitOfWork.SaveChangesAsync();
+                    var deleteSectionQuestionResult = await unitOfWork.SectionQuestionsManager.RemoveAsync(sectionQuestionToDelete);
 
-        //        if (createSectionQuestionResult != null)
-        //        {
+                    if (deleteSectionQuestionResult == true)
+                    {
 
-        //            result.Succeeded = true;
+                        await unitOfWork.SaveChangesAsync();
 
-        //            result.Data = true;
+                        result.Succeeded = true;
+                        result.Data = true;
+                        return result;
 
-        //            return result;
+                    }
+                    else
 
-        //        }
-        //        else
-        //        {
+                    {
 
-        //            result.Succeeded = false;
+                        result.Succeeded = false;
+                        result.Data = false;
+                        result.Errors.Add("Failed to delete section question , Please try again !");
+                        result.ErrorCode = ErrorCode.A500;
+                        return result;
 
-        //            result.Data = false;
+                    }
 
-        //            result.ErrorType = ErrorType.SystemError;
+                }
+                else
+                {
 
-        //            result.Errors.Add("Failed to create the new section question !");
+                    result.Succeeded = false;
+                    result.Data = false;
+                    result.Errors.Add("Failed to  delete section question , Please try again !");
+                    result.ErrorCode = ErrorCode.A500;
+                    return result;
 
-        //            return result;
 
-        //        }
+                }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        result.Succeeded = false;
-        //        result.Errors.Add(ex.Message);
-        //        result.ErrorType = ErrorType.SystemError;
-        //        return result;
-        //    }
-        //}
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<bool>> DeleteSectionQuestionOption(DeletionModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+
+                var sectionQuestionOptionsResult = await unitOfWork.SectionQuestionOptionsManager.GetAsync(a => a.ID == model.ID);
+
+                SectionQuestionOption sectionQuestionOptionToDelete = sectionQuestionOptionsResult.ToList().FirstOrDefault();
+
+                if (sectionQuestionOptionToDelete != null)
+                {
+
+                    var deleteSectionQuestionOptionResult = await unitOfWork.SectionQuestionOptionsManager.RemoveAsync(sectionQuestionOptionToDelete);
+
+                    if (deleteSectionQuestionOptionResult == true)
+                    {
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        result.Succeeded = true;
+                        result.Data = true;
+                        return result;
+
+                    }
+                    else
+
+                    {
+
+                        result.Succeeded = false;
+                        result.Data = false;
+                        result.Errors.Add("Failed to delete section question option , Please try again !");
+                        result.ErrorCode = ErrorCode.A500;
+                        return result;
+
+                    }
+
+                }
+                else
+                {
+
+                    result.Succeeded = false;
+                    result.Data = false;
+                    result.Errors.Add("Failed to  delete section question option , Please try again !");
+                    result.ErrorCode = ErrorCode.A500;
+                    return result;
+
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
 
     }
 

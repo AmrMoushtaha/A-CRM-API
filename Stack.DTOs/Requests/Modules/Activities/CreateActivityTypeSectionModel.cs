@@ -11,11 +11,11 @@ namespace Stack.DTOs.Requests.Modules.Activities
 
         public string NameEN { get; set; }
 
-        public string Type { get; set; }
-
         public int Order { get; set; }
 
         public long ActivityTypeID { get; set; }
+
+        public bool IsFinalSection { get; set; }
 
 
     }

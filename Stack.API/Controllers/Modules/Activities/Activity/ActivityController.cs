@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
 using Stack.DTOs.Models.Modules.Activities;
+using Stack.DTOs.Models.Shared;
 using Stack.DTOs.Requests.Modules.Activities;
 using Stack.ServiceLayer.Modules.Activities;
 using System.Threading.Tasks;
@@ -46,8 +47,13 @@ namespace Stack.API.Controllers.Modules.Activities
             return await GetResponseHandler(async () => await service.GetNextActivitySection(model));
         }
 
+        [AllowAnonymous]
+        [HttpPost("DeleteActivity")]
+        public async Task<IActionResult> DeleteActivity(DeletionModel model)
+        {
+            return await RemoveItemResponseHandler(async () => await service.DeleteActivity(model));
+        }
+
     }
-
-
 
 }
