@@ -11,7 +11,7 @@ namespace Stack.API.Controllers.Modules.Activities
 {
     [Route("api/Activities")]
     [ApiController]
-    [Authorize] // Require Authorization to access API endpoints . 
+    [Authorize] //Require Authorization to access API endpoints . 
     public class ActivityController : BaseResultHandlerController<ActivitiesService>
     {
         public ActivityController(ActivitiesService _service) : base(_service)
@@ -52,6 +52,34 @@ namespace Stack.API.Controllers.Modules.Activities
         public async Task<IActionResult> DeleteActivity(DeletionModel model)
         {
             return await RemoveItemResponseHandler(async () => await service.DeleteActivity(model));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetCurrentActivitySectionByDealID/{ActivitySectionID}")]
+        public async Task<IActionResult> GetCurrentActivitySectionByDealID(long ActivitySectionID)
+        {
+            return await GetResponseHandler(async () => await service.GetCurrentActivitySectionByDealID(ID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("SubmitActivity")]
+        public async Task<IActionResult> SubmitActivity(ActivitySubmissionModel ID)
+        {
+            return await AddItemResponseHandler(async () => await service.SubmitActivity(ID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetActivityHistoryByContactID/{ContactID}")]
+        public async Task<IActionResult> GetActivityHistoryByContactID(long ContactID)
+        {
+            return await AddItemResponseHandler(async () => await service.GetActivityHistoryByContactID(ID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetActivityHistoryByDealID/{DealID}")]
+        public async Task<IActionResult> GetActivityHistoryByDealID(long ContactID)
+        {
+            return await AddItemResponseHandler(async () => await service.GetActivityHistoryByDealID(ID));
         }
 
     }

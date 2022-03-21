@@ -13,7 +13,7 @@ namespace Stack.DTOs.Models.Modules.Activities
         public int ActivityTypeSectionOrder { get; set; } // Activity type section's order . 
         public long ActivityID { get; set; }
         public long ActivityTypeID { get; set; }
-        public bool IsSubmitSection { get; set; }
+        public bool IsFinalSection { get; set; }
         public bool HasDecisionalQuestions { get; set; }
         public virtual List<QuestionToAnswer> Questions { get; set; }
 

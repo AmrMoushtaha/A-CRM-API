@@ -35,89 +35,57 @@ namespace Stack.ServiceLayer.Modules.Activities
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ApiResponse<bool>> CreateActivityType(CreateActivityTypeModel model) 
-        {
-            ApiResponse<bool> result = new ApiResponse<bool>();
-            try
-            {
-
-                //Check if an activity typr with a duplicate name already exists !
-
-                var duplicateTypeResult = await unitOfWork.ActivityTypesManager.GetAsync(a => a.NameEN == model.NameEN || a.NameAR == model.NameAR);
-
-                List<ActivityType> duplicateTypeList = duplicateTypeResult.ToList();
-
-                if(duplicateTypeList.Count > 0)
-                {
-
-                    result.Succeeded = false;
-                    result.Data = false;
-                    result.Errors.Add("Failed to create the new activity type, an activity type with a duplicate name arlready exists !");
-                    return result;
-
-                }
-
-                //If not create the new activity type . 
-
-                ActivityType newActivityType = new ActivityType();
-
-                newActivityType.NameAR = model.NameAR;
-
-                newActivityType.NameEN = model.NameEN;
-
-                newActivityType.Status = ActivityTypeStatus.Activated.ToString();
-               
-
-                var createActivityTypeResult = await unitOfWork.ActivityTypesManager.CreateAsync(newActivityType);
-
-                await unitOfWork.SaveChangesAsync();
-
-
-                if (createActivityTypeResult != null)
-                {
-
-                    result.Succeeded = true;
-
-                    result.Data = true;
-
-                    return result;
-
-                }
-                else
-                {
-
-                    result.Succeeded = false;
-
-                    result.Data = false;
-
-                    result.ErrorType = ErrorType.SystemError;
-
-                    result.Errors.Add("Failed to create a new section !");
-
-                    return result;
-
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                result.Succeeded = false;
-                result.Errors.Add(ex.Message);
-                result.ErrorType = ErrorType.SystemError;
-                return result;
-            }
-        }
-
         public async Task<ApiResponse<SectionToAnswer>> CreateNewActivity(CreateActivityModel model)
         {
             ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
             try
             {
 
+            
                 Activity newActivity = new Activity();
 
-                newActivity.ProcessFlowID = model.ProcessFlowID;
+                var processFlowsResult = await unitOfWork.ProcessFlowsManager.GetAsync(a => a.ContactID == model.ContactID);
+
+
+                ProcessFlow referenceProcessFlow = processFlowsResult.FirstOrDefault();
+
+                //Check if a process flow already exists for this contact . if not create one .
+                if (referenceProcessFlow != null)
+                {
+
+                    newActivity.ProcessFlowID = referenceProcessFlow.ID;
+                }
+                else
+                {
+
+                    ProcessFlow newProcessFlow = new ProcessFlow();
+
+                    newProcessFlow.ContactID = model.ContactID;
+
+                    newProcessFlow.CreationDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                    newProcessFlow.IsComplete = false;
+
+                    var createProcessFlowResult = await unitOfWork.ProcessFlowsManager.CreateAsync(newProcessFlow);
+
+                    await unitOfWork.SaveChangesAsync();
+
+                    if(createProcessFlowResult != null)
+                    {
+
+                        newActivity.ProcessFlowID = referenceProcessFlow.ID;
+
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Failed to create a new activity, Please try again !");
+                        result.Errors.Add("فشل إنشاء نشاط جديد ، يرجى المحاولة مرة أخرى!");
+                        return result;
+                    }
+
+
+                }
 
                 newActivity.ActivityTypeID = model.ActivityTypeID;
 
@@ -167,7 +135,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     sectionToReturn.NameAR = UpcomingSection.NameAR;
 
-                    sectionToReturn.IsSubmitSection = UpcomingSection.IsSubmitSection;
+                    sectionToReturn.IsFinalSection = UpcomingSection.IsFinalSection;
 
                     sectionToReturn.ActivityID = newActivity.ID;
 
@@ -376,7 +344,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 sectionToReturn.NameAR = nextSectionReference.NameAR;
 
-                sectionToReturn.IsSubmitSection = nextSectionReference.IsSubmitSection;
+                sectionToReturn.IsFinalSection = nextSectionReference.IsFinalSection;
 
                 sectionToReturn.ActivityID = model.ActivityID;
 
@@ -390,66 +358,59 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 sectionToReturn.Questions = new List<QuestionToAnswer>();
 
-                if (sectionToReturn.IsSubmitSection == false)
+                //Append section questions . 
+                for (int i = 0; i < nextSectionReference.Questions.Count; i++)
                 {
 
-                    //Append section questions . 
-                    for (int i = 0; i < nextSectionReference.Questions.Count; i++)
+                    QuestionToAnswer question = new QuestionToAnswer();
+
+                    question.ID = nextSectionReference.Questions[i].ID;
+
+                    question.DescriptionAR = nextSectionReference.Questions[i].DescriptionAR;
+
+                    question.DescriptionEN = nextSectionReference.Questions[i].DescriptionEN;
+
+                    question.isRequired = nextSectionReference.Questions[i].isRequired;
+
+                    question.IsDecisional = nextSectionReference.Questions[i].IsDecisional;
+
+                    question.Order = nextSectionReference.Questions[i].Order;
+
+                    question.Answer = "";
+
+                    //Append section question options . 
+                    if (nextSectionReference.Questions[i].QuestionOptions.Count > 0)
                     {
 
-                        QuestionToAnswer question = new QuestionToAnswer();
+                        question.Options = new List<QuestionOption>();
 
-                        question.ID = nextSectionReference.Questions[i].ID;
-
-                        question.DescriptionAR = nextSectionReference.Questions[i].DescriptionAR;
-
-                        question.DescriptionEN = nextSectionReference.Questions[i].DescriptionEN;
-
-                        question.isRequired = nextSectionReference.Questions[i].isRequired;
-
-                        question.IsDecisional = nextSectionReference.Questions[i].IsDecisional;
-
-                        question.Order = nextSectionReference.Questions[i].Order;
-
-                        question.Answer = "";
-
-                        //Append section question options . 
-                        if (nextSectionReference.Questions[i].QuestionOptions.Count > 0)
+                        for (int k = 0; k < nextSectionReference.Questions[i].QuestionOptions.Count; k++)
                         {
 
-                            question.Options = new List<QuestionOption>();
+                            QuestionOption questionOption = new QuestionOption();
 
-                            for (int k = 0; k < nextSectionReference.Questions[i].QuestionOptions.Count; k++)
-                            {
+                            questionOption.ValueEN = nextSectionReference.Questions[i].QuestionOptions[k].ValueEN;
 
-                                QuestionOption questionOption = new QuestionOption();
+                            questionOption.ValueAR = nextSectionReference.Questions[i].QuestionOptions[k].ValueAR;
 
-                                questionOption.ValueEN = nextSectionReference.Questions[i].QuestionOptions[k].ValueEN;
+                            questionOption.RoutesTo = nextSectionReference.Questions[i].QuestionOptions[k].RoutesTo;
 
-                                questionOption.ValueAR = nextSectionReference.Questions[i].QuestionOptions[k].ValueAR;
+                            questionOption.ID = nextSectionReference.Questions[i].QuestionOptions[k].ID;
 
-                                questionOption.RoutesTo = nextSectionReference.Questions[i].QuestionOptions[k].RoutesTo;
+                            questionOption.IsSelected = false;
 
-                                questionOption.ID = nextSectionReference.Questions[i].QuestionOptions[k].ID;
-
-                                questionOption.IsSelected = false;
-
-                                question.Options.Add(questionOption);
-
-                            }
+                            question.Options.Add(questionOption);
 
                         }
 
-                        sectionToReturn.Questions.Add(question);
-
                     }
 
-                    //Re-arrange section questions . 
-                    sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
-
+                    sectionToReturn.Questions.Add(question);
 
                 }
 
+                //Re-arrange section questions . 
+                sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();      
 
                 result.Data = sectionToReturn;
 
@@ -504,6 +465,259 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 }
               
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<SectionToAnswer>> GetCurrentActivitySectionByDealID(long ID)
+        {
+            ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
+            try
+            {
+
+                //Get an update the end date of the current activity section .  
+                var activitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.Activity.ProcessFlow.DealID == ID && a.Activity.IsSubmitted == false && a.EndDate == null, includeProperties: "Questions,Questions.QuestionOptions,Section,Activity");
+
+                ActivitySection currentSection = activitySectionsResult.FirstOrDefault();
+
+                currentSection.EndDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                var updateCurrentSectionResult = await unitOfWork.ActivitySectionsManager.UpdateAsync(currentSection);
+
+                await unitOfWork.SaveChangesAsync();
+
+                if(currentSection != null)
+                {
+
+                    //Create the upcoming section model and return it . 
+
+                    SectionToAnswer sectionToReturn = new SectionToAnswer();
+
+                    sectionToReturn.ID = currentSection.ID;
+
+                    sectionToReturn.NameAR = currentSection.Section.NameAR;
+
+                    sectionToReturn.NameAR = currentSection.Section.NameAR;
+
+                    sectionToReturn.IsFinalSection = currentSection.Section.IsFinalSection;
+
+                    sectionToReturn.ActivityID = currentSection.ActivityID;
+
+                    sectionToReturn.ActivityTypeID = currentSection.Activity.ActivityTypeID;
+
+                    sectionToReturn.Order = currentSection.Order;
+
+                    sectionToReturn.ActivityTypeSectionOrder = currentSection.Section.Order;
+
+                    sectionToReturn.HasDecisionalQuestions = sectionToReturn.HasDecisionalQuestions;
+
+                    sectionToReturn.Questions = new List<QuestionToAnswer>();
+
+                    if (sectionToReturn.IsFinalSection == false)
+                    {
+
+                        //Append section questions . 
+                        for (int i = 0; i < currentSection.Section.Questions.Count; i++)
+                        {
+
+                            QuestionToAnswer question = new QuestionToAnswer();
+
+                            question.ID = currentSection.Section.Questions[i].ID;
+
+                            question.DescriptionAR = currentSection.Section.Questions[i].DescriptionAR;
+
+                            question.DescriptionEN = currentSection.Section.Questions[i].DescriptionEN;
+
+                            question.isRequired = currentSection.Section.Questions[i].isRequired;
+
+                            question.IsDecisional = currentSection.Section.Questions[i].IsDecisional;
+
+                            question.Order = currentSection.Section.Questions[i].Order;
+
+                            question.Answer = "";
+
+                            //Append section question options . 
+                            if (currentSection.Section.Questions[i].QuestionOptions.Count > 0)
+                            {
+
+                                question.Options = new List<QuestionOption>();
+
+                                for (int k = 0; k < currentSection.Section.Questions[i].QuestionOptions.Count; k++)
+                                {
+
+                                    QuestionOption questionOption = new QuestionOption();
+
+                                    questionOption.ValueEN = currentSection.Section.Questions[i].QuestionOptions[k].ValueEN;
+
+                                    questionOption.ValueAR = currentSection.Section.Questions[i].QuestionOptions[k].ValueAR;
+
+                                    questionOption.RoutesTo = currentSection.Section.Questions[i].QuestionOptions[k].RoutesTo;
+
+                                    questionOption.ID = currentSection.Section.Questions[i].QuestionOptions[k].ID;
+
+                                    questionOption.IsSelected = false;
+
+                                    question.Options.Add(questionOption);
+
+                                }
+
+                            }
+
+                            sectionToReturn.Questions.Add(question);
+
+                        }
+
+                        //Re-arrange section questions . 
+                        sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
+
+
+                    }
+
+
+                    result.Data = sectionToReturn;
+
+                    result.Succeeded = true;
+
+                    return result;
+
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No unsubmitted activities were found !");
+                    return result;
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<ActivityHistoryViewDTO>>> GetActivityHistoryByContactID(long ContactID)
+        {
+            ApiResponse<List<ActivityHistoryViewDTO>> result = new ApiResponse<List<ActivityHistoryViewDTO>>();
+            try
+            {
+
+                var processFlowResult = await unitOfWork.ProcessFlowsManager.GetAsync(a => a.ContactID == ContactID);
+
+                ProcessFlow referenceProcessFlow = processFlowResult.FirstOrDefault();
+
+                if(referenceProcessFlow != null)
+                {
+
+                    var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.ContactID == ContactID && a.IsSubmitted == true);
+
+                    List<Activity> activitiesList = activitiesResult.ToList();
+
+                    if(activitiesList.Count == 0 || activitiesList == null)
+                    {
+
+                        activitiesList = activitiesList.OrderBy(a =>a.CreationDate).ToList();
+
+                        result.Data = mapper.Map<List<ActivityHistoryViewDTO>>(activitiesList);
+                        result.Succeeded = true;
+                        return result;
+
+                    }
+                    else
+                    {
+
+                        result.Succeeded = false;
+                        result.Errors.Add("No previous activities were found for this contact ! ");
+                        result.Errors.Add("لم يتم العثور على أنشطة سابقة لجهة الاتصال هذه!");
+                        result.ErrorType = ErrorType.SystemError;
+                        return result;
+
+
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No previous activities were found for this contact ! ");
+                    result.Errors.Add("لم يتم العثور على أنشطة سابقة لجهة الاتصال هذه!");
+                    result.ErrorType = ErrorType.SystemError;
+                    return result;
+
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<ActivityHistoryViewDTO>>> GetActivityHistoryByDealID(long DealID)
+        {
+            ApiResponse<List<ActivityHistoryViewDTO>> result = new ApiResponse<List<ActivityHistoryViewDTO>>();
+            try
+            {
+
+                var processFlowResult = await unitOfWork.ProcessFlowsManager.GetAsync(a => a.DealID == DealID);
+
+                ProcessFlow referenceProcessFlow = processFlowResult.FirstOrDefault();
+
+                if (referenceProcessFlow != null)
+                {
+
+                    var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.DealID == DealID && a.IsSubmitted == true);
+
+                    List<Activity> activitiesList = activitiesResult.ToList();
+
+                    if (activitiesList.Count == 0 || activitiesList == null)
+                    {
+                        activitiesList = activitiesList.OrderBy(a => a.CreationDate).ToList();
+                        result.Data = mapper.Map<List<ActivityHistoryViewDTO>>(activitiesList);
+                        result.Succeeded = true;
+                        return result;
+
+                    }
+                    else
+                    {
+
+                        result.Succeeded = false;
+                        result.Errors.Add("No previous activities were found for this contact ! ");
+                        result.Errors.Add("لم يتم العثور على أنشطة سابقة لجهة الاتصال هذه!");
+                        return result;
+
+                    }
+
+                }
+                else
+                {
+
+                    result.Succeeded = false;
+                    result.Errors.Add("No previous activities were found for this contact ! ");
+                    result.Errors.Add("لم يتم العثور على أنشطة سابقة لجهة الاتصال هذه!");
+                    return result;
+
+                }
+
             }
             catch (Exception ex)
             {
@@ -577,8 +791,200 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+        public async Task<ApiResponse<bool>> SubmitActivity(ActivitySubmissionModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+
+                var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ID == model.ActivityID);
+
+                Activity activityToSubmit = activitiesResult.FirstOrDefault();
+
+                if (activityToSubmit != null)
+                {
+
+                    activityToSubmit.IsSubmitted = true;
+
+                    activityToSubmit.SubtmissionDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                    var updateActivityResult = await unitOfWork.ActivitiesManager.UpdateAsync(activityToSubmit);
+
+                    if (updateActivityResult == true)
+                    {
+
+                        SubmissionDetails activitySubmissionDetail = new SubmissionDetails();
+
+                        activitySubmissionDetail.ActivityID = model.ActivityID;
+
+                        activitySubmissionDetail.SubmissionDate = activityToSubmit.SubtmissionDate;
+
+                        activitySubmissionDetail.CurrentStage = model.CurrentStage;
+
+                        activitySubmissionDetail.CurrentStatus = model.CurrentStatus;
+
+                        activitySubmissionDetail.Comment = model.Comment;
+
+                        activitySubmissionDetail.ScheduledActivityID = model.ScheduledActivityID;
+
+
+                        if (activitySubmissionDetail.IsStatusChanged == true)
+                        {
+
+                            activitySubmissionDetail.NewStatus = model.NewStatus;
+
+                            activitySubmissionDetail.NewStage = model.NewStage;
+
+                            activitySubmissionDetail.IsStatusChanged = true;
+
+                            //Apply change status / stage and notification logic here.
+
+                        }
+                        else
+                        {
+
+                            activitySubmissionDetail.NewStatus = "-";
+
+                            activitySubmissionDetail.NewStage = "-";
+
+                            activitySubmissionDetail.IsStatusChanged = false;
+
+                        }
+
+
+                        var createSubmissionDetailsResult = await unitOfWork.SubmissionDetailsManager.CreateAsync(activitySubmissionDetail);
+
+                        if (createSubmissionDetailsResult != null)
+                        {
+
+                            await unitOfWork.SaveChangesAsync();
+
+                            result.Succeeded = true;
+
+                            result.Data = true;
+
+                            return result;
+
+                        }
+                        else
+                        {
+                            result.Errors.Add("Failed to submit activity, Please try again !");
+                            result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
+                            result.Succeeded = false;
+                            result.Data = false;
+                            return result;
+                        }
+
+                    }
+                    else
+                    {
+
+                        result.Errors.Add("Failed to submit activity, Please try again !");
+                        result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
+                        result.Succeeded = false;
+                        result.Data = false;
+                        return result;
+
+                    }
+
+                }
+                else
+                {
+                    result.Errors.Add("Failed to submit activity, Please try again !");
+                    result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
+                    result.Succeeded = false;
+                    result.Data = false;
+                    return result;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<bool>> CreateActivityType(CreateActivityTypeModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+
+                //Check if an activity typr with a duplicate name already exists !
+
+                var duplicateTypeResult = await unitOfWork.ActivityTypesManager.GetAsync(a => a.NameEN == model.NameEN || a.NameAR == model.NameAR);
+
+                List<ActivityType> duplicateTypeList = duplicateTypeResult.ToList();
+
+                if (duplicateTypeList.Count > 0)
+                {
+
+                    result.Succeeded = false;
+                    result.Data = false;
+                    result.Errors.Add("Failed to create the new activity type, an activity type with a duplicate name arlready exists !");
+                    return result;
+
+                }
+
+                //If not create the new activity type . 
+
+                ActivityType newActivityType = new ActivityType();
+
+                newActivityType.NameAR = model.NameAR;
+
+                newActivityType.NameEN = model.NameEN;
+
+                newActivityType.Status = ActivityTypeStatus.Activated.ToString();
+
+
+                var createActivityTypeResult = await unitOfWork.ActivityTypesManager.CreateAsync(newActivityType);
+
+                await unitOfWork.SaveChangesAsync();
+
+
+                if (createActivityTypeResult != null)
+                {
+
+                    result.Succeeded = true;
+
+                    result.Data = true;
+
+                    return result;
+
+                }
+                else
+                {
+
+                    result.Succeeded = false;
+
+                    result.Data = false;
+
+                    result.ErrorType = ErrorType.SystemError;
+
+                    result.Errors.Add("Failed to create a new section !");
+
+                    return result;
+
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
     }
-                       
+   
 }
 
 

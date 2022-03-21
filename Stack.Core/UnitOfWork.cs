@@ -124,6 +124,19 @@ namespace Stack.Core
             }
         }
 
+        private SubmissionDetailsManager submissionDetailsManager;
+        public SubmissionDetailsManager SubmissionDetailsManager
+        {
+            get
+            {
+                if (submissionDetailsManager == null)
+                {
+                    submissionDetailsManager = new SubmissionDetailsManager(context);
+                }
+                return submissionDetailsManager;
+            }
+        }
+
 
 
         private DealManager dealManager;

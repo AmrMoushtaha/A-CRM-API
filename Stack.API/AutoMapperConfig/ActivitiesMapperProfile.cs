@@ -10,6 +10,11 @@ namespace Stack.API.AutoMapperConfig
         {
             CreateMap<ActivityType, ActivityTypeMainViewDTO>()
             .ReverseMap();
+
+
+            CreateMap<Activity, ActivityHistoryViewDTO>()
+            .ReverseMap();
+
         }
 
     }
