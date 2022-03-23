@@ -38,7 +38,7 @@ namespace Stack.Core.Managers.Modules.pool
                            ID = p.ID,
                            NameEN = p.NameEN,
                            NameAR = p.NameAR,
-                           //ContactCount = p.Contacts.Where(t => t.Status.Status == (int)CustomerStageState.Unassigned).Count()
+                           ContactCount = p.Contacts.Where(t => t.Status.Status == CustomerStageState.Unassigned.ToString()).Count()
                        }).ToList();
             });
         }
