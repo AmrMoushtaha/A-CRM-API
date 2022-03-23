@@ -119,7 +119,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                     };
 
-                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == (int)CustomerStageState.Initial);
                                     var assignedStatus = assignedStatusQuery.FirstOrDefault();
                                     if (assignedStatus != null)
                                     {
@@ -166,7 +166,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                         };
 
-                                        var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                                        var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == (int)CustomerStageState.Initial);
                                         var assignedStatus = assignedStatusQuery.FirstOrDefault();
                                         if (assignedStatus != null)
                                         {
@@ -211,7 +211,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                         };
 
-                                        var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                                        var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == (int)CustomerStageState.Initial);
                                         var assignedStatus = assignedStatusQuery.FirstOrDefault();
                                         if (assignedStatus != null)
                                         {
@@ -257,7 +257,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                     };
 
-                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Unassigned.ToString());
+                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == (int)CustomerStageState.Unassigned);
                                     var assignedStatus = assignedStatusQuery.FirstOrDefault();
                                     if (assignedStatus != null)
                                     {
@@ -305,12 +305,12 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     else //Duplicate Contact
                     {
                         //duplicated contact is unassigned
-                        if (model.AssignedUserID == null && model.Status.Status == CustomerStageState.Unassigned.ToString())
+                        if (model.AssignedUserID == null && model.Status.Status == (int)CustomerStageState.Unassigned)
                         {
                             //assign contact to user
                             model.AssignedUserID = userID;
 
-                            var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                            var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == (int)CustomerStageState.Initial);
                             var assignedStatus = assignedStatusQuery.FirstOrDefault();
                             if (assignedStatus != null)
                             {
@@ -524,4 +524,3 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 }
 
 
- 

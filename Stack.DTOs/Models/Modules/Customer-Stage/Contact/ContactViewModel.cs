@@ -19,7 +19,7 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
         public string LeadSourceName { get; set; }
         public string PrimaryPhoneNumber { get; set; }
 
-        public string Status { get; set; }
+        public int Status { get; set; }
         public string AssignedUserName { get; set; }
 
         public List<ContactPhoneNumberDTO> ContactPhoneNumbers { get; set; }
