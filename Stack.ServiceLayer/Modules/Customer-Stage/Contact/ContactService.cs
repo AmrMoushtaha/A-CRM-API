@@ -85,7 +85,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                 if (userID != null)
                 {
-                    var modelQuery = await unitOfWork.ContactManager.GetAsync(t => t.PrimaryPhoneNumber == creationModel.PrimaryPhoneNumber, includeProperties: "PhoneNumbers,Status");
+                    var modelQuery = await unitOfWork.ContactManager.GetAsync(t => t.PrimaryPhoneNumber == creationModel.PrimaryPhoneNumber, includeProperties: "PhoneNumbers,Status,Pool");
                     var model = modelQuery.FirstOrDefault();
 
                     //Phone number not duplicated
@@ -96,55 +96,14 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                         if (user != null)
                         {
 
-                            //Agent role - assign contact to self
-                            if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
-                            {
-                                var modelToCreate = new Contact
-                                {
-                                    PoolID = creationModel.PoolID,
-                                    FullNameEN = creationModel.FullNameEN,
-                                    FullNameAR = creationModel.FullNameAR,
-                                    Address = creationModel.Address,
-                                    AssignedUserID = userID,
-                                    Email = creationModel.Email,
-                                    LeadSourceName = creationModel.LeadSourceName,
-                                    LeadSourceType = creationModel.LeadSourceType,
-                                    Occupation = creationModel.Occupation,
-                                    PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
-                                };
+                            //Get Designated Pool
+                            var poolQuery = await unitOfWork.PoolManager.GetAsync(t => t.ID == creationModel.PoolID);
+                            var pool = poolQuery.FirstOrDefault();
 
-                                var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
-                                var assignedStatus = assignedStatusQuery.FirstOrDefault();
-                                if (assignedStatus != null)
-                                {
-                                    modelToCreate.StatusID = assignedStatus.ID;
-
-                                    var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
-                                    if (creationModelResult != null)
-                                    {
-                                        await unitOfWork.SaveChangesAsync();
-                                        result.Succeeded = true;
-                                        result.Data = true;
-                                        return result;
-                                    }
-                                    else
-                                    {
-                                        result.Succeeded = false;
-                                        result.Errors.Add("Unable to create contact, please try again later ");
-                                        return result;
-                                    }
-                                }
-                                else //Return error for system statuses not initialized
-                                {
-                                    result.Succeeded = false;
-                                    result.ErrorCode = ErrorCode.CS500;
-                                    result.Errors.Add("Please refer to error code ");
-                                    return result;
-                                }
-                            }
-                            else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
+                            if (pool != null)
                             {
-                                if (creationModel.AssigneeID == null) //assign to self
+                                //Agent role - assign contact to self
+                                if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
                                 {
                                     var modelToCreate = new Contact
                                     {
@@ -189,7 +148,101 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         return result;
                                     }
                                 }
-                                else //assign to employee
+                                else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
+                                {
+                                    if (creationModel.AssigneeID == null) //Assign to self
+                                    {
+                                        var modelToCreate = new Contact
+                                        {
+                                            PoolID = creationModel.PoolID,
+                                            FullNameEN = creationModel.FullNameEN,
+                                            FullNameAR = creationModel.FullNameAR,
+                                            Address = creationModel.Address,
+                                            AssignedUserID = userID,
+                                            Email = creationModel.Email,
+                                            LeadSourceName = creationModel.LeadSourceName,
+                                            LeadSourceType = creationModel.LeadSourceType,
+                                            Occupation = creationModel.Occupation,
+                                            PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                        };
+
+                                        var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                                        var assignedStatus = assignedStatusQuery.FirstOrDefault();
+                                        if (assignedStatus != null)
+                                        {
+                                            modelToCreate.StatusID = assignedStatus.ID;
+
+                                            var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                            if (creationModelResult != null)
+                                            {
+                                                await unitOfWork.SaveChangesAsync();
+                                                result.Succeeded = true;
+                                                result.Data = true;
+                                                return result;
+                                            }
+                                            else
+                                            {
+                                                result.Succeeded = false;
+                                                result.Errors.Add("Unable to create contact, please try again later ");
+                                                return result;
+                                            }
+                                        }
+                                        else //Return error for system statuses not initialized
+                                        {
+                                            result.Succeeded = false;
+                                            result.ErrorCode = ErrorCode.CS500;
+                                            result.Errors.Add("Please refer to error code ");
+                                            return result;
+                                        }
+                                    }
+                                    else //assign to employee
+                                    {
+                                        var modelToCreate = new Contact
+                                        {
+                                            PoolID = creationModel.PoolID,
+                                            FullNameEN = creationModel.FullNameEN,
+                                            FullNameAR = creationModel.FullNameAR,
+                                            Address = creationModel.Address,
+                                            AssignedUserID = creationModel.AssigneeID,
+                                            Email = creationModel.Email,
+                                            LeadSourceName = creationModel.LeadSourceName,
+                                            LeadSourceType = creationModel.LeadSourceType,
+                                            Occupation = creationModel.Occupation,
+                                            PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                        };
+
+                                        var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                                        var assignedStatus = assignedStatusQuery.FirstOrDefault();
+                                        if (assignedStatus != null)
+                                        {
+                                            modelToCreate.StatusID = assignedStatus.ID;
+
+                                            var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                            if (creationModelResult != null)
+                                            {
+                                                await unitOfWork.SaveChangesAsync();
+                                                result.Succeeded = true;
+                                                result.Data = true;
+                                                return result;
+                                            }
+                                            else
+                                            {
+                                                result.Succeeded = false;
+                                                result.Errors.Add("Unable to create contact, please try again later ");
+                                                return result;
+                                            }
+                                        }
+                                        else //Return error for system statuses not initialized
+                                        {
+                                            result.Succeeded = false;
+                                            result.ErrorCode = ErrorCode.CS500;
+                                            result.Errors.Add("Please refer to error code ");
+                                            return result;
+                                        }
+                                    }
+
+                                }
+                                else // Create contact as unassigned
                                 {
                                     var modelToCreate = new Contact
                                     {
@@ -197,7 +250,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         FullNameEN = creationModel.FullNameEN,
                                         FullNameAR = creationModel.FullNameAR,
                                         Address = creationModel.Address,
-                                        AssignedUserID = creationModel.AssigneeID,
                                         Email = creationModel.Email,
                                         LeadSourceName = creationModel.LeadSourceName,
                                         LeadSourceType = creationModel.LeadSourceType,
@@ -205,7 +257,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                     };
 
-                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
+                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Unassigned.ToString());
                                     var assignedStatus = assignedStatusQuery.FirstOrDefault();
                                     if (assignedStatus != null)
                                     {
@@ -234,51 +286,13 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         return result;
                                     }
                                 }
-
                             }
-                            else // Create contact as unassigned
+                            else
                             {
-                                var modelToCreate = new Contact
-                                {
-                                    PoolID = creationModel.PoolID,
-                                    FullNameEN = creationModel.FullNameEN,
-                                    FullNameAR = creationModel.FullNameAR,
-                                    Address = creationModel.Address,
-                                    Email = creationModel.Email,
-                                    LeadSourceName = creationModel.LeadSourceName,
-                                    LeadSourceType = creationModel.LeadSourceType,
-                                    Occupation = creationModel.Occupation,
-                                    PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
-                                };
-
-                                var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Unassigned.ToString());
-                                var assignedStatus = assignedStatusQuery.FirstOrDefault();
-                                if (assignedStatus != null)
-                                {
-                                    modelToCreate.StatusID = assignedStatus.ID;
-
-                                    var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
-                                    if (creationModelResult != null)
-                                    {
-                                        await unitOfWork.SaveChangesAsync();
-                                        result.Succeeded = true;
-                                        result.Data = true;
-                                        return result;
-                                    }
-                                    else
-                                    {
-                                        result.Succeeded = false;
-                                        result.Errors.Add("Unable to create contact, please try again later ");
-                                        return result;
-                                    }
-                                }
-                                else //Return error for system statuses not initialized
-                                {
-                                    result.Succeeded = false;
-                                    result.ErrorCode = ErrorCode.CS500;
-                                    result.Errors.Add("Please refer to error code ");
-                                    return result;
-                                }
+                                result.Succeeded = false;
+                                result.Errors.Add("Pool does not exist");
+                                result.Errors.Add("Pool does not exist");
+                                return result;
                             }
                         }
                         else // user not found
@@ -510,3 +524,4 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 }
 
 
+ 
