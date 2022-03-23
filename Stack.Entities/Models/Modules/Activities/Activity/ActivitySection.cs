@@ -15,6 +15,8 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public DateTime? EndDate { get; set; }
 
+        public bool IsSubmitted { get; set; }
+
         //Navigation Properties
         public long ActivityID { get; set; }
 

@@ -58,7 +58,7 @@ namespace Stack.API.Controllers.Modules.Activities
         [HttpGet("GetCurrentActivitySectionByDealID/{ActivitySectionID}")]
         public async Task<IActionResult> GetCurrentActivitySectionByDealID(long ActivitySectionID)
         {
-            return await GetResponseHandler(async () => await service.GetCurrentActivitySectionByDealID(ID));
+            return await GetResponseHandler(async () => await service.GetCurrentActivitySectionByDealID(ActivitySectionID));
         }
 
         [AllowAnonymous]
@@ -72,14 +72,14 @@ namespace Stack.API.Controllers.Modules.Activities
         [HttpGet("GetActivityHistoryByContactID/{ContactID}")]
         public async Task<IActionResult> GetActivityHistoryByContactID(long ContactID)
         {
-            return await AddItemResponseHandler(async () => await service.GetActivityHistoryByContactID(ID));
+            return await AddItemResponseHandler(async () => await service.GetActivityHistoryByContactID(ContactID));
         }
 
         [AllowAnonymous]
         [HttpGet("GetActivityHistoryByDealID/{DealID}")]
-        public async Task<IActionResult> GetActivityHistoryByDealID(long ContactID)
+        public async Task<IActionResult> GetActivityHistoryByDealID(long DealID)
         {
-            return await AddItemResponseHandler(async () => await service.GetActivityHistoryByDealID(ID));
+            return await AddItemResponseHandler(async () => await service.GetActivityHistoryByDealID(DealID));
         }
 
     }

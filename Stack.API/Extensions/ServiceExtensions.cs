@@ -7,6 +7,7 @@ using Stack.ServiceLayer.Modules.pool;
 using Stack.ServiceLayer.Modules.Region;
 using Stack.ServiceLayer.Modules.Areas;
 using Stack.ServiceLayer.Modules.Activities;
+using Stack.ServiceLayer.Modules.SystemInitialization;
 
 namespace Stack.API.Extensions
 {
@@ -31,6 +32,7 @@ namespace Stack.API.Extensions
             caller.AddScoped<ProcessFlowService>();
             caller.AddScoped<RegionService>();
             caller.AddScoped<AreaService>();
+            caller.AddScoped<SystemInitializationService>();
         }
 
     }

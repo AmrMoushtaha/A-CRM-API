@@ -63,7 +63,11 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 newSection.Order = model.Order;
 
-                newSection.IsFinalSection = model.IsFinalSection;
+                newSection.HasCreateInterest = model.HasCreateInterest;
+
+                newSection.HasCreateRequest = model.HasCreateRequest;
+
+                newSection.HasCreateResale = model.HasCreateResale;
 
                 var createSectionResult = await unitOfWork.SectionsManager.CreateAsync(newSection);
 
@@ -429,6 +433,7 @@ namespace Stack.ServiceLayer.Modules.Activities
             }
 
         }
+
 
     }
 

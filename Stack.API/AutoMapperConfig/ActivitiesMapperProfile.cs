@@ -8,11 +8,13 @@ namespace Stack.API.AutoMapperConfig
     {
         public ActivitiesMapperProfile()
         {
+
             CreateMap<ActivityType, ActivityTypeMainViewDTO>()
             .ReverseMap();
 
-
             CreateMap<Activity, ActivityHistoryViewDTO>()
+            .ForMember(dest => dest.ActivityTypeNameAR, m => m.MapFrom(d => d.ActivityType.NameAR))
+            .ForMember(dest => dest.ActivityTypeNameEN, m => m.MapFrom(d => d.ActivityType.NameEN))
             .ReverseMap();
 
         }

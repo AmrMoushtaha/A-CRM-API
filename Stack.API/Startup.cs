@@ -15,6 +15,8 @@ using Stack.DAL;
 using Stack.Core;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.Core.Managers.Modules.Auth;
+using Stack.DTOs.Models.Initialization.ActivityTypes;
+using System.Collections.Generic;
 
 namespace Stack.API
 {
@@ -33,6 +35,8 @@ namespace Stack.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.Configure<List<ActivityTypeModel>>(Configuration.GetSection("DefaultActivityTypes"));
 
 
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);

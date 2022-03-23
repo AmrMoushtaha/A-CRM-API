@@ -13,7 +13,7 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public string ValueEN { get; set; }
 
-        public long RoutesTo { get; set; } 
+        public string RoutesTo { get; set; } 
 
 
         //Navigation Properties . 

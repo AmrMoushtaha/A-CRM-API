@@ -15,7 +15,11 @@ namespace Stack.DTOs.Requests.Modules.Activities
 
         public long ActivityTypeID { get; set; }
 
-        public bool IsFinalSection { get; set; }
+        public bool HasCreateInterest { get; set; }
+
+        public bool HasCreateRequest { get; set; }
+
+        public bool HasCreateResale { get; set; }
 
 
     }
