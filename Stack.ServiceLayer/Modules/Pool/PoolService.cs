@@ -22,7 +22,7 @@ using Stack.DTOs.Models.Modules.Auth;
 using Stack.DTOs.Requests.Modules.Pool;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.DTOs.Models.Modules.Pool;
-
+using Stack.Entities.Enums.Modules.Pool;
 
 namespace Stack.ServiceLayer.Modules.pool
 {
@@ -43,53 +43,9 @@ namespace Stack.ServiceLayer.Modules.pool
             this.mapper = mapper;
 
         }
-        //Get main pool details
-        public async Task<ApiResponse<PoolSidebarViewModel>> GetPoolDetails(long poolID)
-        {
-            ApiResponse<PoolSidebarViewModel> result = new ApiResponse<PoolSidebarViewModel>();
-            try
-            {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                if (userID != null)
-                {
-                    var userPools = await unitOfWork.PoolManager.GetPoolDetails(poolID);
 
-                    if (userPools != null)
-                    {
-                        result.Succeeded = true;
-                        result.Data = userPools;
-                        return result;
-                    }
-                    else
-                    {
-                        result.Succeeded = false;
-                        result.Errors.Add("No pools found");
-                        result.Errors.Add("لا يوجد قوائم");
-                        result.ErrorType = ErrorType.NotFound;
-                        return result;
-                    }
-                }
-                else
-                {
-                    result.Succeeded = false;
-                    result.Errors.Add("Not authorized");
-                    result.Errors.Add("غير مصرح");
-                    result.ErrorCode = ErrorCode.A500;
-                    return result;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                result.Succeeded = false;
-                result.Errors.Add(ex.Message);
-                result.ErrorType = ErrorType.SystemError;
-                return result;
-            }
-
-        }
-
+        //Create pool with default configuration
         public async Task<ApiResponse<bool>> CreatePool(PoolCreationModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -111,6 +67,7 @@ namespace Stack.ServiceLayer.Modules.pool
                             NameAR = model.NameAR,
                             DescriptionEN = model.DescriptionEN,
                             DescriptionAR = model.DescriptionAR,
+                            ConfigurationType = PoolConfigurationTypes.Default.ToString()
                         };
 
                         var creationResult = await unitOfWork.PoolManager.CreateAsync(creationModel);
@@ -178,6 +135,150 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
+        //Set Pool Configuration
+        public async Task<ApiResponse<bool>> SetPoolConfiguration(PoolConfigurationModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    //Verify admin priviliges
+                    var adminVerificationQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.UserID == userID, includeProperties: "Pool");
+                    var adminVerification = adminVerificationQuery.FirstOrDefault();
+
+                    if (adminVerification != null)
+                    {
+                        Pool pool = adminVerification.Pool;
+
+                        if (model.ConfigurationType == PoolConfigurationTypes.Capacity.ToString())
+                        {
+                            pool.ConfigurationType = PoolConfigurationTypes.Capacity.ToString();
+                            pool.Capacity = model.Capacity.Value;
+
+                            var updateRes = await unitOfWork.PoolManager.UpdateAsync(pool);
+                            if (updateRes)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                result.Data = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error updating configuration");
+                                result.Errors.Add("خطأ في تحديث الإعداد");
+                                return result;
+                            }
+                        }
+                        else if (model.ConfigurationType == PoolConfigurationTypes.AutoAssignment.ToString())
+                        {
+                            pool.ConfigurationType = PoolConfigurationTypes.AutoAssignment.ToString();
+
+                            var updateRes = await unitOfWork.PoolManager.UpdateAsync(pool);
+                            if (updateRes)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                result.Data = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error updating configuration");
+                                result.Errors.Add("خطأ في تحديث الإعداد");
+                                return result;
+                            }
+                        }
+                        else if (model.ConfigurationType == PoolConfigurationTypes.AutoAssignmentCapacity.ToString())
+                        {
+                            pool.ConfigurationType = PoolConfigurationTypes.AutoAssignmentCapacity.ToString();
+                            pool.Capacity = model.Capacity.Value;
+
+                            var updateRes = await unitOfWork.PoolManager.UpdateAsync(pool);
+                            if (updateRes)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                result.Data = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error updating configuration");
+                                result.Errors.Add("خطأ في تحديث الإعداد");
+                                return result;
+                            }
+                        }
+                        else if (model.ConfigurationType == PoolConfigurationTypes.Default.ToString())
+                        {
+                            if (pool.Capacity.HasValue)
+                            {
+                                pool.Capacity = null;
+                            }
+
+                            pool.ConfigurationType = PoolConfigurationTypes.Default.ToString();
+
+                            var updateRes = await unitOfWork.PoolManager.UpdateAsync(pool);
+                            if (updateRes)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                result.Data = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error updating configuration");
+                                result.Errors.Add("خطأ في تحديث الإعداد");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Invalid Configuration Type");
+                            result.Errors.Add("نوع الإعداد غير صالح");
+                            result.ErrorCode = ErrorCode.A500;
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Not authorized");
+                        result.Errors.Add("غير مصرح");
+                        result.ErrorCode = ErrorCode.A500;
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Not authorized");
+                    result.Errors.Add("غير مصرح");
+                    result.ErrorCode = ErrorCode.A500;
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        //Pool Assignment
         public async Task<ApiResponse<bool>> AssignUsersToPool(PoolAssignmentModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -256,6 +357,10 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
+
+
+        //Get
+
         //Sidebar view
         public async Task<ApiResponse<List<PoolSidebarViewModel>>> GetUserAssignedPools()
         {
@@ -288,6 +393,53 @@ namespace Stack.ServiceLayer.Modules.pool
                     {
                         result.Succeeded = true;
                         result.Data = poolSidebarViewModel;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("No pools found");
+                        result.Errors.Add("لا يوجد قوائم");
+                        result.ErrorType = ErrorType.NotFound;
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Not authorized");
+                    result.Errors.Add("غير مصرح");
+                    result.ErrorCode = ErrorCode.A500;
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        //Get main pool details
+        public async Task<ApiResponse<PoolSidebarViewModel>> GetPoolDetails(long poolID)
+        {
+            ApiResponse<PoolSidebarViewModel> result = new ApiResponse<PoolSidebarViewModel>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    var userPools = await unitOfWork.PoolManager.GetPoolDetails(poolID);
+
+                    if (userPools != null)
+                    {
+                        result.Succeeded = true;
+                        result.Data = userPools;
                         return result;
                     }
                     else
