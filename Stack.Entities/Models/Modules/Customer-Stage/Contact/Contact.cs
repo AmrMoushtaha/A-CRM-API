@@ -8,10 +8,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
     public class Contact
     {
         public long ID { get; set; }
-        public long PoolID { get; set; }
-        public long StatusID { get; set; }
 
-        public string AssignedUserID { get; set; }
 
         public string FullNameEN { get; set; }
         public string FullNameAR { get; set; }
@@ -29,8 +26,13 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public virtual List<ContactComment> Comments { get; set; }
         public virtual List<Contact_Tag> Tags { get; set; }
 
+        public long PoolID { get; set; }
+        public long StatusID { get; set; }
+        public string AssignedUserID { get; set; }
+
+
         [ForeignKey("StatusID")]
-        public virtual ContactStatus? Status { get; set; }
+        public virtual ContactStatus Status { get; set; }
 
         [ForeignKey("AssignedUserID")]
         public virtual ApplicationUser AssignedUser { get; set; }
