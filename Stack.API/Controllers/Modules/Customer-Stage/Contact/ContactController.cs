@@ -26,12 +26,12 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.GetContact(id));
         }
 
-        //[AllowAnonymous]
-        //[HttpPost("CreateContact")]
-        //public async Task<IActionResult> CreateContact(ContactCreationModel model)
-        //{
-        //    return await AddItemResponseHandler(async () => await service.CreateContact(model));
-        //}
+        [AllowAnonymous]
+        [HttpPost("CreateContact")]
+        public async Task<IActionResult> CreateContact(ContactCreationModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.CreateContact(model));
+        }
 
         [AllowAnonymous]
         [HttpPost("AddComment")]
