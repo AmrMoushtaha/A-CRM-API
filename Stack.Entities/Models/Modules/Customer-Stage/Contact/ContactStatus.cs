@@ -10,7 +10,6 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string AR { get; set; }
         public int Status { get; set; }
 
-
         public virtual List<Contact> Contacts { get; set; }
     }
 

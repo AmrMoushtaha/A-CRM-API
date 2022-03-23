@@ -3,17 +3,15 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220322125529_pool-configuration")]
-    partial class poolconfiguration
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,6 +173,9 @@ namespace Stack.DAL.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsSubmitted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
@@ -227,6 +228,9 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<long>("ContactID")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
@@ -243,6 +247,9 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("ContactID")
+                        .IsUnique();
 
                     b.HasIndex("CustomerID");
 
@@ -263,13 +270,19 @@ namespace Stack.DAL.Migrations
                     b.Property<long>("ActivityTypeID")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("HasCreateInterest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasCreateRequest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasCreateResale")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("HasDecisionalQuestions")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSubmitSection")
                         .HasColumnType("bit");
 
                     b.Property<string>("NameAR")
@@ -280,9 +293,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -367,8 +377,8 @@ namespace Stack.DAL.Migrations
                     b.Property<long>("QuestionID")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("RoutesTo")
-                        .HasColumnType("bigint");
+                    b.Property<string>("RoutesTo")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ValueAR")
                         .HasColumnType("nvarchar(max)");
@@ -405,6 +415,50 @@ namespace Stack.DAL.Migrations
                     b.HasIndex("SectionQuestionOptionID");
 
                     b.ToTable("SelectedOptions");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SubmissionDetails", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long>("ActivityID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CurrentStage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CurrentStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsStatusChanged")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NewStage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ScheduledActivityID")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("SubmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ActivityID")
+                        .IsUnique();
+
+                    b.HasIndex("ScheduledActivityID");
+
+                    b.ToTable("SubmissionDetails");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.AreaInterest.Area_LOneInterest", b =>
@@ -930,8 +984,8 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("ID");
 
@@ -1411,6 +1465,12 @@ namespace Stack.DAL.Migrations
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.ProcessFlow", b =>
                 {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
+                        .WithOne("ProcessFlow")
+                        .HasForeignKey("Stack.Entities.Models.Modules.Activities.ProcessFlow", "ContactID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Customer")
                         .WithMany("ProcessFlows")
                         .HasForeignKey("CustomerID")
@@ -1469,6 +1529,19 @@ namespace Stack.DAL.Migrations
                     b.HasOne("Stack.Entities.Models.Modules.Activities.SectionQuestionOption", "SectionQuestionOption")
                         .WithMany("SelectedOptions")
                         .HasForeignKey("SectionQuestionOptionID");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SubmissionDetails", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.Activities.Activity", "Activity")
+                        .WithOne("SubmissionDetails")
+                        .HasForeignKey("Stack.Entities.Models.Modules.Activities.SubmissionDetails", "ActivityID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Stack.Entities.Models.Modules.Activities.ActivityType", "ScheduledActivity")
+                        .WithMany("SubmissionDetails")
+                        .HasForeignKey("ScheduledActivityID");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.AreaInterest.Area_LOneInterest", b =>
