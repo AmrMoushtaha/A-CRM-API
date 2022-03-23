@@ -7,7 +7,7 @@ namespace Stack.DTOs.Requests.Modules.Activities
     public class CreateActivityModel
 
     {
-        public long ProcessFlowID { get; set; }
+        public long ContactID { get; set; }
 
         public long ActivityTypeID { get; set; }
 

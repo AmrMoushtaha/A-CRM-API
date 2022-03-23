@@ -18,6 +18,8 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public virtual List<Activity> Activities { get; set; }
 
+        public virtual List<SubmissionDetails> SubmissionDetails { get; set; }
+
         public virtual List<Section> Sections { get; set; }
 
     }

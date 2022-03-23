@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Stack.DAL.Migrations
 {
-    public partial class Initial : Migration
+    public partial class ActivitiesUpdates : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,6 +15,8 @@ namespace Stack.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NameAR = table.Column<string>(nullable: true),
                     NameEN = table.Column<string>(nullable: true),
+                    Status = table.Column<string>(nullable: true),
+                    CreatedBy = table.Column<string>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -62,6 +64,22 @@ namespace Stack.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ContactStatuses",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EN = table.Column<string>(nullable: true),
+                    AR = table.Column<string>(nullable: true),
+                    Status = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContactStatuses", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -238,6 +256,20 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Tags",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tags", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Sections",
                 columns: table => new
                 {
@@ -245,8 +277,11 @@ namespace Stack.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NameAR = table.Column<string>(nullable: true),
                     NameEN = table.Column<string>(nullable: true),
-                    Type = table.Column<string>(nullable: true),
-                    RoutesTo = table.Column<long>(nullable: false),
+                    Order = table.Column<int>(nullable: false),
+                    HasDecisionalQuestions = table.Column<bool>(nullable: false),
+                    HasCreateInterest = table.Column<bool>(nullable: false),
+                    HasCreateRequest = table.Column<bool>(nullable: false),
+                    HasCreateResale = table.Column<bool>(nullable: false),
                     ActivityTypeID = table.Column<long>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
@@ -578,6 +613,8 @@ namespace Stack.DAL.Migrations
                     DescriptionEN = table.Column<string>(nullable: true),
                     Type = table.Column<string>(nullable: true),
                     isRequired = table.Column<bool>(nullable: false),
+                    Order = table.Column<int>(nullable: false),
+                    IsDecisional = table.Column<bool>(nullable: false),
                     SectionID = table.Column<long>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
@@ -599,12 +636,16 @@ namespace Stack.DAL.Migrations
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PoolID = table.Column<long>(nullable: false),
+                    StatusID = table.Column<long>(nullable: false),
                     AssignedUserID = table.Column<string>(nullable: true),
-                    FirstNameEN = table.Column<string>(nullable: true),
-                    LastNameEN = table.Column<string>(nullable: true),
-                    FirstNameAR = table.Column<string>(nullable: true),
-                    LastNameAR = table.Column<string>(nullable: true),
-                    Status = table.Column<string>(nullable: true),
+                    FullNameEN = table.Column<string>(nullable: true),
+                    FullNameAR = table.Column<string>(nullable: true),
+                    Email = table.Column<string>(nullable: true),
+                    Address = table.Column<string>(nullable: true),
+                    Occupation = table.Column<string>(nullable: true),
+                    LeadSourceType = table.Column<string>(nullable: true),
+                    LeadSourceName = table.Column<string>(nullable: true),
+                    PrimaryPhoneNumber = table.Column<string>(nullable: true),
                     CustomerID = table.Column<long>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
@@ -629,6 +670,34 @@ namespace Stack.DAL.Migrations
                         principalTable: "Pools",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Contacts_ContactStatuses_StatusID",
+                        column: x => x.StatusID,
+                        principalTable: "ContactStatuses",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Customer_Tags",
+                columns: table => new
+                {
+                    CustomerID = table.Column<long>(nullable: false),
+                    TagID = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customer_Tags", x => new { x.CustomerID, x.TagID });
+                    table.ForeignKey(
+                        name: "FK_Customer_Tags_Customers_CustomerID",
+                        column: x => x.CustomerID,
+                        principalTable: "Customers",
+                        principalColumn: "ID");
+                    table.ForeignKey(
+                        name: "FK_Customer_Tags_Tags_TagID",
+                        column: x => x.TagID,
+                        principalTable: "Tags",
+                        principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
@@ -766,7 +835,7 @@ namespace Stack.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ValueAR = table.Column<string>(nullable: true),
                     ValueEN = table.Column<string>(nullable: true),
-                    RoutesTo = table.Column<long>(nullable: true),
+                    RoutesTo = table.Column<string>(nullable: true),
                     QuestionID = table.Column<long>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
@@ -782,19 +851,65 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ContactPhoneNumber",
+                name: "Contact_Tags",
+                columns: table => new
+                {
+                    ContactID = table.Column<long>(nullable: false),
+                    TagID = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Contact_Tags", x => new { x.ContactID, x.TagID });
+                    table.ForeignKey(
+                        name: "FK_Contact_Tags_Contacts_ContactID",
+                        column: x => x.ContactID,
+                        principalTable: "Contacts",
+                        principalColumn: "ID");
+                    table.ForeignKey(
+                        name: "FK_Contact_Tags_Tags_TagID",
+                        column: x => x.TagID,
+                        principalTable: "Tags",
+                        principalColumn: "ID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ContactComments",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Comment = table.Column<string>(nullable: true),
+                    ContactID = table.Column<long>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    CreationDate = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContactComments", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_ContactComments_Contacts_ContactID",
+                        column: x => x.ContactID,
+                        principalTable: "Contacts",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ContactPhoneNumbers",
                 columns: table => new
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Number = table.Column<string>(nullable: true),
-                    ContactID = table.Column<long>(nullable: false)
+                    ContactID = table.Column<long>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ContactPhoneNumber", x => x.ID);
+                    table.PrimaryKey("PK_ContactPhoneNumbers", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_ContactPhoneNumber_Contacts_ContactID",
+                        name: "FK_ContactPhoneNumbers_Contacts_ContactID",
                         column: x => x.ContactID,
                         principalTable: "Contacts",
                         principalColumn: "ID",
@@ -879,13 +994,22 @@ namespace Stack.DAL.Migrations
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    CreationDate = table.Column<DateTime>(nullable: false),
+                    IsComplete = table.Column<bool>(nullable: false),
                     CustomerID = table.Column<long>(nullable: false),
                     DealID = table.Column<long>(nullable: true),
+                    ContactID = table.Column<long>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProcessFlows", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_ProcessFlows_Contacts_ContactID",
+                        column: x => x.ContactID,
+                        principalTable: "Contacts",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ProcessFlows_Customers_CustomerID",
                         column: x => x.CustomerID,
@@ -946,6 +1070,8 @@ namespace Stack.DAL.Migrations
                     ActivityTypeID = table.Column<long>(nullable: false),
                     CreationDate = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
+                    SubtmissionDate = table.Column<DateTime>(nullable: true),
+                    IsSubmitted = table.Column<bool>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -971,6 +1097,10 @@ namespace Stack.DAL.Migrations
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Order = table.Column<int>(nullable: false),
+                    StartDate = table.Column<DateTime>(nullable: true),
+                    EndDate = table.Column<DateTime>(nullable: true),
+                    IsSubmitted = table.Column<bool>(nullable: false),
                     ActivityID = table.Column<long>(nullable: false),
                     SectionID = table.Column<long>(nullable: false)
                 },
@@ -990,14 +1120,47 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SubmissionDetails",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SubmissionDate = table.Column<DateTime>(nullable: true),
+                    CurrentStage = table.Column<string>(nullable: true),
+                    NewStage = table.Column<string>(nullable: true),
+                    CurrentStatus = table.Column<string>(nullable: true),
+                    NewStatus = table.Column<string>(nullable: true),
+                    IsStatusChanged = table.Column<bool>(nullable: false),
+                    Comment = table.Column<string>(nullable: true),
+                    ScheduledActivityID = table.Column<long>(nullable: true),
+                    ActivityID = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubmissionDetails", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_SubmissionDetails_Activities_ActivityID",
+                        column: x => x.ActivityID,
+                        principalTable: "Activities",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SubmissionDetails_ActivityTypes_ScheduledActivityID",
+                        column: x => x.ScheduledActivityID,
+                        principalTable: "ActivityTypes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SectionQuestionAnswers",
                 columns: table => new
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    QuestionID = table.Column<long>(nullable: false),
                     Value = table.Column<string>(nullable: true),
-                    ActivitySectionID = table.Column<long>(nullable: true)
+                    ActivitySectionID = table.Column<long>(nullable: true),
+                    QuestionID = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1013,7 +1176,33 @@ namespace Stack.DAL.Migrations
                         column: x => x.QuestionID,
                         principalTable: "SectionQuestions",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SelectedOptions",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SectionQuestionOptionID = table.Column<long>(nullable: true),
+                    SectionQuestionAnswerID = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SelectedOptions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_SelectedOptions_SectionQuestionAnswers_SectionQuestionAnswerID",
+                        column: x => x.SectionQuestionAnswerID,
+                        principalTable: "SectionQuestionAnswers",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SelectedOptions_SectionQuestionOptions_SectionQuestionOptionID",
+                        column: x => x.SectionQuestionOptionID,
+                        principalTable: "SectionQuestionOptions",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -1091,8 +1280,18 @@ namespace Stack.DAL.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ContactPhoneNumber_ContactID",
-                table: "ContactPhoneNumber",
+                name: "IX_Contact_Tags_TagID",
+                table: "Contact_Tags",
+                column: "TagID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContactComments_ContactID",
+                table: "ContactComments",
+                column: "ContactID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContactPhoneNumbers_ContactID",
+                table: "ContactPhoneNumbers",
                 column: "ContactID");
 
             migrationBuilder.CreateIndex(
@@ -1109,6 +1308,16 @@ namespace Stack.DAL.Migrations
                 name: "IX_Contacts_PoolID",
                 table: "Contacts",
                 column: "PoolID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Contacts_StatusID",
+                table: "Contacts",
+                column: "StatusID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customer_Tags_TagID",
+                table: "Customer_Tags",
+                column: "TagID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CustomerPhoneNumber_CustomerID",
@@ -1186,6 +1395,12 @@ namespace Stack.DAL.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProcessFlows_ContactID",
+                table: "ProcessFlows",
+                column: "ContactID",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProcessFlows_CustomerID",
                 table: "ProcessFlows",
                 column: "CustomerID");
@@ -1236,6 +1451,29 @@ namespace Stack.DAL.Migrations
                 name: "IX_Sections_ActivityTypeID",
                 table: "Sections",
                 column: "ActivityTypeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SelectedOptions_SectionQuestionAnswerID",
+                table: "SelectedOptions",
+                column: "SectionQuestionAnswerID",
+                unique: true,
+                filter: "[SectionQuestionAnswerID] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SelectedOptions_SectionQuestionOptionID",
+                table: "SelectedOptions",
+                column: "SectionQuestionOptionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubmissionDetails_ActivityID",
+                table: "SubmissionDetails",
+                column: "ActivityID",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubmissionDetails_ScheduledActivityID",
+                table: "SubmissionDetails",
+                column: "ScheduledActivityID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -1262,7 +1500,16 @@ namespace Stack.DAL.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "ContactPhoneNumber");
+                name: "Contact_Tags");
+
+            migrationBuilder.DropTable(
+                name: "ContactComments");
+
+            migrationBuilder.DropTable(
+                name: "ContactPhoneNumbers");
+
+            migrationBuilder.DropTable(
+                name: "Customer_Tags");
 
             migrationBuilder.DropTable(
                 name: "CustomerPhoneNumber");
@@ -1301,10 +1548,10 @@ namespace Stack.DAL.Migrations
                 name: "Prospects");
 
             migrationBuilder.DropTable(
-                name: "SectionQuestionAnswers");
+                name: "SelectedOptions");
 
             migrationBuilder.DropTable(
-                name: "SectionQuestionOptions");
+                name: "SubmissionDetails");
 
             migrationBuilder.DropTable(
                 name: "Areas");
@@ -1313,7 +1560,7 @@ namespace Stack.DAL.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Contacts");
+                name: "Tags");
 
             migrationBuilder.DropTable(
                 name: "LeadStatuses");
@@ -1343,19 +1590,22 @@ namespace Stack.DAL.Migrations
                 name: "ProspectStatuses");
 
             migrationBuilder.DropTable(
-                name: "ActivitySections");
+                name: "SectionQuestionAnswers");
 
             migrationBuilder.DropTable(
-                name: "SectionQuestions");
+                name: "SectionQuestionOptions");
 
             migrationBuilder.DropTable(
                 name: "Regions");
 
             migrationBuilder.DropTable(
-                name: "Pools");
+                name: "LOneInterests");
 
             migrationBuilder.DropTable(
-                name: "LOneInterests");
+                name: "ActivitySections");
+
+            migrationBuilder.DropTable(
+                name: "SectionQuestions");
 
             migrationBuilder.DropTable(
                 name: "Activities");
@@ -1370,7 +1620,16 @@ namespace Stack.DAL.Migrations
                 name: "ActivityTypes");
 
             migrationBuilder.DropTable(
+                name: "Contacts");
+
+            migrationBuilder.DropTable(
                 name: "Deals");
+
+            migrationBuilder.DropTable(
+                name: "Pools");
+
+            migrationBuilder.DropTable(
+                name: "ContactStatuses");
 
             migrationBuilder.DropTable(
                 name: "Customers");

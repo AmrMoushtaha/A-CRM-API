@@ -10,8 +10,8 @@ using Stack.DAL;
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220317015945_contact-phonenumber")]
-    partial class contactphonenumber
+    [Migration("20220322224624_Activities-Updates")]
+    partial class ActivitiesUpdates
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -144,8 +144,14 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsSubmitted")
+                        .HasColumnType("bit");
+
                     b.Property<long>("ProcessFlowID")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("SubtmissionDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("ID");
 
@@ -166,8 +172,20 @@ namespace Stack.DAL.Migrations
                     b.Property<long>("ActivityID")
                         .HasColumnType("bigint");
 
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsSubmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
                     b.Property<long>("SectionID")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("ID");
 
@@ -185,6 +203,9 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -192,6 +213,9 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameEN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
@@ -206,16 +230,28 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<long>("ContactID")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<long>("CustomerID")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("DealID")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsComplete")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("ContactID")
+                        .IsUnique();
 
                     b.HasIndex("CustomerID");
 
@@ -236,6 +272,18 @@ namespace Stack.DAL.Migrations
                     b.Property<long>("ActivityTypeID")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("HasCreateInterest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasCreateRequest")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasCreateResale")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasDecisionalQuestions")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -245,11 +293,8 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("NameEN")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("RoutesTo")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
 
                     b.HasKey("ID");
 
@@ -271,8 +316,14 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("DescriptionEN")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDecisional")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
 
                     b.Property<long>("SectionID")
                         .HasColumnType("bigint");
@@ -300,7 +351,7 @@ namespace Stack.DAL.Migrations
                     b.Property<long?>("ActivitySectionID")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("QuestionID")
+                    b.Property<long?>("QuestionID")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Value")
@@ -328,8 +379,8 @@ namespace Stack.DAL.Migrations
                     b.Property<long>("QuestionID")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("RoutesTo")
-                        .HasColumnType("bigint");
+                    b.Property<string>("RoutesTo")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ValueAR")
                         .HasColumnType("nvarchar(max)");
@@ -342,6 +393,74 @@ namespace Stack.DAL.Migrations
                     b.HasIndex("QuestionID");
 
                     b.ToTable("SectionQuestionOptions");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SelectedOption", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long?>("SectionQuestionAnswerID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("SectionQuestionOptionID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("SectionQuestionAnswerID")
+                        .IsUnique()
+                        .HasFilter("[SectionQuestionAnswerID] IS NOT NULL");
+
+                    b.HasIndex("SectionQuestionOptionID");
+
+                    b.ToTable("SelectedOptions");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SubmissionDetails", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long>("ActivityID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CurrentStage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CurrentStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsStatusChanged")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NewStage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ScheduledActivityID")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("SubmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ActivityID")
+                        .IsUnique();
+
+                    b.HasIndex("ScheduledActivityID");
+
+                    b.ToTable("SubmissionDetails");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.AreaInterest.Area_LOneInterest", b =>
@@ -799,6 +918,35 @@ namespace Stack.DAL.Migrations
                     b.ToTable("Contacts");
                 });
 
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.ContactComment", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("ContactID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ContactID");
+
+                    b.ToTable("ContactComments");
+                });
+
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.ContactPhoneNumber", b =>
                 {
                     b.Property<long>("ID")
@@ -844,6 +992,21 @@ namespace Stack.DAL.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("ContactStatuses");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Contact_Tag", b =>
+                {
+                    b.Property<long>("ContactID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TagID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ContactID", "TagID");
+
+                    b.HasIndex("TagID");
+
+                    b.ToTable("Contact_Tags");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Customer", b =>
@@ -896,6 +1059,21 @@ namespace Stack.DAL.Migrations
                     b.HasIndex("CustomerID");
 
                     b.ToTable("CustomerPhoneNumber");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Customer_Tag", b =>
+                {
+                    b.Property<long>("CustomerID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TagID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CustomerID", "TagID");
+
+                    b.HasIndex("TagID");
+
+                    b.ToTable("Customer_Tags");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Deal", b =>
@@ -1161,6 +1339,24 @@ namespace Stack.DAL.Migrations
                     b.ToTable("ProspectStatuses");
                 });
 
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Tag", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Tags");
+                });
+
             modelBuilder.Entity("Stack.Entities.Models.Modules.Region.Region", b =>
                 {
                     b.Property<long>("ID")
@@ -1265,6 +1461,12 @@ namespace Stack.DAL.Migrations
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.ProcessFlow", b =>
                 {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
+                        .WithOne("ProcessFlow")
+                        .HasForeignKey("Stack.Entities.Models.Modules.Activities.ProcessFlow", "ContactID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Customer")
                         .WithMany("ProcessFlows")
                         .HasForeignKey("CustomerID")
@@ -1302,9 +1504,7 @@ namespace Stack.DAL.Migrations
 
                     b.HasOne("Stack.Entities.Models.Modules.Activities.SectionQuestion", "Question")
                         .WithMany("QuestionAnswers")
-                        .HasForeignKey("QuestionID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("QuestionID");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SectionQuestionOption", b =>
@@ -1314,6 +1514,30 @@ namespace Stack.DAL.Migrations
                         .HasForeignKey("QuestionID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SelectedOption", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.Activities.SectionQuestionAnswer", "SectionQuestionAnswer")
+                        .WithOne("SelectedOption")
+                        .HasForeignKey("Stack.Entities.Models.Modules.Activities.SelectedOption", "SectionQuestionAnswerID");
+
+                    b.HasOne("Stack.Entities.Models.Modules.Activities.SectionQuestionOption", "SectionQuestionOption")
+                        .WithMany("SelectedOptions")
+                        .HasForeignKey("SectionQuestionOptionID");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SubmissionDetails", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.Activities.Activity", "Activity")
+                        .WithOne("SubmissionDetails")
+                        .HasForeignKey("Stack.Entities.Models.Modules.Activities.SubmissionDetails", "ActivityID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Stack.Entities.Models.Modules.Activities.ActivityType", "ScheduledActivity")
+                        .WithMany("SubmissionDetails")
+                        .HasForeignKey("ScheduledActivityID");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.AreaInterest.Area_LOneInterest", b =>
@@ -1473,12 +1697,36 @@ namespace Stack.DAL.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.ContactComment", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
+                        .WithMany("Comments")
+                        .HasForeignKey("ContactID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.ContactPhoneNumber", b =>
                 {
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
                         .WithMany("PhoneNumbers")
                         .HasForeignKey("ContactID")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Contact_Tag", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
+                        .WithMany("Tags")
+                        .HasForeignKey("ContactID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Tag", "Tag")
+                        .WithMany("ContactTags")
+                        .HasForeignKey("TagID")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -1495,6 +1743,21 @@ namespace Stack.DAL.Migrations
                         .WithMany("PhoneNumbers")
                         .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Customer_Tag", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Customer")
+                        .WithMany("Tags")
+                        .HasForeignKey("CustomerID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Tag", "Tag")
+                        .WithMany("CustomerTags")
+                        .HasForeignKey("TagID")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 

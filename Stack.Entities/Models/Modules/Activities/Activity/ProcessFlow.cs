@@ -27,6 +27,12 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public virtual List<Activity> Activities { get; set; }
 
+        public long ContactID { get; set; }
+
+        [ForeignKey("ContactID")]
+        public virtual Contact Contact { get; set; }
+
+
     }
 
 }

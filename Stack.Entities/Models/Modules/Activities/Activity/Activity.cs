@@ -25,6 +25,8 @@ namespace Stack.Entities.Models.Modules.Activities
         //Navigation Properties .
         public virtual List<ActivitySection> ActivitySections { get; set; }
 
+        public virtual SubmissionDetails SubmissionDetails { get; set; }
+
         [ForeignKey("ProcessFlowID")]
         public virtual ProcessFlow ProcessFlow { get; set; }
 

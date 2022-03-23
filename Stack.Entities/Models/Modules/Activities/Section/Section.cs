@@ -9,18 +9,13 @@ namespace Stack.Entities.Models.Modules.Activities
     {
         public long ID { get; set; }
         public string NameAR { get; set; }
-
         public string NameEN { get; set; }
-
-        public string Type { get; set; }
-
         public int Order { get; set; }
 
         public bool HasDecisionalQuestions { get; set; }
-
-        public bool IsSubmitSection { get; set; }
-
-
+        public bool HasCreateInterest { get; set; }
+        public bool HasCreateRequest { get; set; }
+        public bool HasCreateResale { get; set; }
 
         //Navigation Properties
         public long ActivityTypeID { get; set; }
@@ -31,6 +26,7 @@ namespace Stack.Entities.Models.Modules.Activities
         public virtual List<ActivitySection> ActivitySections { get; set; }
 
         public virtual List<SectionQuestion> Questions { get; set; }
+
     }
 
 }

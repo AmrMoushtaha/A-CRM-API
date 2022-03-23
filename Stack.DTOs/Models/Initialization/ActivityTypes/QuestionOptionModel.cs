@@ -2,23 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Stack.DTOs.Models.Modules.Activities
+namespace Stack.DTOs.Models.Initialization.ActivityTypes
 {
-    public class QuestionOption
+    public class QuestionOptionModel
     {
-
-        public long ID { get; set; }
-
         public string ValueAR { get; set; }
 
         public string ValueEN { get; set; }
 
         public string RoutesTo { get; set; }
 
-        public bool IsSelected { get; set; }
-
-
-
     }
+
 
 }

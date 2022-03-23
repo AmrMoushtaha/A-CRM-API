@@ -401,6 +401,7 @@ namespace Stack.DAL
         public virtual DbSet<Pool_Admin> Pool_Admins { get; set; }
         public virtual DbSet<Activity> Activities { get; set; }
         public virtual DbSet<ActivitySection> ActivitySections { get; set; }
+        public virtual DbSet<SubmissionDetails> SubmissionDetails { get; set; }
         public virtual DbSet<ActivityType> ActivityTypes { get; set; }
         public virtual DbSet<Section> Sections { get; set; }
         public virtual DbSet<SectionQuestion> SectionQuestions { get; set; }
