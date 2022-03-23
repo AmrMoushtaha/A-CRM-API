@@ -392,7 +392,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     sectionToReturn.ActivityTypeID = model.ActivityTypeID;
 
-                    sectionToReturn.Order = nextSectionOrder;
+                    sectionToReturn.Order = nextSection.Order;
 
                     sectionToReturn.ActivityTypeSectionOrder = nextSectionReference.Order;
 
@@ -1200,6 +1200,182 @@ namespace Stack.ServiceLayer.Modules.Activities
                 return result;
             }
         }
+
+        public async Task<ApiResponse<SectionToAnswer>> GetPreviousActivitySection(SectionToAnswer model)
+        {
+            ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
+            try
+            {
+
+                var activitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.ID == model.ID);
+
+                ActivitySection currentSection = activitySectionsResult.FirstOrDefault();
+
+                var previousActivitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.Order == model.Order-1 && a.ActivityID == model.ActivityID);
+
+                ActivitySection previousSection = previousActivitySectionsResult.FirstOrDefault();
+
+
+
+                if(previousSection != null && currentSection != null)
+                {
+
+
+                    long sectionToReturnID = previousSection.ID;
+
+                    var removeCurrentSectionResult = await unitOfWork.ActivitySectionsManager.RemoveAsync(currentSection);
+
+                    var removePreviousSectionResult = await unitOfWork.ActivitySectionsManager.RemoveAsync(previousSection);
+
+
+                    if(removeCurrentSectionResult == true && removePreviousSectionResult == true)
+                    {
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        var activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ID == sectionToReturnID, includeProperties: "Questions,Questions.QuestionOptions");
+
+                        Section nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
+
+                        //Create the new activity section .
+
+                        ActivitySection nextSection = new ActivitySection();
+
+                        nextSection.ActivityID = model.ActivityID;
+
+                        nextSection.Order = model.Order - 1;
+
+                        nextSection.SectionID = nextSectionReference.ID;
+
+                        nextSection.StartDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                        var createNextSectionResult = await unitOfWork.ActivitySectionsManager.CreateAsync(nextSection);
+
+                        await unitOfWork.SaveChangesAsync();
+
+
+                        SectionToAnswer sectionToReturn = new SectionToAnswer();
+
+                        //Create the upcoming section model and return it . 
+
+                        sectionToReturn.ID = nextSection.ID;
+
+                        sectionToReturn.NameAR = nextSectionReference.NameAR;
+
+                        sectionToReturn.NameAR = nextSectionReference.NameAR;
+
+                        sectionToReturn.IsFinalSection = false;
+
+                        sectionToReturn.ActivityID = model.ActivityID;
+
+                        sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+
+                        sectionToReturn.Order = nextSection.Order;
+
+                        sectionToReturn.ActivityTypeSectionOrder = nextSectionReference.Order;
+
+                        sectionToReturn.HasDecisionalQuestions = nextSectionReference.HasDecisionalQuestions;
+
+                        sectionToReturn.Questions = new List<QuestionToAnswer>();
+
+                        //Append section questions . 
+                        for (int i = 0; i < nextSectionReference.Questions.Count; i++)
+                        {
+
+                            QuestionToAnswer question = new QuestionToAnswer();
+
+                            question.ID = nextSectionReference.Questions[i].ID;
+
+                            question.DescriptionAR = nextSectionReference.Questions[i].DescriptionAR;
+
+                            question.DescriptionEN = nextSectionReference.Questions[i].DescriptionEN;
+
+                            question.isRequired = nextSectionReference.Questions[i].isRequired;
+
+                            question.IsDecisional = nextSectionReference.Questions[i].IsDecisional;
+
+                            question.Order = nextSectionReference.Questions[i].Order;
+
+                            question.Answer = "";
+
+                            //Append section question options . 
+                            if (nextSectionReference.Questions[i].QuestionOptions.Count > 0)
+                            {
+
+                                question.Options = new List<QuestionOption>();
+
+                                for (int k = 0; k < nextSectionReference.Questions[i].QuestionOptions.Count; k++)
+                                {
+
+                                    QuestionOption questionOption = new QuestionOption();
+
+                                    questionOption.ValueEN = nextSectionReference.Questions[i].QuestionOptions[k].ValueEN;
+
+                                    questionOption.ValueAR = nextSectionReference.Questions[i].QuestionOptions[k].ValueAR;
+
+                                    questionOption.RoutesTo = nextSectionReference.Questions[i].QuestionOptions[k].RoutesTo;
+
+                                    questionOption.ID = nextSectionReference.Questions[i].QuestionOptions[k].ID;
+
+                                    questionOption.IsSelected = false;
+
+                                    question.Options.Add(questionOption);
+
+                                }
+
+                            }
+
+                            sectionToReturn.Questions.Add(question);
+
+                        }
+
+                        //Re-arrange section questions . 
+                        sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
+
+                        result.Data = sectionToReturn;
+
+                        result.Succeeded = true;
+
+                        return result;
+
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Failed to go back, Please try again !");
+                        result.ErrorType = ErrorType.SystemError;
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Failed to go back, Please try again !");
+                    result.ErrorType = ErrorType.SystemError;
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
+
+
+
+
+
+
+
+
+
 
     }
 
