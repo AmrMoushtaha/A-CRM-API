@@ -38,49 +38,49 @@ namespace Stack.Core.Managers.Modules.pool
                            ID = p.ID,
                            NameEN = p.NameEN,
                            NameAR = p.NameAR,
-                           ContactCount = p.Contacts.Where(t => t.Status.Status == (int)CustomerStageState.Unassigned).Count()
+                           //ContactCount = p.Contacts.Where(t => t.Status.Status == (int)CustomerStageState.Unassigned).Count()
                        }).ToList();
             });
         }
 
-        public async Task<List<ContactListViewModel>> GetPoolContacts(long poolID, string userID)
-        {
-            return await Task.Run(() =>
-            {
+        //public async Task<List<ContactListViewModel>> GetPoolContacts(long poolID, string userID)
+        //{
+        //    return await Task.Run(() =>
+        //    {
 
-                var enumerable = context.Pool_Users.Where(t => t.PoolID == poolID && t.UserID == userID)
-                            .Select(a => new
-                            {
-                                ID = a.PoolID,
-                                filteredContacts = a.Pool.Contacts.Where(t => t.Status.Status == (int)CustomerStageState.Unassigned)
-                            })
-                            .Select(a => a.
-                            filteredContacts.Select(p => new ContactListViewModel
-                            {
-                                ID = p.ID,
-                                FullNameEN = p.FullNameEN,
-                                FullNameAR = p.FullNameAR,
-                                PrimaryPhoneNumber = p.PrimaryPhoneNumber
-                            }));
+        //        var enumerable = context.Pool_Users.Where(t => t.PoolID == poolID && t.UserID == userID)
+        //                    .Select(a => new
+        //                    {
+        //                        ID = a.PoolID,
+        //                        //filteredContacts = a.Pool.Contacts.Where(t => t.Status.Status == (int)CustomerStageState.Unassigned)
+        //                    })
+        //                    .Select(a => a.
+        //                    filteredContacts.Select(p => new ContactListViewModel
+        //                    {
+        //                        ID = p.ID,
+        //                        FullNameEN = p.FullNameEN,
+        //                        FullNameAR = p.FullNameAR,
+        //                        PrimaryPhoneNumber = p.PrimaryPhoneNumber
+        //                    }));
 
-                List<ContactListViewModel> asList = new List<ContactListViewModel>();
+        //        List<ContactListViewModel> asList = new List<ContactListViewModel>();
 
-                foreach (var item in enumerable)
-                {
-                    asList.Add(item.FirstOrDefault());
-                };
+        //        foreach (var item in enumerable)
+        //        {
+        //            asList.Add(item.FirstOrDefault());
+        //        };
 
-                var contacts = asList;
-                if (contacts != null && contacts.Count > 0)
-                {
-                    return contacts;
-                }
-                else
-                {
-                    return null;
-                }
-            });
-        }
+        //        var contacts = asList;
+        //        if (contacts != null && contacts.Count > 0)
+        //        {
+        //            return contacts;
+        //        }
+        //        else
+        //        {
+        //            return null;
+        //        }
+        //    });
+        //}
     }
 
 }

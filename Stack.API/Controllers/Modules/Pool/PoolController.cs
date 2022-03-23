@@ -33,12 +33,12 @@ namespace Stack.API.Controllers.Modules.Pool
             return await GetResponseHandler(async () => await service.GetPoolDetails(poolID));
         }
 
-        [AllowAnonymous]
-        [HttpGet("GetPoolContacts/{poolID}")]
-        public async Task<IActionResult> GetPoolContacts(long poolID)
-        {
-            return await GetResponseHandler(async () => await service.GetPoolContacts(poolID));
-        }
+        //[AllowAnonymous]
+        //[HttpGet("GetPoolContacts/{poolID}")]
+        //public async Task<IActionResult> GetPoolContacts(long poolID)
+        //{
+        //    return await GetResponseHandler(async () => await service.GetPoolContacts(poolID));
+        //}
 
 
         [AllowAnonymous]

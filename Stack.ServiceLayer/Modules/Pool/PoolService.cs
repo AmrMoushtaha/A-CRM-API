@@ -472,89 +472,89 @@ namespace Stack.ServiceLayer.Modules.pool
         }
 
         //Pool Contacts
-        public async Task<ApiResponse<List<ContactListViewModel>>> GetPoolContacts(long poolID)
-        {
-            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
-            try
-            {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //public async Task<ApiResponse<List<ContactListViewModel>>> GetPoolContacts(long poolID)
+        //{
+        //    ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+        //    try
+        //    {
+        //        var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                if (userID != null)
-                {
-                    //Verify user pool permissions
-                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
-                    var userPool = userPoolQuery.FirstOrDefault();
+        //        if (userID != null)
+        //        {
+        //            //Verify user pool permissions
+        //            var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
+        //            var userPool = userPoolQuery.FirstOrDefault();
 
-                    if (userPool != null)
-                    {
-                        var poolContacts = await unitOfWork.PoolAdminManager.GetPoolContacts(poolID, userID);
+        //            if (userPool != null)
+        //            {
+        //                var poolContacts = await unitOfWork.PoolAdminManager.GetPoolContacts(poolID, userID);
 
-                        if (poolContacts != null)
-                        {
-                            result.Succeeded = true;
-                            result.Data = poolContacts;
-                            return result;
-                        }
-                        else
-                        {
-                            result.Succeeded = false;
-                            result.Data = null;
-                            result.Errors.Add("No contacts found");
-                            result.Errors.Add("No contacts found");
-                            return result;
-                        }
-                    }
-                    else //Attempt admin verification check
-                    {
-                        //Verify user pool permissions
-                        var adminPoolQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
-                        var adminPool = adminPoolQuery.FirstOrDefault();
+        //                if (poolContacts != null)
+        //                {
+        //                    result.Succeeded = true;
+        //                    result.Data = poolContacts;
+        //                    return result;
+        //                }
+        //                else
+        //                {
+        //                    result.Succeeded = false;
+        //                    result.Data = null;
+        //                    result.Errors.Add("No contacts found");
+        //                    result.Errors.Add("No contacts found");
+        //                    return result;
+        //                }
+        //            }
+        //            else //Attempt admin verification check
+        //            {
+        //                //Verify user pool permissions
+        //                var adminPoolQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
+        //                var adminPool = adminPoolQuery.FirstOrDefault();
 
-                        if (adminPool != null) //Get administrator contacts
-                        {
-                            var poolContacts = await unitOfWork.PoolAdminManager.GetPoolContacts(poolID, userID);
+        //                if (adminPool != null) //Get administrator contacts
+        //                {
+        //                    var poolContacts = await unitOfWork.PoolAdminManager.GetPoolContacts(poolID, userID);
 
-                            if (poolContacts != null)
-                            {
-                                result.Succeeded = true;
-                                result.Data = poolContacts;
-                                return result;
-                            }
-                            else
-                            {
-                                result.Succeeded = false;
-                                result.Data = null;
-                                result.Errors.Add("No contacts found");
-                                result.Errors.Add("No contacts found");
-                                return result;
-                            }
-                        }
-                        else //Unauthorized
-                        {
-                            result.Succeeded = false;
-                            result.Errors.Add("Unauthorized");
-                            result.Errors.Add("غير مصرح");
-                            return result;
-                        }
-                    }
-                }
-                else
-                {
-                    result.Succeeded = false;
-                    result.Errors.Add("Unauthorized");
-                    result.Errors.Add("غير مصرح");
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                result.Succeeded = false;
-                result.Errors.Add(ex.Message);
-                result.ErrorType = ErrorType.SystemError;
-                return result;
-            }
+        //                    if (poolContacts != null)
+        //                    {
+        //                        result.Succeeded = true;
+        //                        result.Data = poolContacts;
+        //                        return result;
+        //                    }
+        //                    else
+        //                    {
+        //                        result.Succeeded = false;
+        //                        result.Data = null;
+        //                        result.Errors.Add("No contacts found");
+        //                        result.Errors.Add("No contacts found");
+        //                        return result;
+        //                    }
+        //                }
+        //                else //Unauthorized
+        //                {
+        //                    result.Succeeded = false;
+        //                    result.Errors.Add("Unauthorized");
+        //                    result.Errors.Add("غير مصرح");
+        //                    return result;
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            result.Succeeded = false;
+        //            result.Errors.Add("Unauthorized");
+        //            result.Errors.Add("غير مصرح");
+        //            return result;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        result.Succeeded = false;
+        //        result.Errors.Add(ex.Message);
+        //        result.ErrorType = ErrorType.SystemError;
+        //        return result;
+        //    }
 
-        }
+        //}
     }
 
 }
