@@ -47,6 +47,14 @@ namespace Stack.API.Controllers.Modules.Activities
             return await GetResponseHandler(async () => await service.GetNextActivitySection(model));
         }
 
+
+        [AllowAnonymous]
+        [HttpPost("GetPreviousActivitySection")]
+        public async Task<IActionResult> GetPreviousActivitySection(SectionToAnswer model)
+        {
+            return await GetResponseHandler(async () => await service.GetPreviousActivitySection(model));
+        }
+
         [AllowAnonymous]
         [HttpPost("DeleteActivity")]
         public async Task<IActionResult> DeleteActivity(DeletionModel model)
