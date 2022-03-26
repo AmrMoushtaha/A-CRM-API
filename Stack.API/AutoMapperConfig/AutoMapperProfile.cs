@@ -33,7 +33,8 @@ namespace Stack.API.AutoMapperConfig
            .ForMember(dist => dist.ContactPhoneNumbers, opt => opt.MapFrom(t => t.PhoneNumbers))
            .ForMember(dist => dist.AssignedUserName, opt => opt.MapFrom(t => t.AssignedUser.FirstName + " " + t.AssignedUser.LastName))
            .ForMember(dist => dist.Comments, opt => opt.MapFrom(t => t.Comments))
-           .ForMember(dist => dist.Status, opt => opt.MapFrom(t => t.Status.Status))
+           .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.EN))
+           .ForMember(dist => dist.StatusAR, opt => opt.MapFrom(t => t.Status.AR))
            .ForMember(dist => dist.Tags, opt => opt.MapFrom(t => t.Tags))
            .ReverseMap();
 
@@ -46,8 +47,11 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<Contact_Tag, ContactTagDTO>()
            .ReverseMap();
 
-            
+
             CreateMap<Tag, TagsDTO>()
+           .ReverseMap();
+
+            CreateMap<ContactStatus, ContactStatusViewModel>()
            .ReverseMap();
 
 

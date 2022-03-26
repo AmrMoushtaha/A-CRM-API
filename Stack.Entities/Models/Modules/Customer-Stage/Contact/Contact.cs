@@ -19,6 +19,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string LeadSourceName { get; set; }
         public string PrimaryPhoneNumber { get; set; }
 
+        public int State { get; set; }
 
         //Navitgation Properties . 
         public virtual ProcessFlow ProcessFlow { get; set; }
@@ -27,7 +28,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public virtual List<Contact_Tag> Tags { get; set; }
 
         public long PoolID { get; set; }
-        public long StatusID { get; set; }
+        public long? StatusID { get; set; }
         public string AssignedUserID { get; set; }
 
 

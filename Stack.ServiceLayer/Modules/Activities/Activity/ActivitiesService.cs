@@ -893,7 +893,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                         sectionToReturn.NameAR = currentSection.Section.NameAR;
 
-                        sectionToReturn.NameAR = currentSection.Section.NameAR;
+                        sectionToReturn.NameEN = currentSection.Section.NameEN;
 
                         sectionToReturn.IsFinalSection = false;
 

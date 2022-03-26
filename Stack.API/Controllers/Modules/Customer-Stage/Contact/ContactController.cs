@@ -53,5 +53,12 @@ namespace Stack.API.Controllers.Modules.Auth
         {
             return await AddItemResponseHandler(async () => await service.AppendTagToContact(model));
         }
+
+        [AllowAnonymous]
+        [HttpGet("GetAvailableContactStatuses")]
+        public async Task<IActionResult> GetAvailableContactStatuses()
+        {
+            return await GetResponseHandler(async () => await service.GetAvailableContactStatuses());
+        }
     }
 }

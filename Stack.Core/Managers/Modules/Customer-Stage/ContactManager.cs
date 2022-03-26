@@ -40,7 +40,8 @@ namespace Stack.Core.Managers.Modules.Materials
                        LeadSourceType = p.LeadSourceType,
                        Occupation = p.Occupation,
                        PrimaryPhoneNumber = p.PrimaryPhoneNumber,
-                       //Status = p.Status.Status,
+                       StatusEN = p.Status.EN,
+                       StatusAR = p.Status.AR,
                        AssignedUserName = p.AssignedUser.FirstName + " " + p.AssignedUser.LastName,
                    }).FirstOrDefault();
 

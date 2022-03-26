@@ -117,36 +117,26 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         LeadSourceType = creationModel.LeadSourceType,
                                         Occupation = creationModel.Occupation,
                                         PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                        StatusID = creationModel.StatusID
                                     };
 
-                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
-                                    var assignedStatus = assignedStatusQuery.FirstOrDefault();
-                                    if (assignedStatus != null)
-                                    {
-                                        modelToCreate.StatusID = assignedStatus.ID;
+                                    modelToCreate.State = (int)CustomerStageState.Initial;
 
-                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
-                                        if (creationModelResult != null)
-                                        {
-                                            await unitOfWork.SaveChangesAsync();
-                                            result.Succeeded = true;
-                                            result.Data = true;
-                                            return result;
-                                        }
-                                        else
-                                        {
-                                            result.Succeeded = false;
-                                            result.Errors.Add("Unable to create contact, please try again later ");
-                                            return result;
-                                        }
-                                    }
-                                    else //Return error for system statuses not initialized
+                                    var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                    if (creationModelResult != null)
                                     {
-                                        result.Succeeded = false;
-                                        result.ErrorCode = ErrorCode.CS500;
-                                        result.Errors.Add("Please refer to error code ");
+                                        await unitOfWork.SaveChangesAsync();
+                                        result.Succeeded = true;
+                                        result.Data = true;
                                         return result;
                                     }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Unable to create contact, please try again later ");
+                                        return result;
+                                    }
+
                                 }
                                 else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
                                 {
@@ -164,34 +154,23 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             LeadSourceType = creationModel.LeadSourceType,
                                             Occupation = creationModel.Occupation,
                                             PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                            StatusID = creationModel.StatusID
                                         };
 
-                                        var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
-                                        var assignedStatus = assignedStatusQuery.FirstOrDefault();
-                                        if (assignedStatus != null)
-                                        {
-                                            modelToCreate.StatusID = assignedStatus.ID;
+                                        modelToCreate.State = (int)CustomerStageState.Initial;
 
-                                            var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
-                                            if (creationModelResult != null)
-                                            {
-                                                await unitOfWork.SaveChangesAsync();
-                                                result.Succeeded = true;
-                                                result.Data = true;
-                                                return result;
-                                            }
-                                            else
-                                            {
-                                                result.Succeeded = false;
-                                                result.Errors.Add("Unable to create contact, please try again later ");
-                                                return result;
-                                            }
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult != null)
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+                                            result.Succeeded = true;
+                                            result.Data = true;
+                                            return result;
                                         }
-                                        else //Return error for system statuses not initialized
+                                        else
                                         {
                                             result.Succeeded = false;
-                                            result.ErrorCode = ErrorCode.CS500;
-                                            result.Errors.Add("Please refer to error code ");
+                                            result.Errors.Add("Unable to create contact, please try again later ");
                                             return result;
                                         }
                                     }
@@ -209,34 +188,23 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             LeadSourceType = creationModel.LeadSourceType,
                                             Occupation = creationModel.Occupation,
                                             PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                            StatusID = creationModel.StatusID
                                         };
 
-                                        var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
-                                        var assignedStatus = assignedStatusQuery.FirstOrDefault();
-                                        if (assignedStatus != null)
-                                        {
-                                            modelToCreate.StatusID = assignedStatus.ID;
+                                        modelToCreate.State = (int)CustomerStageState.Initial;
 
-                                            var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
-                                            if (creationModelResult != null)
-                                            {
-                                                await unitOfWork.SaveChangesAsync();
-                                                result.Succeeded = true;
-                                                result.Data = true;
-                                                return result;
-                                            }
-                                            else
-                                            {
-                                                result.Succeeded = false;
-                                                result.Errors.Add("Unable to create contact, please try again later ");
-                                                return result;
-                                            }
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult != null)
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+                                            result.Succeeded = true;
+                                            result.Data = true;
+                                            return result;
                                         }
-                                        else //Return error for system statuses not initialized
+                                        else
                                         {
                                             result.Succeeded = false;
-                                            result.ErrorCode = ErrorCode.CS500;
-                                            result.Errors.Add("Please refer to error code ");
+                                            result.Errors.Add("Unable to create contact, please try again later ");
                                             return result;
                                         }
                                     }
@@ -255,34 +223,23 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         LeadSourceType = creationModel.LeadSourceType,
                                         Occupation = creationModel.Occupation,
                                         PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                        StatusID = creationModel.StatusID
                                     };
 
-                                    var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Unassigned.ToString());
-                                    var assignedStatus = assignedStatusQuery.FirstOrDefault();
-                                    if (assignedStatus != null)
-                                    {
-                                        modelToCreate.StatusID = assignedStatus.ID;
+                                    modelToCreate.State = (int)CustomerStageState.Unassigned;
 
-                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
-                                        if (creationModelResult != null)
-                                        {
-                                            await unitOfWork.SaveChangesAsync();
-                                            result.Succeeded = true;
-                                            result.Data = true;
-                                            return result;
-                                        }
-                                        else
-                                        {
-                                            result.Succeeded = false;
-                                            result.Errors.Add("Unable to create contact, please try again later ");
-                                            return result;
-                                        }
+                                    var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                    if (creationModelResult != null)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+                                        result.Succeeded = true;
+                                        result.Data = true;
+                                        return result;
                                     }
-                                    else //Return error for system statuses not initialized
+                                    else
                                     {
                                         result.Succeeded = false;
-                                        result.ErrorCode = ErrorCode.CS500;
-                                        result.Errors.Add("Please refer to error code ");
+                                        result.Errors.Add("Unable to create contact, please try again later ");
                                         return result;
                                     }
                                 }
@@ -310,34 +267,23 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                             //assign contact to user
                             model.AssignedUserID = userID;
 
-                            var assignedStatusQuery = await unitOfWork.ContactStatusManager.GetAsync(t => t.Status == CustomerStageState.Initial.ToString());
-                            var assignedStatus = assignedStatusQuery.FirstOrDefault();
-                            if (assignedStatus != null)
-                            {
-                                model.StatusID = assignedStatus.ID;
+                            model.State = (int)CustomerStageState.Initial;
 
-                                var assignModelResult = await unitOfWork.ContactManager.UpdateAsync(model);
-                                if (assignModelResult)
-                                {
-                                    await unitOfWork.SaveChangesAsync();
-                                    result.Succeeded = true;
-                                    result.Data = true;
-                                    return result;
-                                }
-                                else
-                                {
-                                    result.Succeeded = false;
-                                    result.Errors.Add("Unable to assign existing contact, please try again later ");
-                                    return result;
-                                }
-                            }
-                            else //Return error for system statuses not initialized
+                            var assignModelResult = await unitOfWork.ContactManager.UpdateAsync(model);
+                            if (assignModelResult)
                             {
-                                result.Succeeded = false;
-                                result.ErrorCode = ErrorCode.CS500;
-                                result.Errors.Add("Please refer to error code ");
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                result.Data = true;
                                 return result;
                             }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Unable to assign existing contact, please try again later ");
+                                return result;
+                            }
+
                         }
                         else //duplicate contact is assigned
                         {
@@ -347,7 +293,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                         }
                     }
                 }
-                else //Phone number duplicated
+                else //Invalid user token
                 {
                     result.Succeeded = false;
                     result.ErrorCode = ErrorCode.A500;
@@ -437,6 +383,36 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             }
         }
 
+        public async Task<ApiResponse<List<ContactStatusViewModel>>> GetAvailableContactStatuses()
+        {
+            ApiResponse<List<ContactStatusViewModel>> result = new ApiResponse<List<ContactStatusViewModel>>();
+            try
+            {
+                var statusQuery = await unitOfWork.ContactStatusManager.GetAsync();
+                var statuses = statusQuery.ToList();
+
+                if (statuses != null && statuses.Count > 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<ContactStatusViewModel>>(statuses);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No statuses found");
+                    result.ErrorType = ErrorType.NotFound;
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
 
         //get available tags for contact (filters out current contact tags)
         public async Task<ApiResponse<List<TagsDTO>>> GetAvailableTags(long id)

@@ -6,11 +6,10 @@ namespace Stack.Entities.Enums.Modules.CustomerStage
 {
     public enum CustomerStageState
     {
-        Assigned,
         Unassigned,
+        Initial,
         Junked,
         NotInterested,
-        Initial,
     }
 
 }

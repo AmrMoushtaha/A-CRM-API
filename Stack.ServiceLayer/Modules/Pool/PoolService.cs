@@ -362,6 +362,7 @@ namespace Stack.ServiceLayer.Modules.pool
         //Get
 
         //Sidebar view
+        //Includes count of available contacts/leads/prospects/opportunities/donedeals within user assignesd pools
         public async Task<ApiResponse<List<PoolSidebarViewModel>>> GetUserAssignedPools()
         {
             ApiResponse<List<PoolSidebarViewModel>> result = new ApiResponse<List<PoolSidebarViewModel>>();
@@ -487,7 +488,7 @@ namespace Stack.ServiceLayer.Modules.pool
 
                     if (userPool != null)
                     {
-                        var poolContacts = await unitOfWork.PoolAdminManager.GetPoolContacts(poolID, userID);
+                        var poolContacts = await unitOfWork.PoolUserManager.GetPoolContacts(poolID, userID);
 
                         if (poolContacts != null)
                         {

@@ -10,9 +10,8 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string AssignedUserID { get; set; }
         public long DealID { get; set; }
 
-        public string State { get; set; }
+        public int State { get; set; }
         public long StatusID { get; set; }
-        public bool isJunked { get; set; }
            
         [ForeignKey("StatusID")]
         public virtual ProspectStatus Status { get; set; }

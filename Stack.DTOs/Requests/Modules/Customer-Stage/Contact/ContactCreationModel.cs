@@ -18,7 +18,8 @@ namespace Stack.DTOs.Requests.Modules.CustomerStage
         public string LeadSourceName { get; set; }
         public string PrimaryPhoneNumber { get; set; }
 
-        public string? AssigneeID { get; set; }
+        public string AssigneeID { get; set; }
+        public long? StatusID { get; set; }
 
         public List<ContactPhoneNumberDTO> ContactPhoneNumbers { get; set; }
 
