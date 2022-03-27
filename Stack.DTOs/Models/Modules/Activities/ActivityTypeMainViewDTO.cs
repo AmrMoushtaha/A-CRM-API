@@ -12,6 +12,8 @@ namespace Stack.DTOs.Models.Modules.Activities
 
         public string NameEN { get; set; }
 
+        public string ColorCode { get; set; }
+
     }
 
 }

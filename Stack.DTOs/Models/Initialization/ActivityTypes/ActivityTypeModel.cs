@@ -12,6 +12,9 @@ namespace Stack.DTOs.Models.Initialization.ActivityTypes
 
         public string Status { get; set; }
 
+
+        public string ColorCode { get; set; }
+
         public List<SectionModel> Sections { get; set; }
 
 

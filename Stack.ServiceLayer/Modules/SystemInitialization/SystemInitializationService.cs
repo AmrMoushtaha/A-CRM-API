@@ -61,6 +61,8 @@ namespace Stack.ServiceLayer.Modules.SystemInitialization
 
                         typeToCreate.Status = _defaultActivityTypes[i].Status;
 
+                        typeToCreate.ColorCode = _defaultActivityTypes[i].ColorCode;
+
                         typeToCreate.CreatedBy = "System";
 
                         var createActivityTypeResult = await unitOfWork.ActivityTypesManager.CreateAsync(typeToCreate);
