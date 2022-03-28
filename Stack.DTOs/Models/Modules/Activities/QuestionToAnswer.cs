@@ -14,6 +14,8 @@ namespace Stack.DTOs.Models.Modules.Activities
 
         public string Answer { get; set; } // Holds the answer value for questions that do no have options . 
 
+        public DateTime DateAnswer { get; set; }
+
         public string Type { get; set; }
 
         public bool isRequired { get; set; }

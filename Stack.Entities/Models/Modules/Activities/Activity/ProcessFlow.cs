@@ -15,7 +15,7 @@ namespace Stack.Entities.Models.Modules.Activities
 
         //Navigation Properties 
 
-        public long CustomerID { get; set; }
+        public long? CustomerID { get; set; }
 
         [ForeignKey("CustomerID")]
         public virtual Customer Customer { get; set; }

@@ -4,14 +4,12 @@ using System.Text;
 
 namespace Stack.DTOs.Requests.Modules.Activities
 {
-    public class CreateActivityModel
+    public class CreateDealActivityModel
 
     {
-        public long ContactID { get; set; }
+        public long DealID { get; set; }
 
         public long ActivityTypeID { get; set; }
-
-        public string CreatedBy { get; set; }
 
     }
 

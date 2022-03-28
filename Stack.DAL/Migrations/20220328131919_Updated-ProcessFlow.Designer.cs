@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220328131919_Updated-ProcessFlow")]
+    partial class UpdatedProcessFlow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -351,9 +353,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<long?>("ActivitySectionID")
                         .HasColumnType("bigint");
-
-                    b.Property<DateTime>("DateValue")
-                        .HasColumnType("datetime2");
 
                     b.Property<long?>("QuestionID")
                         .HasColumnType("bigint");

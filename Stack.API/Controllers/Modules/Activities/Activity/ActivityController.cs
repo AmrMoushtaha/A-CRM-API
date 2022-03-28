@@ -27,10 +27,17 @@ namespace Stack.API.Controllers.Modules.Activities
         }
 
         [AllowAnonymous]
-        [HttpPost("CreateNewActivity")]
-        public async Task<IActionResult> CreateNewActivity(CreateActivityModel model)
+        [HttpPost("CreateNewContactActivity")]
+        public async Task<IActionResult> CreateNewActivity(CreateContactActivityModel model)
         {
-            return await AddItemResponseHandler(async () => await service.CreateNewActivity(model));
+            return await AddItemResponseHandler(async () => await service.CreateNewContactActivity(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("CreateNewDealActivity")]
+        public async Task<IActionResult> CreateNewActivity(CreateDealActivityModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.CreateNewDealActivity(model));
         }
 
         [AllowAnonymous]
@@ -63,10 +70,17 @@ namespace Stack.API.Controllers.Modules.Activities
         }
 
         [AllowAnonymous]
-        [HttpGet("GetCurrentActivitySectionByDealID/{ActivitySectionID}")]
-        public async Task<IActionResult> GetCurrentActivitySectionByDealID(long ActivitySectionID)
+        [HttpGet("GetCurrentActivitySectionByDealID/{ID}")]
+        public async Task<IActionResult> GetCurrentActivitySectionByDealID(long ID)
         {
-            return await GetResponseHandler(async () => await service.GetCurrentActivitySectionByDealID(ActivitySectionID));
+            return await GetResponseHandler(async () => await service.GetCurrentActivitySectionByDealID(ID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetCurrentActivitySectionByContactID/{ID}")]
+        public async Task<IActionResult> GetCurrentActivitySectionByContactID(long ID)
+        {
+            return await GetResponseHandler(async () => await service.GetCurrentActivitySectionByContactID(ID));
         }
 
         [AllowAnonymous]
