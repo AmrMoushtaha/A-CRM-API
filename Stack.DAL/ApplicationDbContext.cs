@@ -4,6 +4,7 @@ using Stack.Entities.Models.Modules.Activities;
 using Stack.Entities.Models.Modules.AreaInterest;
 using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
+using Stack.Entities.Models.Modules.CustomerRequest;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Region;
 using System.Linq;
@@ -128,6 +129,21 @@ namespace Stack.DAL
             modelBuilder.Entity<ProcessFlow>()
             .Property<bool>("IsDeleted");
 
+            modelBuilder.Entity<CustomerRequest>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRType>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRSection>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRSectionQuestion>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRSectionQuestionOption>()
+            .Property<bool>("IsDeleted");
+
             modelBuilder.Entity<Tag>()
             .Property<bool>("IsDeleted");
 
@@ -228,6 +244,25 @@ namespace Stack.DAL
 
             modelBuilder.Entity<ProcessFlow>()
              .HasQueryFilter(ProcessFlow => EF.Property<bool>(ProcessFlow, "IsDeleted") == false);
+
+            modelBuilder.Entity<CustomerRequest>()
+              .HasQueryFilter(CustomerRequest => EF.Property<bool>(CustomerRequest, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRType>()
+              .HasQueryFilter(CRType => EF.Property<bool>(CRType, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRSection>()
+             .HasQueryFilter(CRSection => EF.Property<bool>(CRSection, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRSectionQuestion>()
+             .HasQueryFilter(CRSectionQuestion => EF.Property<bool>(CRSectionQuestion, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRSectionQuestionAnswer>()
+             .HasQueryFilter(CRSectionQuestionAnswer => EF.Property<bool>(CRSectionQuestionAnswer, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRSectionQuestionOption>()
+             .HasQueryFilter(CRSectionQuestionOption => EF.Property<bool>(CRSectionQuestionOption, "IsDeleted") == false);
+
 
             modelBuilder.Entity<Tag>()
              .HasQueryFilter(Tag => EF.Property<bool>(Tag, "IsDeleted") == false);
@@ -375,6 +410,16 @@ namespace Stack.DAL
             .WithMany(p => p.ActivitySections)
             .HasForeignKey(pr => pr.SectionID).OnDelete(DeleteBehavior.NoAction);
 
+            
+            modelBuilder.Entity<CR_Section>()
+            .HasOne(pr => pr.CustomerRequest)
+            .WithMany(p => p.RequestSections)
+            .HasForeignKey(pr => pr.RequestID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<CR_Section>()
+            .HasOne(pr => pr.Section)
+            .WithMany(p => p.RequestSections)
+            .HasForeignKey(pr => pr.SectionID).OnDelete(DeleteBehavior.NoAction);
+
 
         }
 
@@ -408,6 +453,17 @@ namespace Stack.DAL
         public virtual DbSet<SectionQuestionAnswer> SectionQuestionAnswers { get; set; }
         public virtual DbSet<SectionQuestionOption> SectionQuestionOptions { get; set; }
         public virtual DbSet<SelectedOption> SelectedOptions { get; set; }
+
+        public virtual DbSet<CustomerRequest> CustomerRequests { get; set; }
+        public virtual DbSet<CR_Section> CR_Sections { get; set; }
+        public virtual DbSet<CRSubmissionDetails> CRSubmissionDetails { get; set; }
+        public virtual DbSet<CRType> CRTypes { get; set; }
+        public virtual DbSet<CRSection> CRSections { get; set; }
+        public virtual DbSet<CRSectionQuestion> CRSectionQuestions { get; set; }
+        public virtual DbSet<CRSectionQuestionAnswer> CRSectionQuestionAnswers { get; set; }
+        public virtual DbSet<CRSectionQuestionOption> CRSectionQuestionOptions { get; set; }
+        public virtual DbSet<CRSelectedOption> CRSelectedOptions { get; set; }
+
         public virtual DbSet<ProcessFlow> ProcessFlows { get; set; }
         public virtual DbSet<Region> Regions { get; set; }
         public virtual DbSet<Area_LOneInterest> Area_LOneInterests { get; set; }
