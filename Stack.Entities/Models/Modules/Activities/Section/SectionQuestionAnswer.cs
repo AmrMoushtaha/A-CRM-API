@@ -1,4 +1,5 @@
 ﻿using Stack.Entities.Models.Modules.Auth;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,6 +10,8 @@ namespace Stack.Entities.Models.Modules.Activities
         public long ID { get; set; }
 
         public string Value { get; set; }
+
+        public DateTime DateValue { get; set; }
 
         //Navigation Properties . 
         public long? ActivitySectionID { get; set; }

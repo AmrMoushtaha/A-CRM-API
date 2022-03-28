@@ -14,6 +14,9 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public string CreatedBy { get; set; }
 
+
+        public string ColorCode { get; set; }
+
         //Navigation Properties . 
 
         public virtual List<Activity> Activities { get; set; }

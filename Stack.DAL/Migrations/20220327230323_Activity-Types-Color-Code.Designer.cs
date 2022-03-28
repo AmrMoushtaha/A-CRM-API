@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220327230323_Activity-Types-Color-Code")]
+    partial class ActivityTypesColorCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,7 +239,7 @@ namespace Stack.DAL.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("CustomerID")
+                    b.Property<long>("CustomerID")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("DealID")
@@ -351,9 +353,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<long?>("ActivitySectionID")
                         .HasColumnType("bigint");
-
-                    b.Property<DateTime>("DateValue")
-                        .HasColumnType("datetime2");
 
                     b.Property<long?>("QuestionID")
                         .HasColumnType("bigint");
@@ -1473,7 +1472,9 @@ namespace Stack.DAL.Migrations
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Customer")
                         .WithMany("ProcessFlows")
-                        .HasForeignKey("CustomerID");
+                        .HasForeignKey("CustomerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Deal", "Deal")
                         .WithOne("ProcessFlow")
