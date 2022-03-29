@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Stack.DAL;
 using Stack.DTOs.Models.Modules.CustomerStage;
+using Stack.DTOs.Models.Modules.Pool;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Repository;
 using System;
@@ -82,6 +83,22 @@ namespace Stack.Core.Managers.Modules.Materials
                 {
                     return null;
                 }
+            });
+        }
+
+        public async Task<List<ContactListViewModel>> GetAssignedContacts(string userID)
+        {
+            return await Task.Run(() =>
+            {
+                return context.Contacts.Where(t => t.AssignedUserID == userID)
+                   .Select(p => new ContactListViewModel
+                   {
+                       ID = p.ID,
+                       FullNameEN = p.FullNameEN,
+                       FullNameAR = p.FullNameAR,
+                       PrimaryPhoneNumber = p.PrimaryPhoneNumber,
+                   }).ToList();
+
             });
         }
     }

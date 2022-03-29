@@ -27,6 +27,13 @@ namespace Stack.API.Controllers.Modules.Pool
         }
 
         [AllowAnonymous]
+        [HttpGet("GetUserAssignedPoolStages")]
+        public async Task<IActionResult> GetUserAssignedPoolStages()
+        {
+            return await GetResponseHandler(async () => await service.GetUserAssignedPoolStages());
+        }
+
+        [AllowAnonymous]
         [HttpGet("GetPoolDetails/{poolID}")]
         public async Task<IActionResult> GetPoolDetails(long poolID)
         {

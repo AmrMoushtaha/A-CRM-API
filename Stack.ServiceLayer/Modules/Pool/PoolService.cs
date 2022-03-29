@@ -425,6 +425,56 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
+        //Get Assigned Pool Stages count (Sidebar view)
+        public async Task<ApiResponse<AssignedPoolSidebarViewModel>> GetUserAssignedPoolStages()
+        {
+            ApiResponse<AssignedPoolSidebarViewModel> result = new ApiResponse<AssignedPoolSidebarViewModel>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    List<PoolSidebarViewModel> poolSidebarViewModel = new List<PoolSidebarViewModel>();
+
+                    var assignedPool = await unitOfWork.PoolManager.GetAssignedPoolStages(userID);
+
+                    if (assignedPool != null)
+                    {
+                        result.Succeeded = true;
+                        result.Data = assignedPool;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("An error occured while retreiving assigned pool data");
+                        result.Errors.Add("حدث خطأ أثناء استرداد بيانات التجمع المعينة");
+                        result.ErrorType = ErrorType.NotFound;
+                        return result;
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Not authorized");
+                    result.Errors.Add("غير مصرح");
+                    result.ErrorCode = ErrorCode.A500;
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
         //Get main pool details
         public async Task<ApiResponse<PoolSidebarViewModel>> GetPoolDetails(long poolID)
         {
@@ -556,6 +606,8 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
+
+
     }
 
 }

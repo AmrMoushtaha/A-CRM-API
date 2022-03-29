@@ -41,6 +41,20 @@ namespace Stack.Core.Managers.Modules.pool
             });
         }
 
+        public async Task<AssignedPoolSidebarViewModel> GetAssignedPoolStages(string userID)
+        {
+
+            return await Task.Run(() =>
+            {
+                return context.Users.Where(t => t.Id == userID)
+                   .Select(p => new AssignedPoolSidebarViewModel
+                   {
+                       Contacts = p.Contacts.Count(),
+                   }).FirstOrDefault();
+
+            });
+        }
+
     }
 
 }

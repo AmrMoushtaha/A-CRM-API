@@ -24,6 +24,7 @@ using Stack.DTOs.Requests.Modules.CustomerStage;
 using Stack.Entities.Enums.Modules.CustomerStage;
 using Stack.Entities.Enums.Modules.Auth;
 using Stack.Entities.Models.Modules.CustomerStage;
+using Stack.DTOs.Models.Modules.Pool;
 
 namespace Stack.ServiceLayer.Modules.CustomerStage
 {
@@ -46,7 +47,49 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
         }
 
 
+        //Assigned Contacts
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetAssignedContacts()
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
+                if (userID != null)
+                {
+                    var assignedRecords = await unitOfWork.ContactManager.GetAssignedContacts(userID);
+
+                    if (assignedRecords != null && assignedRecords.Count > 0)
+                    {
+                        result.Succeeded = true;
+                        result.Data = assignedRecords;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("No contacts found");
+                        result.Errors.Add("لم يتم العثور على جهات اتصال");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
         public async Task<ApiResponse<ContactViewModel>> GetContact(long id)
         {
             ApiResponse<ContactViewModel> result = new ApiResponse<ContactViewModel>();

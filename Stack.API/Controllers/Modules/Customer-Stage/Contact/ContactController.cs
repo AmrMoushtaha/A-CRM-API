@@ -60,5 +60,12 @@ namespace Stack.API.Controllers.Modules.Auth
         {
             return await GetResponseHandler(async () => await service.GetAvailableContactStatuses());
         }
+
+        [AllowAnonymous]
+        [HttpGet("GetAssignedContacts")]
+        public async Task<IActionResult> GetAssignedContacts()
+        {
+            return await GetResponseHandler(async () => await service.GetAssignedContacts());
+        }
     }
 }
