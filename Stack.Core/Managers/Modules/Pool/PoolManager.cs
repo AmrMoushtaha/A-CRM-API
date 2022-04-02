@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Stack.Core.Managers.Modules.pool
+namespace Stack.Core.Managers.Modules.Pools
 {
     public class PoolManager : Repository<Pool, ApplicationDbContext>
     {

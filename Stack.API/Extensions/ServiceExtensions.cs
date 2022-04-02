@@ -35,6 +35,7 @@ namespace Stack.API.Extensions
             caller.AddScoped<AreaService>();
             caller.AddScoped<ZoomService>();
             caller.AddScoped<SystemInitializationService>();
+            caller.AddScoped<LocationService>();
         }
 
     }

@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Stack.Core.Managers.Modules.Activities;
+using Stack.Core.Managers.Modules.area;
 using Stack.Core.Managers.Modules.Auth;
 using Stack.Core.Managers.Modules.CR;
+using Stack.Core.Managers.Modules.Interest;
 using Stack.Core.Managers.Modules.Materials;
-using Stack.Core.Managers.Modules.pool;
+using Stack.Core.Managers.Modules.Pools;
 using Stack.DAL;
 using System;
 using System.Threading.Tasks;
@@ -339,6 +341,72 @@ namespace Stack.Core
             }
         }
 
+        private LInterestManager lInterestManager;
+        public LInterestManager LInterestManager
+        {
+            get
+            {
+                if (lInterestManager == null)
+                {
+                    lInterestManager = new LInterestManager(context);
+                }
+                return lInterestManager;
+            }
+        }
+
+
+        private LInterest_LInterestInputManager lInterest_LInterestInputManager;
+        public LInterest_LInterestInputManager LInterest_LInterestInputManager
+        {
+            get
+            {
+                if (lInterest_LInterestInputManager == null)
+                {
+                    lInterest_LInterestInputManager = new LInterest_LInterestInputManager(context);
+                }
+                return lInterest_LInterestInputManager;
+            }
+        }
+
+        private LInterest_InterestAttributeManager lInterest_InterestAttributeManager;
+        public LInterest_InterestAttributeManager LInterest_InterestAttributeManager
+        {
+            get
+            {
+                if (lInterest_InterestAttributeManager == null)
+                {
+                    lInterest_InterestAttributeManager = new LInterest_InterestAttributeManager(context);
+                }
+                return lInterest_InterestAttributeManager;
+            }
+        }
+
+        private InterestAttributesManager interestAttributesManager;
+        public InterestAttributesManager InterestAttributesManager
+        {
+            get
+            {
+                if (interestAttributesManager == null)
+                {
+                    interestAttributesManager = new InterestAttributesManager(context);
+                }
+                return interestAttributesManager;
+            }
+        }
+
+        private LInterestInputManager lInterestInputManager;
+        public LInterestInputManager LInterestInputManager
+        {
+            get
+            {
+                if (lInterestInputManager == null)
+                {
+                    lInterestInputManager = new LInterestInputManager(context);
+                }
+                return lInterestInputManager;
+            }
+        }
+
         private PoolManager poolManager;
         public PoolManager PoolManager
         {
@@ -349,6 +417,31 @@ namespace Stack.Core
                     poolManager = new PoolManager(context);
                 }
                 return poolManager;
+            }
+        }
+
+        private Location_PoolManager location_PoolManager;
+        public Location_PoolManager Location_PoolManager
+        {
+            get
+            {
+                if (location_PoolManager == null)
+                {
+                    location_PoolManager = new Location_PoolManager(context);
+                }
+                return location_PoolManager;
+            }
+        }
+        private LocationManager locationManager;
+        public LocationManager LocationManager
+        {
+            get
+            {
+                if (locationManager == null)
+                {
+                    locationManager = new LocationManager(context);
+                }
+                return locationManager;
             }
         }
 
@@ -364,6 +457,8 @@ namespace Stack.Core
                 return poolUserManager;
             }
         }
+
+
         private PoolAdminManager poolAdminManager;
         public PoolAdminManager PoolAdminManager
         {

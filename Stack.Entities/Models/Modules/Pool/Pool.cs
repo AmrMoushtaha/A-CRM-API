@@ -18,7 +18,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
 
         public virtual List<Pool_Users> Pool_Users { get; set; }
         public virtual List<Pool_Admin> Pool_Admins { get; set; }
-        public virtual List<Area_Pool> Area_Pools { get; set; }
+        public virtual List<Location_Pool> Location_Pools { get; set; }
         public virtual List<Contact> Contacts { get; set; }
 
     }

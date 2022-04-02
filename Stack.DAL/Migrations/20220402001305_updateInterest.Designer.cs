@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220402001305_updateInterest")]
+    partial class updateInterest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -501,16 +503,13 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("DescriptionEN")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsSeparate")
                         .HasColumnType("bit");
 
-                    b.Property<int>("Level")
+                    b.Property<int>("LevelType")
                         .HasColumnType("int");
 
-                    b.Property<long?>("LocationID")
+                    b.Property<long>("LocationID")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("OwnerID")
@@ -542,9 +541,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<string>("Attachment")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("LabelAR")
                         .HasColumnType("nvarchar(max)");
@@ -602,9 +598,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<string>("DescriptionEN")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<float>("Latitude")
                         .HasColumnType("real");
@@ -1693,10 +1686,12 @@ namespace Stack.DAL.Migrations
                 {
                     b.HasOne("Stack.Entities.Models.Modules.Areas.Location", "Location")
                         .WithMany("LInterests")
-                        .HasForeignKey("LocationID");
+                        .HasForeignKey("LocationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Owner")
-                        .WithMany("SeparatedLInterests")
+                        .WithMany()
                         .HasForeignKey("OwnerID");
 
                     b.HasOne("Stack.Entities.Models.Modules.AreaInterest.LInterest", "ParentLInterest")
