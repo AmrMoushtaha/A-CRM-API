@@ -5,9 +5,9 @@ using Stack.Repository;
 
 namespace Stack.Core.Managers.Modules.Interest
 {
-    public class InterestAttributesManager : Repository<InterestAttribute, ApplicationDbContext>
+    public class LInterestInputManager : Repository<LInterestInput, ApplicationDbContext>
     {
-        public InterestAttributesManager(ApplicationDbContext _context) : base(_context)
+        public LInterestInputManager(ApplicationDbContext _context) : base(_context)
         {
 
 

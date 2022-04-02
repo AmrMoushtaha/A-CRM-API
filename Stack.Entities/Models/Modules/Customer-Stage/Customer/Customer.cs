@@ -1,4 +1,5 @@
 ﻿using Stack.Entities.Models.Modules.Activities;
+using Stack.Entities.Models.Modules.AreaInterest;
 using Stack.Entities.Models.Modules.Auth;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -24,6 +25,9 @@ namespace Stack.Entities.Models.Modules.CustomerStage
 
         [ForeignKey("AssignedUserID")]
         public virtual ApplicationUser AssignedUser { get; set; }
+
+        public virtual List<LInterest> SeparatedLInterests { get; set; } 
+
     }
 
 }
