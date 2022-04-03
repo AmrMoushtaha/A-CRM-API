@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220402205143_update")]
+    partial class update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,7 +169,7 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long?>("ActivityID")
+                    b.Property<long>("ActivityID")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("EndDate")
@@ -179,7 +181,7 @@ namespace Stack.DAL.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<long?>("SectionID")
+                    b.Property<long>("SectionID")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("StartDate")
@@ -510,7 +512,7 @@ namespace Stack.DAL.Migrations
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
-                    b.Property<long?>("LocationID")
+                    b.Property<long>("LocationID")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("OwnerID")
@@ -1600,12 +1602,14 @@ namespace Stack.DAL.Migrations
                     b.HasOne("Stack.Entities.Models.Modules.Activities.Activity", "Activity")
                         .WithMany("ActivitySections")
                         .HasForeignKey("ActivityID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("Stack.Entities.Models.Modules.Activities.Section", "Section")
                         .WithMany("ActivitySections")
                         .HasForeignKey("SectionID")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.ProcessFlow", b =>
@@ -1647,13 +1651,11 @@ namespace Stack.DAL.Migrations
                 {
                     b.HasOne("Stack.Entities.Models.Modules.Activities.ActivitySection", "ActivitySection")
                         .WithMany("QuestionAnswers")
-                        .HasForeignKey("ActivitySectionID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ActivitySectionID");
 
                     b.HasOne("Stack.Entities.Models.Modules.Activities.SectionQuestion", "Question")
                         .WithMany("QuestionAnswers")
-                        .HasForeignKey("QuestionID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("QuestionID");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SectionQuestionOption", b =>
@@ -1693,7 +1695,9 @@ namespace Stack.DAL.Migrations
                 {
                     b.HasOne("Stack.Entities.Models.Modules.Areas.Location", "Location")
                         .WithMany("LInterests")
-                        .HasForeignKey("LocationID");
+                        .HasForeignKey("LocationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Owner")
                         .WithMany("SeparatedLInterests")

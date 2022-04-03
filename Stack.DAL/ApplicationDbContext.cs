@@ -6,7 +6,6 @@ using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.CustomerRequest;
 using Stack.Entities.Models.Modules.CustomerStage;
-using Stack.Entities.Models.Modules.Region;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,26 +49,6 @@ namespace Stack.DAL
 
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Area>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<LOneInterest>()
-           .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<LOneInterestInput>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<LTwoInterest>()
-           .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<LTwoInterestInput>()
-             .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<LThreeInterest>()
-           .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<LThreeInterestInput>()
-            .Property<bool>("IsDeleted");
 
             modelBuilder.Entity<InterestAttribute>()
             .Property<bool>("IsDeleted");
@@ -148,30 +127,6 @@ namespace Stack.DAL
             .Property<bool>("IsDeleted");
 
             //Soft delete query filters . 
-
-            modelBuilder.Entity<Region>()
-            .HasQueryFilter(Region => EF.Property<bool>(Region, "IsDeleted") == false);
-
-            modelBuilder.Entity<Area>()
-               .HasQueryFilter(Area => EF.Property<bool>(Area, "IsDeleted") == false);
-
-            modelBuilder.Entity<LOneInterest>()
-               .HasQueryFilter(LOneInterest => EF.Property<bool>(LOneInterest, "IsDeleted") == false);
-
-            modelBuilder.Entity<LOneInterestInput>()
-               .HasQueryFilter(LOneInterestInput => EF.Property<bool>(LOneInterestInput, "IsDeleted") == false);
-
-            modelBuilder.Entity<LTwoInterest>()
-               .HasQueryFilter(LTwoInterest => EF.Property<bool>(LTwoInterest, "IsDeleted") == false);
-
-            modelBuilder.Entity<LTwoInterestInput>()
-               .HasQueryFilter(LTwoInterestInput => EF.Property<bool>(LTwoInterestInput, "IsDeleted") == false);
-
-            modelBuilder.Entity<LThreeInterest>()
-               .HasQueryFilter(LThreeInterest => EF.Property<bool>(LThreeInterest, "IsDeleted") == false);
-
-            modelBuilder.Entity<LThreeInterestInput>()
-               .HasQueryFilter(LThreeInterestInput => EF.Property<bool>(LThreeInterestInput, "IsDeleted") == false);
 
             modelBuilder.Entity<InterestAttribute>()
                .HasQueryFilter(InterestAttribute => EF.Property<bool>(InterestAttribute, "IsDeleted") == false);
@@ -269,93 +224,38 @@ namespace Stack.DAL
 
 
 
-            modelBuilder.Entity<Area_Pool>().HasKey(x => new { x.AreaID, x.PoolID });
-            modelBuilder.Entity<Area_Pool>()
-            .HasOne(pr => pr.Area)
+
+            modelBuilder.Entity<LInterest_InterestAttribute>().HasKey(x => new { x.LInterestID, x.InterestAttributeID });
+            modelBuilder.Entity<LInterest_InterestAttribute>()
+            .HasOne(pr => pr.LInterest)
+            .WithMany(p => p.Attributes)
+            .HasForeignKey(pr => pr.LInterestID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LInterest_InterestAttribute>()
+            .HasOne(pr => pr.InterestAttribute)
+            .WithMany(p => p.LInterest_InterestAttributes)
+            .HasForeignKey(pr => pr.InterestAttributeID).OnDelete(DeleteBehavior.NoAction);
+
+
+            modelBuilder.Entity<LInterest_LInterestInput>().HasKey(x => new { x.LInterestID, x.LInterestInputID });
+            modelBuilder.Entity<LInterest_LInterestInput>()
+            .HasOne(pr => pr.LInterest)
+            .WithMany(p => p.Inputs)
+            .HasForeignKey(pr => pr.LInterestID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<LInterest_LInterestInput>()
+            .HasOne(pr => pr.LInterestInput)
+            .WithMany(p => p.LInterest_LInterestInputs)
+            .HasForeignKey(pr => pr.LInterestInputID).OnDelete(DeleteBehavior.NoAction);
+
+
+            modelBuilder.Entity<Location_Pool>().HasKey(x => new { x.LocationID, x.PoolID });
+            modelBuilder.Entity<Location_Pool>()
+            .HasOne(pr => pr.Location)
             .WithMany(p => p.Pools)
-            .HasForeignKey(pr => pr.AreaID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Area_Pool>()
+            .HasForeignKey(pr => pr.LocationID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Location_Pool>()
             .HasOne(pr => pr.Pool)
-            .WithMany(p => p.Area_Pools)
+            .WithMany(p => p.Location_Pools)
             .HasForeignKey(pr => pr.PoolID).OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Area_LOneInterest>().HasKey(x => new { x.AreaID, x.LOneInterestID });
-            modelBuilder.Entity<Area_LOneInterest>()
-            .HasOne(pr => pr.Area)
-            .WithMany(p => p.Interests)
-            .HasForeignKey(pr => pr.AreaID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Area_LOneInterest>()
-            .HasOne(pr => pr.Interest)
-            .WithMany(p => p.Area_LOneInterests)
-            .HasForeignKey(pr => pr.LOneInterestID).OnDelete(DeleteBehavior.NoAction);
-
-
-            modelBuilder.Entity<LOneInterest_InterestAttributes>().HasKey(x => new { x.LOneInterestID, x.InterestAttributeID });
-            modelBuilder.Entity<LOneInterest_InterestAttributes>()
-            .HasOne(pr => pr.LOneInterest)
-            .WithMany(p => p.Attributes)
-            .HasForeignKey(pr => pr.LOneInterestID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<LOneInterest_InterestAttributes>()
-            .HasOne(pr => pr.InterestAttribute)
-            .WithMany(p => p.LevelOne)
-            .HasForeignKey(pr => pr.LOneInterestID).OnDelete(DeleteBehavior.NoAction);
-
-
-            modelBuilder.Entity<LOneInterest_LOneInterestInput>().HasKey(x => new { x.LOneInterestID, x.LOneInterestInputID });
-            modelBuilder.Entity<LOneInterest_LOneInterestInput>()
-            .HasOne(pr => pr.LOneInterest)
-            .WithMany(p => p.Inputs)
-            .HasForeignKey(pr => pr.LOneInterestID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<LOneInterest_LOneInterestInput>()
-            .HasOne(pr => pr.LOneInterestInput)
-            .WithMany(p => p.LOneInterest_LOneInterestInputs)
-            .HasForeignKey(pr => pr.LOneInterestInputID).OnDelete(DeleteBehavior.NoAction);
-
-
-
-            modelBuilder.Entity<LTwoInterest_InterestAttributes>().HasKey(x => new { x.LTwoInterestID, x.InterestAttributeID });
-            modelBuilder.Entity<LTwoInterest_InterestAttributes>()
-            .HasOne(pr => pr.LTwoInterest)
-            .WithMany(p => p.Attributes)
-            .HasForeignKey(pr => pr.LTwoInterestID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<LTwoInterest_InterestAttributes>()
-            .HasOne(pr => pr.InterestAttribute)
-            .WithMany(p => p.LevelTwo)
-            .HasForeignKey(pr => pr.LTwoInterestID).OnDelete(DeleteBehavior.NoAction);
-
-
-            modelBuilder.Entity<LTwoInterest_LTwoInterestInput>().HasKey(x => new { x.LTwoInterestID, x.LTwoInterestInputID });
-            modelBuilder.Entity<LTwoInterest_LTwoInterestInput>()
-            .HasOne(pr => pr.LTwoInterest)
-            .WithMany(p => p.Inputs)
-            .HasForeignKey(pr => pr.LTwoInterestID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<LTwoInterest_LTwoInterestInput>()
-            .HasOne(pr => pr.LTwoInterestInput)
-            .WithMany(p => p.LTwoInterest_LTwoInterestInputs)
-            .HasForeignKey(pr => pr.LTwoInterestInputID).OnDelete(DeleteBehavior.NoAction);
-
-
-
-            modelBuilder.Entity<LThreeInterest_InterestAttributes>().HasKey(x => new { x.LThreeInterestID, x.InterestAttributeID });
-            modelBuilder.Entity<LThreeInterest_InterestAttributes>()
-            .HasOne(pr => pr.LThreeInterest)
-            .WithMany(p => p.Attributes)
-            .HasForeignKey(pr => pr.LThreeInterestID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<LThreeInterest_InterestAttributes>()
-            .HasOne(pr => pr.InterestAttribute)
-            .WithMany(p => p.LevelThree)
-            .HasForeignKey(pr => pr.LThreeInterestID).OnDelete(DeleteBehavior.NoAction);
-
-
-            modelBuilder.Entity<LThreeInterest_LThreeInterestInput>().HasKey(x => new { x.LThreeInterestID, x.LThreeInterestInputID });
-            modelBuilder.Entity<LThreeInterest_LThreeInterestInput>()
-            .HasOne(pr => pr.LThreeInterest)
-            .WithMany(p => p.Inputs)
-            .HasForeignKey(pr => pr.LThreeInterestID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<LThreeInterest_LThreeInterestInput>()
-            .HasOne(pr => pr.LThreeInterestInput)
-            .WithMany(p => p.LThreeInterest_LThreeInterestInput)
-            .HasForeignKey(pr => pr.LThreeInterestInputID).OnDelete(DeleteBehavior.NoAction);
 
 
             modelBuilder.Entity<Pool_Users>().HasKey(x => new { x.PoolID, x.UserID });
@@ -434,8 +334,6 @@ namespace Stack.DAL
         }
 
 
-        public virtual DbSet<Area> Areas { get; set; }
-        public virtual DbSet<Area_Pool> Area_Pools { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<Contact_Tag> Contact_Tags { get; set; }
         public virtual DbSet<Customer_Tag> Customer_Tags { get; set; }
@@ -475,18 +373,12 @@ namespace Stack.DAL
         public virtual DbSet<CRSelectedOption> CRSelectedOptions { get; set; }
 
         public virtual DbSet<ProcessFlow> ProcessFlows { get; set; }
-        public virtual DbSet<Region> Regions { get; set; }
-        public virtual DbSet<Area_LOneInterest> Area_LOneInterests { get; set; }
-        public virtual DbSet<LOneInterest> LOneInterests { get; set; }
-        public virtual DbSet<LOneInterestInput> LOneInterestInputs { get; set; }
-        public virtual DbSet<LTwoInterest> LTwoInterests { get; set; }
-        public virtual DbSet<LTwoInterestInput> LTwoInterestInputs { get; set; }
-        public virtual DbSet<LTwoInterest_InterestAttributes> LTwoInterest_InterestAttributes { get; set; }
-        public virtual DbSet<LTwoInterest_LTwoInterestInput> LTwoInterest_LTwoInterestInputs { get; set; }
-        public virtual DbSet<LThreeInterest> LThreeInterests { get; set; }
-        public virtual DbSet<LThreeInterestInput> LThreeInterestInputs { get; set; }
-        public virtual DbSet<LThreeInterest_InterestAttributes> LThreeInterest_InterestAttributes { get; set; }
-        public virtual DbSet<LThreeInterest_LThreeInterestInput> LThreeInterest_LThreeInterestInputs { get; set; }
+        public virtual DbSet<Location_Pool> Location_Pools { get; set; }
+        public virtual DbSet<Location> Locations { get; set; }
+        public virtual DbSet<LInterest> LInterests { get; set; }
+        public virtual DbSet<LInterestInput> LInterestInputs { get; set; }
+        public virtual DbSet<LInterest_InterestAttribute> LInterest_InterestAttributes { get; set; }
+        public virtual DbSet<LInterest_LInterestInput> LInterest_LInterestInputs { get; set; }
         public virtual DbSet<InterestAttribute> InterestAttributes { get; set; }
 
     }
