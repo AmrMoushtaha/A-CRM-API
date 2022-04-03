@@ -404,13 +404,23 @@ namespace Stack.DAL
             modelBuilder.Entity<ActivitySection>()
             .HasOne(pr => pr.Activity)
             .WithMany(p => p.ActivitySections)
-            .HasForeignKey(pr => pr.ActivityID).OnDelete(DeleteBehavior.NoAction);
+            .HasForeignKey(pr => pr.ActivityID).OnDelete(DeleteBehavior.SetNull);
             modelBuilder.Entity<ActivitySection>()
             .HasOne(pr => pr.Section)
             .WithMany(p => p.ActivitySections)
             .HasForeignKey(pr => pr.SectionID).OnDelete(DeleteBehavior.NoAction);
 
-            
+            modelBuilder.Entity<SectionQuestionAnswer>()
+           .HasOne(pr => pr.ActivitySection)
+           .WithMany(p => p.QuestionAnswers)
+           .HasForeignKey(pr => pr.ActivitySectionID).OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<SectionQuestionAnswer>()
+            .HasOne(pr => pr.Question)
+            .WithMany(p => p.QuestionAnswers)
+            .HasForeignKey(pr => pr.QuestionID).OnDelete(DeleteBehavior.SetNull);
+
+
+
             modelBuilder.Entity<CR_Section>()
             .HasOne(pr => pr.CustomerRequest)
             .WithMany(p => p.RequestSections)

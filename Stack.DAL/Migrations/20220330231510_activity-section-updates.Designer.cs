@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220330231510_activity-section-updates")]
+    partial class activitysectionupdates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1784,13 +1786,11 @@ namespace Stack.DAL.Migrations
                 {
                     b.HasOne("Stack.Entities.Models.Modules.Activities.ActivitySection", "ActivitySection")
                         .WithMany("QuestionAnswers")
-                        .HasForeignKey("ActivitySectionID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ActivitySectionID");
 
                     b.HasOne("Stack.Entities.Models.Modules.Activities.SectionQuestion", "Question")
                         .WithMany("QuestionAnswers")
-                        .HasForeignKey("QuestionID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("QuestionID");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SectionQuestionOption", b =>
