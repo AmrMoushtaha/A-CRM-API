@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20220402223227_updateIDs.cs" />
-    <Compile Remove="Migrations\20220402223227_updateIDs.Designer.cs" />
+    <Compile Remove="Migrations\20220402225707_model-builder-updates.cs" />
+    <Compile Remove="Migrations\20220402225707_model-builder-updates.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
