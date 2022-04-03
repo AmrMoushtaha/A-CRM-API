@@ -43,6 +43,62 @@ namespace Stack.ServiceLayer.Modules.Interest
 
         }
 
+        public async Task<ApiResponse<List<Location>>> Get_LocationByType(int Type)
+        {
+            ApiResponse<List<Location>> result = new ApiResponse<List<Location>>();
+            try
+            {
+                var LocationResult = await unitOfWork.LocationManager.GetAsync(a => a.LocationType == Type);
+                List<Location> LocationList = LocationResult.ToList();
+                if (LocationList != null && LocationList.Count!=0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<Location>>(LocationList);
+                    return result;
+                }
+
+                result.Errors.Add("Failed to find locations!");
+                result.Succeeded = false;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<Location>>> Get_LocationByParentID(long ParentID)
+        {
+            ApiResponse<List<Location>> result = new ApiResponse<List<Location>>();
+            try
+            {
+                var LocationResult = await unitOfWork.LocationManager.GetAsync(a => a.ParentLocationID == ParentID);
+                List<Location> LocationList = LocationResult.ToList();
+                if (LocationList != null && LocationList.Count != 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<Location>>(LocationList);
+                    return result;
+                }
+
+                result.Errors.Add("Failed to find locations!");
+                result.Succeeded = false;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
         public async Task<ApiResponse<bool>> Create_Location(LocationToAdd LocationToAdd)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -53,7 +109,7 @@ namespace Stack.ServiceLayer.Modules.Interest
                 if (DuplicateLocation == null)
                 {
                     Location LocationToCreate = mapper.Map<Location>(LocationToAdd);
-                    LocationToCreate.ParentLocationID = null;
+                    LocationToCreate.ParentLocationID = LocationToCreate.ParentLocationID == 0 ? null : LocationToCreate.ParentLocationID;
                     var createLocationResult = await unitOfWork.LocationManager.CreateAsync(LocationToCreate);
                     var saveResult= await unitOfWork.SaveChangesAsync();
 
@@ -98,11 +154,18 @@ namespace Stack.ServiceLayer.Modules.Interest
 
                 if (DuplicateLocationResult == null && LocationR != null)
                 {
-                    LocationR = mapper.Map<Location>(LocationToEdit); 
+                    LocationR.LocationType = LocationToEdit.LocationType;
+                    LocationR.Latitude = LocationToEdit.Latitude;
+                    LocationR.Longitude = LocationToEdit.Longitude;
+                    LocationR.NameAR = LocationToEdit.NameAR;
+                    LocationR.NameEN = LocationToEdit.NameEN;
+                    LocationR.DescriptionAR = LocationToEdit.DescriptionAR;
+                    LocationR.DescriptionEN = LocationToEdit.DescriptionEN;
+                    LocationR.ParentLocationID = LocationToEdit.ParentLocationID == 0 ? null : LocationToEdit.ParentLocationID;
                     var updateResult = await unitOfWork.LocationManager.UpdateAsync(LocationR);
-                    await unitOfWork.SaveChangesAsync();
+                    var SaveResult = await unitOfWork.SaveChangesAsync();
 
-                    if (updateResult)
+                    if (SaveResult)
                     {
                         result.Succeeded = true;
                         result.Data = true;
@@ -133,7 +196,6 @@ namespace Stack.ServiceLayer.Modules.Interest
 
         }
 
-
         public async Task<ApiResponse<bool>> Delete_Location(long LocationToDelete)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -145,7 +207,8 @@ namespace Stack.ServiceLayer.Modules.Interest
                 {
                     LocationResult.IsDeleted = true;
                     var UpdateResult = await unitOfWork.LocationManager.UpdateAsync(LocationResult);
-                    if(UpdateResult)
+                    var SaveResult= await unitOfWork.SaveChangesAsync();
+                    if (SaveResult)
                     {
                         result.Succeeded = true;
                         return result;

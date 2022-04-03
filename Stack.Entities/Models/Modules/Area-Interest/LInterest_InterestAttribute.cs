@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Stack.Entities.Models.Modules.AreaInterest
 {
-    public class LInterest_InterestAttribute
+    public class LInterest_InterestAttribute :BaseEntity
     {
         public long LInterestID { get; set; }
         public long InterestAttributeID { get; set; }
