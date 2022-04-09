@@ -789,12 +789,13 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         var assignedUsersCount = creationModel.AssignedUsers.Count;
                                         var contactsCount = creationModel.Contacts.Count;
 
-                                        double rationedRecords = contactsCount / assignedUsersCount;
-
+                                        int dividedRations = contactsCount / assignedUsersCount;
+                                        double rationedRecords = dividedRations * assignedUsersCount; //calculated rationed records to be assigned to each user
+                                        var remainingRecords = contactsCount - rationedRecords; //Remaining rationed records if any
 
                                         //Order specified users by priority
 
-                                        List<SpecifiedPoolUsersList> specifiedPoolUsersList = new List<SpecifiedPoolUsersList>();
+                                        List<SpecifiedPoolUser> specifiedPoolUsers = new List<SpecifiedPoolUser>();
 
                                         for (int i = 0; i < creationModel.AssignedUsers.Count; i++)
                                         {
@@ -805,28 +806,21 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             if (matchedUser != null)
                                             {
 
-                                                specifiedPoolUsersList.Add(new SpecifiedPoolUsersList
+                                                specifiedPoolUsers.Add(new SpecifiedPoolUser
                                                 {
                                                     UserID = specifiedUserID,
-                                                    Index = poolUsers.IndexOf(matchedUser)
+                                                    Index = poolUsers.IndexOf(matchedUser),
+                                                    UserPoolCapacity = matchedUser.Capacity,
                                                 });
 
                                             }
                                         }
 
-                                        specifiedPoolUsersList.OrderBy(t => t.Index).ToList();
+                                        specifiedPoolUsers = specifiedPoolUsers.OrderBy(t => t.Index).ToList();
 
-                                        if (rationedRecords % 2 == 0) // Divided records are even, assign records evenly
-                                        {
-                                            throw new NotImplementedException();
+                                        throw new NotImplementedException();
+                                        //fo
 
-                                        }
-                                        else //Divided records are odd, keep decimal point 'remainder' on the side and rationalize according to priority
-                                        {
-                                            int remainder = (int)((rationedRecords - (int)rationedRecords) * 100);
-                                            throw new NotImplementedException();
-                                        }
-                                        //Order assigned users via priority
                                     }
                                     else//Assign to existing pool prioritized users
                                     {
