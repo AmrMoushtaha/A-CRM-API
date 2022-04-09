@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
 using Stack.DTOs.Requests.Modules.AreaInterest;
-using Stack.ServiceLayer.Modules.Areas;
 using Stack.ServiceLayer.Modules.Interest;
 using System.Threading.Tasks;
 
@@ -23,6 +22,34 @@ namespace Stack.API.Controllers.Modules.Location
         public async Task<IActionResult> Create_Location(LocationToAdd LocationToAdd)
         {
             return await AddItemResponseHandler(async () => await service.Create_Location(LocationToAdd));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("/{type}")]
+        public async Task<IActionResult> Get_LocationByType(int type)
+        {
+            return await AddItemResponseHandler(async () => await service.Get_LocationByType(type));
+        }
+        
+        [AllowAnonymous]
+        [HttpGet("/{ParentID}")]
+        public async Task<IActionResult> Get_LocationByParentID(long ParentID)
+        {
+            return await AddItemResponseHandler(async () => await service.Get_LocationByParentID(ParentID));
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> Edit_Location(LocationToEdit LocationToEdit)
+        {
+            return await AddItemResponseHandler(async () => await service.Edit_Location(LocationToEdit));
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> Delete_Location(long ID)
+        {
+            return await AddItemResponseHandler(async () => await service.Delete_Location(ID));
         }
 
 

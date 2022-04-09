@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
 using Stack.DTOs.Requests.Modules.CustomerStage;
-using Stack.ServiceLayer.Modules.Areas;
 using Stack.ServiceLayer.Modules.CustomerStage;
 using System.Threading.Tasks;
 
