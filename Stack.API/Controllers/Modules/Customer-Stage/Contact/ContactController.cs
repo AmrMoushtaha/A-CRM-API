@@ -34,6 +34,13 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
         [AllowAnonymous]
+        [HttpPost("BulkContactCreation")]
+        public async Task<IActionResult> BulkContactCreation(BulkContactCreationModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.BulkContactCreation(model));
+        }
+
+        [AllowAnonymous]
         [HttpPost("AddComment")]
         public async Task<IActionResult> AddComment(AddCommentModel model)
         {

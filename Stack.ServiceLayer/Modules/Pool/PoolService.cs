@@ -67,7 +67,7 @@ namespace Stack.ServiceLayer.Modules.pool
                             NameAR = model.NameAR,
                             DescriptionEN = model.DescriptionEN,
                             DescriptionAR = model.DescriptionAR,
-                            ConfigurationType = PoolConfigurationTypes.Default.ToString()
+                            ConfigurationType = (int)PoolConfigurationTypes.Default
                         };
 
                         var creationResult = await unitOfWork.PoolManager.CreateAsync(creationModel);
@@ -135,7 +135,7 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        //Set Pool Configuration
+        //Set Pool Configuration: 'Capacity'/'Auto-Assignment'/ 'Auto-Assignment W/Capacity'
         public async Task<ApiResponse<bool>> SetPoolConfiguration(PoolConfigurationModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -153,9 +153,11 @@ namespace Stack.ServiceLayer.Modules.pool
                     {
                         Pool pool = adminVerification.Pool;
 
-                        if (model.ConfigurationType == PoolConfigurationTypes.Capacity.ToString())
+
+                        //Capacity Configuration Type
+                        if (model.ConfigurationType == (int)PoolConfigurationTypes.Capacity)
                         {
-                            pool.ConfigurationType = PoolConfigurationTypes.Capacity.ToString();
+                            pool.ConfigurationType = (int)PoolConfigurationTypes.Capacity;
                             pool.Capacity = model.Capacity.Value;
 
                             var updateRes = await unitOfWork.PoolManager.UpdateAsync(pool);
@@ -174,9 +176,11 @@ namespace Stack.ServiceLayer.Modules.pool
                                 return result;
                             }
                         }
-                        else if (model.ConfigurationType == PoolConfigurationTypes.AutoAssignment.ToString())
+                        //Auto Assignment Configuration Type
+
+                        else if (model.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignment)
                         {
-                            pool.ConfigurationType = PoolConfigurationTypes.AutoAssignment.ToString();
+                            pool.ConfigurationType = (int)PoolConfigurationTypes.AutoAssignment;
 
                             var updateRes = await unitOfWork.PoolManager.UpdateAsync(pool);
                             if (updateRes)
@@ -194,9 +198,11 @@ namespace Stack.ServiceLayer.Modules.pool
                                 return result;
                             }
                         }
-                        else if (model.ConfigurationType == PoolConfigurationTypes.AutoAssignmentCapacity.ToString())
+                        //Auto Assignment W/ Capacity Configuration Type
+
+                        else if (model.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity)
                         {
-                            pool.ConfigurationType = PoolConfigurationTypes.AutoAssignmentCapacity.ToString();
+                            pool.ConfigurationType = (int)PoolConfigurationTypes.AutoAssignmentCapacity;
                             pool.Capacity = model.Capacity.Value;
 
                             var updateRes = await unitOfWork.PoolManager.UpdateAsync(pool);
@@ -215,14 +221,14 @@ namespace Stack.ServiceLayer.Modules.pool
                                 return result;
                             }
                         }
-                        else if (model.ConfigurationType == PoolConfigurationTypes.Default.ToString())
+                        else if (model.ConfigurationType == (int)PoolConfigurationTypes.Default)
                         {
                             if (pool.Capacity.HasValue)
                             {
                                 pool.Capacity = null;
                             }
 
-                            pool.ConfigurationType = PoolConfigurationTypes.Default.ToString();
+                            pool.ConfigurationType = (int)PoolConfigurationTypes.Default;
 
                             var updateRes = await unitOfWork.PoolManager.UpdateAsync(pool);
                             if (updateRes)
@@ -289,11 +295,13 @@ namespace Stack.ServiceLayer.Modules.pool
                 if (userID != null)
                 {
                     //Verify admin priviliges
-                    var adminVerificationQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.UserID == userID);
+                    var adminVerificationQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.UserID == userID, includeProperties: "Pool");
                     var adminVerification = adminVerificationQuery.FirstOrDefault();
 
                     if (adminVerification != null)
                     {
+                        Pool pool = adminVerification.Pool;
+
                         for (int i = 0; i < model.UserIDs.Count; i++)
                         {
                             var currentUserID = model.UserIDs[i];
@@ -303,6 +311,12 @@ namespace Stack.ServiceLayer.Modules.pool
                                 PoolID = model.PoolID,
                                 UserID = currentUserID,
                             };
+
+                            //Set user capacity for capacity related pool configuration types
+                            if (pool.ConfigurationType == (int)PoolConfigurationTypes.Capacity || pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity)
+                            {
+                                pool_Users.Capacity = pool.Capacity;
+                            }
 
                             var assignmentRes = await unitOfWork.PoolUserManager.CreateAsync(pool_Users);
                             if (assignmentRes == null)

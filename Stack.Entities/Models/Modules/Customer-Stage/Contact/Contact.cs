@@ -31,6 +31,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public long? StatusID { get; set; }
         public string AssignedUserID { get; set; }
 
+        public bool IsFinalized { get; set; }
 
         [ForeignKey("StatusID")]
         public virtual ContactStatus Status { get; set; }

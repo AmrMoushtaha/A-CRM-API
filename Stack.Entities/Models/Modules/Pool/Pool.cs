@@ -13,7 +13,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string DescriptionAR { get; set; }
         public string DescriptionEN { get; set; }
 
-        public string ConfigurationType { get; set; }
+        public int ConfigurationType { get; set; }
         public int? Capacity { get; set; }
 
         public virtual List<Pool_Users> Pool_Users { get; set; }
