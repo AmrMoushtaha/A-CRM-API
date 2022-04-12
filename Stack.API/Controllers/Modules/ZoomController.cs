@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
 using Stack.DTOs.Requests.Modules.CustomerStage;
 using Stack.DTOs.Requests.Modules.Pool;
-using Stack.ServiceLayer.Modules.Areas;
 using Stack.ServiceLayer.Modules.CustomerStage;
 using Stack.ServiceLayer.Modules.Zoom;
 using System.Threading.Tasks;

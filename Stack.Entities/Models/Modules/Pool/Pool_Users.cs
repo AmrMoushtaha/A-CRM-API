@@ -9,6 +9,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string UserID { get; set; }
         public long PoolID { get; set; }
 
+        public int? Capacity { get; set; }
 
         [ForeignKey("UserID")]
         public virtual ApplicationUser User { get; set; }

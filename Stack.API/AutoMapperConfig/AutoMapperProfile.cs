@@ -63,11 +63,12 @@ namespace Stack.API.AutoMapperConfig
 
             //Interest.
             CreateMap<LInterest, LInterestToAdd>()
+
              .ReverseMap();
 
             CreateMap<LInterest, LInterestModel>()
-            .ForMember(dist => dist.ParentLInterest, opt => opt.MapFrom(t => t.ParentLInterest))
-            .ForMember(dist => dist.Location, opt => opt.MapFrom(t => t.Location))
+            .ForMember(dist => dist.ParentLInterest, opt => opt.Ignore())
+            .ForMember(dist => dist.Location, opt => opt.Ignore())
             .ReverseMap();
 
             CreateMap<LInterestInput, LInterestInputModel>()
@@ -79,17 +80,25 @@ namespace Stack.API.AutoMapperConfig
             .ReverseMap();
 
             CreateMap<LInterest_InterestAttribute, LInterest_InterestAttributeModel>()
-           .ForMember(dist => dist.LInterest, opt => opt.MapFrom(t => t.LInterest))
-           .ForMember(dist => dist.InterestAttribute, opt => opt.MapFrom(t => t.InterestAttribute))
+           .ForMember(dist => dist.LInterest, opt => opt.Ignore())
+           .ForMember(dist => dist.InterestAttribute, opt => opt.Ignore())
             .ReverseMap();
 
             CreateMap<Location, LocationModel>()
-          .ForMember(dist => dist.ParentLocation, opt => opt.MapFrom(t => t.ParentLocation))
-          .ReverseMap();
+            .ForMember(dist => dist.ParentLocation, opt => opt.Ignore())
+            .ReverseMap();
             CreateMap<Location, LocationToAdd>()
-         .ReverseMap();
+            .ReverseMap();
             CreateMap<Location, LocationToEdit>()
-          .ReverseMap();
+            .ReverseMap();
+
+            CreateMap<LInterest_LInterestInput, LInterestInputToAdd>()
+           .ReverseMap();
+            CreateMap<LInterest_LInterestInput, LInterestInputToEdit>()
+           .ReverseMap();
+            CreateMap<LInterest_InterestAttribute, InterestAttributeToAdd>()
+           .ReverseMap();
+
         }
 
     }

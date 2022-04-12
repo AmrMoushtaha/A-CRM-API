@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
 using Stack.DTOs.Requests.Modules.CustomerStage;
-using Stack.ServiceLayer.Modules.Areas;
 using Stack.ServiceLayer.Modules.CustomerStage;
 using System.Threading.Tasks;
 
@@ -31,6 +30,13 @@ namespace Stack.API.Controllers.Modules.Auth
         public async Task<IActionResult> CreateContact(ContactCreationModel model)
         {
             return await AddItemResponseHandler(async () => await service.CreateContact(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("BulkContactCreation")]
+        public async Task<IActionResult> BulkContactCreation(BulkContactCreationModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.BulkContactCreation(model));
         }
 
         [AllowAnonymous]

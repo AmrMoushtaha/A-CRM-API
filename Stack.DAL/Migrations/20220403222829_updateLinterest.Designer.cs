@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220403222829_updateLinterest")]
+    partial class updateLinterest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,7 +169,7 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long?>("ActivityID")
+                    b.Property<long>("ActivityID")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("EndDate")
@@ -179,7 +181,7 @@ namespace Stack.DAL.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<long?>("SectionID")
+                    b.Property<long>("SectionID")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("StartDate")
@@ -439,11 +441,8 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("CurrentStage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CurrentStatus")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsStageChanged")
-                        .HasColumnType("bit");
+                    b.Property<string>("CurrentStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsStatusChanged")
                         .HasColumnType("bit");
@@ -451,11 +450,8 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("NewStage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("NewStatus")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("ScheduledActivityDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("NewStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("ScheduledActivityID")
                         .HasColumnType("bigint");
@@ -1077,9 +1073,6 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsFinalized")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LeadSourceName")
                         .HasColumnType("nvarchar(max)");
 
@@ -1338,6 +1331,9 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<long>("LeadID")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
@@ -1395,6 +1391,9 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<long>("OpportunityID")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
@@ -1413,8 +1412,8 @@ namespace Stack.DAL.Migrations
                     b.Property<int?>("Capacity")
                         .HasColumnType("int");
 
-                    b.Property<int>("ConfigurationType")
-                        .HasColumnType("int");
+                    b.Property<string>("ConfigurationType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DescriptionAR")
                         .HasColumnType("nvarchar(max)");
@@ -1444,9 +1443,6 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("UserID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("Capacity")
-                        .HasColumnType("int");
-
                     b.HasKey("PoolID", "UserID");
 
                     b.HasIndex("UserID");
@@ -1461,9 +1457,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<string>("UserID")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("Capacity")
-                        .HasColumnType("int");
 
                     b.HasKey("PoolID", "UserID");
 
@@ -1520,6 +1513,9 @@ namespace Stack.DAL.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<long>("ProspectID")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
@@ -1618,12 +1614,14 @@ namespace Stack.DAL.Migrations
                     b.HasOne("Stack.Entities.Models.Modules.Activities.Activity", "Activity")
                         .WithMany("ActivitySections")
                         .HasForeignKey("ActivityID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("Stack.Entities.Models.Modules.Activities.Section", "Section")
                         .WithMany("ActivitySections")
                         .HasForeignKey("SectionID")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.ProcessFlow", b =>
@@ -1665,13 +1663,11 @@ namespace Stack.DAL.Migrations
                 {
                     b.HasOne("Stack.Entities.Models.Modules.Activities.ActivitySection", "ActivitySection")
                         .WithMany("QuestionAnswers")
-                        .HasForeignKey("ActivitySectionID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("ActivitySectionID");
 
                     b.HasOne("Stack.Entities.Models.Modules.Activities.SectionQuestion", "Question")
                         .WithMany("QuestionAnswers")
-                        .HasForeignKey("QuestionID")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("QuestionID");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Activities.SectionQuestionOption", b =>

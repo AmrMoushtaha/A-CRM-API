@@ -11,5 +11,7 @@ namespace Stack.DTOs.Enums
         Request,
         Warning,
         NotFound,
+        IncreaseCapacity,
+        ReselectUser,
     }
 }

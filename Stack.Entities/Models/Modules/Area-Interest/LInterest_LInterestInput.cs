@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Stack.Entities.Models.Modules.AreaInterest
 {
-    public class LInterest_LInterestInput
+    public class LInterest_LInterestInput :BaseEntity
     {
         public long LInterestID { get; set; }
         public long LInterestInputID { get; set; }

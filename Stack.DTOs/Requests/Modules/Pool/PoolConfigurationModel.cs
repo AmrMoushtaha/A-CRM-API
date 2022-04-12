@@ -7,7 +7,7 @@ namespace Stack.DTOs.Requests.Modules.Pool
     public class PoolConfigurationModel
     {
         public long PoolID { get; set; }
-        public string ConfigurationType { get; set; }
+        public int ConfigurationType { get; set; }
         public int? Capacity { get; set; }
 
     }
