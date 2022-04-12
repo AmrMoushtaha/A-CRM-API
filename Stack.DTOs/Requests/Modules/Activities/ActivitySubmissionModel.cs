@@ -8,6 +8,8 @@ namespace Stack.DTOs.Requests.Modules.Activities
     {
         public long ActivityID { get; set; }
 
+        public long RecordID { get; set; }
+
         public string CurrentStage { get; set; }
 
         public string NewStage { get; set; }

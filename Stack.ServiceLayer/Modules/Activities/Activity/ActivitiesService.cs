@@ -15,7 +15,9 @@ using Stack.Repository.Common;
 using Stack.DTOs.Models.Modules.Activities;
 using Stack.Entities.Enums.Modules.Activities;
 using Stack.DTOs.Models.Shared;
-
+using Stack.Entities.Models.Modules.CustomerStage;
+using Stack.Entities.Models.Modules.Auth;
+using Stack.Entities.Enums.Modules.CustomerStage;
 
 namespace Stack.ServiceLayer.Modules.Activities
 {
@@ -335,385 +337,301 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
-        //public async Task<ApiResponse<bool>> SubmitActivity(ActivitySubmissionModel model)
-        //{
-        //    ApiResponse<bool> result = new ApiResponse<bool>();
-        //    try
-        //    {
-
-        //        var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ID == model.ActivityID);
-
-        //        Activity activityToSubmit = activitiesResult.FirstOrDefault();
-
-        //        if (activityToSubmit != null)
-        //        {
-
-        //            activityToSubmit.IsSubmitted = true;
-
-        //            activityToSubmit.SubtmissionDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
-
-        //            var updateActivityResult = await unitOfWork.ActivitiesManager.UpdateAsync(activityToSubmit);
-
-        //            if (updateActivityResult == true)
-        //            {
-
-        //                SubmissionDetails activitySubmissionDetail = new SubmissionDetails();
-
-        //                activitySubmissionDetail.ActivityID = model.ActivityID;
-
-        //                activitySubmissionDetail.SubmissionDate = activityToSubmit.SubtmissionDate;
-
-        //                activitySubmissionDetail.CurrentStage = model.CurrentStage;
-
-        //                activitySubmissionDetail.CurrentStatus = model.CurrentStatus;
-
-        //                activitySubmissionDetail.Comment = model.Comment;
-
-        //                activitySubmissionDetail.ScheduledActivityID = model.ScheduledActivityID;
-
-
-        //                if (activitySubmissionDetail.IsStatusChanged == true)
-        //                {
-
-        //                    activitySubmissionDetail.NewStatus = model.NewStatus;
-
-        //                    activitySubmissionDetail.NewStage = model.NewStage;
-
-        //                    activitySubmissionDetail.IsStatusChanged = true;
-
-        //                    //Apply change status / stage and notification logic here.
-
-        //                }
-        //                else
-        //                {
-
-        //                    activitySubmissionDetail.NewStatus = "-";
-
-        //                    activitySubmissionDetail.NewStage = "-";
-
-        //                    activitySubmissionDetail.IsStatusChanged = false;
-
-        //                }
-
-
-        //                var createSubmissionDetailsResult = await unitOfWork.SubmissionDetailsManager.CreateAsync(activitySubmissionDetail);
-
-        //                if (createSubmissionDetailsResult != null)
-        //                {
-
-        //                    await unitOfWork.SaveChangesAsync();
-
-        //                    result.Succeeded = true;
-
-        //                    result.Data = true;
-
-        //                    return result;
-
-        //                }
-        //                else
-        //                {
-        //                    result.Errors.Add("Failed to submit activity, Please try again !");
-        //                    result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
-        //                    result.Succeeded = false;
-        //                    result.Data = false;
-        //                    return result;
-        //                }
-
-        //            }
-        //            else
-        //            {
-
-        //                result.Errors.Add("Failed to submit activity, Please try again !");
-        //                result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
-        //                result.Succeeded = false;
-        //                result.Data = false;
-        //                return result;
-
-        //            }
-
-        //        }
-        //        else
-        //        {
-        //            result.Errors.Add("Failed to submit activity, Please try again !");
-        //            result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
-        //            result.Succeeded = false;
-        //            result.Data = false;
-        //            return result;
-        //        }
-
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        result.Succeeded = false;
-        //        result.Errors.Add(ex.Message);
-        //        result.ErrorType = ErrorType.SystemError;
-        //        return result;
-        //    }
-
-        //}
-
-
-
-        //Section navigation.
-        public async Task<ApiResponse<SectionToAnswer>> GetNextActivitySection(SectionToAnswer model)
+        public async Task<ApiResponse<bool>> SubmitActivity(ActivitySubmissionModel model)
         {
-            ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
+            ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
 
-                //Get an update the end date of the current activity section . 
-                var activitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.ID == model.ID);
+                var ActivitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ID == model.ActivityID);
 
-                ActivitySection currentSection = activitySectionsResult.FirstOrDefault();
+                Activity referenceActivity = ActivitiesResult.FirstOrDefault();
 
-                currentSection.EndDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+                var processFlowsResult = await unitOfWork.ProcessFlowsManager.GetAsync(a => a.ID == referenceActivity.ProcessFlowID);
 
-                currentSection.IsSubmitted = true;
+                ProcessFlow referenceProcessFlow = processFlowsResult.FirstOrDefault();
 
-                var updateCurrentSectionResult = await unitOfWork.ActivitySectionsManager.UpdateAsync(currentSection);
+                ApplicationUser referenceUser = await unitOfWork.UserManager.FindByNameAsync(this._httpContextAccessor.HttpContext.User.Identity.Name);
 
-                await unitOfWork.SaveChangesAsync();
 
-                string sectionToRouteTo = "";
-
-                SectionToAnswer sectionToReturn = new SectionToAnswer();
-
-                Section nextSectionReference = new Section();
-
-                //Save question answers for the current section  .
-                for (int i = 0; i < model.Questions.Count; i++)
+                if (referenceActivity != null && referenceProcessFlow != null && referenceUser != null)
                 {
 
-                    SectionQuestionAnswer newSectionQuestionAnswer = new SectionQuestionAnswer();
-
-                    newSectionQuestionAnswer.QuestionID = model.Questions[i].ID;
-
-                    newSectionQuestionAnswer.Value = model.Questions[i].Answer;
-
-                    newSectionQuestionAnswer.DateValue = model.Questions[i].DateAnswer;
-
-                    newSectionQuestionAnswer.ActivitySectionID = model.ID;
-
-                    var createSectionQuestionAnswer = await unitOfWork.SectionQuestionAnswersManager.CreateAsync(newSectionQuestionAnswer);
-
-                    await unitOfWork.SaveChangesAsync();
-
-                    //If the question had options to choose from . save the selected answer . 
-                    if (model.Questions[i].Options.Count > 0 && model.Questions[i].Options != null)
+                    if (model.CurrentStage != model.NewStage)
                     {
-
-                        QuestionOption SelectedOption = model.Questions[i].Options.Find(a => a.IsSelected == true);
-
-                        //Get the id of the section to route to in case the question is a decisional question . 
-                        if (model.Questions[i].IsDecisional == true)
+                        //if the current stage is Contact, create a new customer &  deal and assign it to the existing process flow .
+                        if (model.CurrentStage == "Contact")
                         {
-                            if(SelectedOption != null)
+
+                            var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == model.RecordID);
+
+                            Contact referenceContact = contactsResult.FirstOrDefault();
+
+                            referenceContact.AssignedUserID = referenceUser.Id;
+
+                            referenceContact.State = (int)CustomerStageState.Converted;
+
+                            var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
+
+                            await unitOfWork.SaveChangesAsync();
+
+                            //Create a new deal record . 
+                            Deal newDeal = new Deal();
+
+                            //if the contact has no customer record assigned to it and this is the first activity for this contact .
+                            if (referenceContact.CustomerID == null)
                             {
-                                sectionToRouteTo = SelectedOption.RoutesTo;
-                            }        
-                        }
 
-                        SelectedOption newSelectedOption = new SelectedOption();
+                                //Create a new customer record . 
+                                Customer newCustomer = new Customer();
 
-                        newSelectedOption.SectionQuestionOptionID = SelectedOption.ID;
+                                newCustomer.FullNameEN = referenceContact.FullNameEN;
 
-                        newSelectedOption.SectionQuestionAnswerID = newSectionQuestionAnswer.ID;
+                                newCustomer.FullNameAR = referenceContact.FullNameAR;
 
+                                // Assign the user to this customer .
+                                newCustomer.AssignedUserID = referenceUser.Id;
 
-                        var createSelectedOptionResult = await unitOfWork.SelectedOptionsManager.CreateAsync(newSelectedOption);
+                                var createCustomerResult = await unitOfWork.CustomerManager.CreateAsync(newCustomer);
 
-                        await unitOfWork.SaveChangesAsync();
+                                await unitOfWork.SaveChangesAsync();
 
+                                newDeal.CustomerID = createCustomerResult.ID;
 
-                    }
+                                var createDealResult = await unitOfWork.DealManager.CreateAsync(newDeal);
 
-                }
+                                await unitOfWork.SaveChangesAsync();
 
-                //Get the order of the next section .
-                var activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ActivityTypeID == model.ActivityTypeID);
+                                // link the newly created deal to the existing process flow .
+                                referenceProcessFlow.DealID = createDealResult.ID;
 
-                List<Section> activityTypeSections = activityTypeSectionsResult.ToList();
+                                var updateProcessFlowResult = await unitOfWork.ProcessFlowsManager.UpdateAsync(referenceProcessFlow);
 
-                activityTypeSections = activityTypeSections.OrderBy(a => a.Order).ToList();
+                            }
+                            else
+                            {
+                                // link the existing customer record to this deal . 
+                                newDeal.CustomerID = (long)referenceContact.CustomerID;
 
-                int currentSectionIndex = activityTypeSections.FindIndex(a => a.Order == model.ActivityTypeSectionOrder+1);
+                                var createDealResult = await unitOfWork.DealManager.CreateAsync(newDeal);
 
+                                await unitOfWork.SaveChangesAsync();
 
-                // Return SectionToAnswer with IsFinal section = true .
-                if ((currentSectionIndex + 1) == activityTypeSections.Count)
-                {
+                                // link the newly created deal to the existing process flow .
+                                referenceProcessFlow.DealID = createDealResult.ID;
 
-                    sectionToReturn.IsFinalSection = true;
+                                var updateProcessFlowResult = await unitOfWork.ProcessFlowsManager.UpdateAsync(referenceProcessFlow);
 
-                    sectionToReturn.ActivityID = model.ActivityID;
+                            }
 
-                    sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+                            //Create the new stage record and link it to the newly created deal record. 
+                            if (model.NewStage == "Prospect")
+                            {
 
-                    result.Succeeded = true;
+                                Prospect newStageRecord = new Prospect();
 
-                    result.Data = sectionToReturn;
+                                newStageRecord.State = (int)CustomerStageState.Initial;
 
-                    return result;
+                                newStageRecord.IsFresh = true;
 
-                }
-                else
-                {
+                                newStageRecord.AssignedUserID = referenceUser.Id;
 
-                    int nextSectionOrder = activityTypeSections[currentSectionIndex + 1].Order;
+                                newStageRecord.DealID = newDeal.ID;
 
-                    // If the activity has no decisional questions get the next activity section by order . 
-                    if (model.HasDecisionalQuestions == false)
-                    {
+                                var createNewStageRecordResult = await unitOfWork.ProspectManager.CreateAsync(newStageRecord);
 
-                        activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ActivityTypeID == model.ActivityTypeID && a.Order == nextSectionOrder, includeProperties: "Questions,Questions.QuestionOptions");
+                            }
 
-                        nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
+                            if (model.NewStage == "Lead")
+                            {
 
-                    }
-                    else // if the section has decisional questions find the section that the activity routes to . 
-                    {
+                                Lead newStageRecord = new Lead();
 
-                        if (sectionToRouteTo == "Submit")
-                        {
-                            sectionToReturn.IsFinalSection = true;
+                                newStageRecord.State = (int)CustomerStageState.Initial;
 
-                            sectionToReturn.ActivityID = model.ActivityID;
+                                newStageRecord.IsFresh = true;
 
-                            sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+                                newStageRecord.AssignedUserID = referenceUser.Id;
 
-                            result.Succeeded = true;
+                                newStageRecord.DealID = newDeal.ID;
 
-                            result.Data = sectionToReturn;
+                                var createNewStageRecordResult = await unitOfWork.LeadManager.CreateAsync(newStageRecord);
 
-                            return result;
+                            }
+
+                            if (model.NewStage == "Opportunity")
+                            {
+
+                                Opportunity newStageRecord = new Opportunity();
+
+                                newStageRecord.State = (int)CustomerStageState.Initial;
+
+                                newStageRecord.IsFresh = true;
+
+                                newStageRecord.AssignedUserID = referenceUser.Id;
+
+                                newStageRecord.DealID = newDeal.ID;
+
+                                var createNewStageRecordResult = await unitOfWork.OpportunityManager.CreateAsync(newStageRecord);
+
+                            }
+
+                            await unitOfWork.SaveChangesAsync();
+
                         }
                         else
                         {
 
-                            activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.Order == long.Parse(sectionToRouteTo) && a.ActivityTypeID == model.ActivityTypeID, includeProperties: "Questions,Questions.QuestionOptions");
+                            long referenceDealID = 0;
 
-                            nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
-
-                        }
-
-                    }
-
-                    //Create the new activity section .
-
-                    ActivitySection nextSection = new ActivitySection();
-
-                    nextSection.ActivityID = model.ActivityID;
-
-                    nextSection.Order = model.Order + 1;
-
-                    nextSection.SectionID = nextSectionReference.ID;
-
-                    nextSection.StartDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
-
-                    var createNextSectionResult = await unitOfWork.ActivitySectionsManager.CreateAsync(nextSection);
-
-                    await unitOfWork.SaveChangesAsync();
-
-                    //Create the upcoming section model and return it . 
-
-                    sectionToReturn.ID = nextSection.ID;
-
-                    sectionToReturn.NameAR = nextSectionReference.NameAR;
-
-                    sectionToReturn.NameAR = nextSectionReference.NameAR;
-
-                    sectionToReturn.IsFinalSection = false;
-
-                    sectionToReturn.ActivityID = model.ActivityID;
-
-                    sectionToReturn.ActivityTypeID = model.ActivityTypeID;
-
-                    sectionToReturn.Order = nextSection.Order;
-
-                    sectionToReturn.ActivityTypeSectionOrder = nextSectionReference.Order;
-
-                    sectionToReturn.HasDecisionalQuestions = nextSectionReference.HasDecisionalQuestions;
-
-                    sectionToReturn.HasCreateIntrest = nextSectionReference.HasCreateInterest;
-
-                    sectionToReturn.HasCreateRequest = nextSectionReference.HasCreateRequest;
-
-                    sectionToReturn.HasCreateResale = nextSectionReference.HasCreateResale;
-
-                    sectionToReturn.Questions = new List<QuestionToAnswer>();
-
-                    //Append section questions . 
-                    for (int i = 0; i < nextSectionReference.Questions.Count; i++)
-                    {
-
-                        QuestionToAnswer question = new QuestionToAnswer();
-
-                        question.ID = nextSectionReference.Questions[i].ID;
-
-                        question.DescriptionAR = nextSectionReference.Questions[i].DescriptionAR;
-
-                        question.DescriptionEN = nextSectionReference.Questions[i].DescriptionEN;
-
-                        question.isRequired = nextSectionReference.Questions[i].isRequired;
-
-                        question.IsDecisional = nextSectionReference.Questions[i].IsDecisional;
-
-                        question.Type = nextSectionReference.Questions[i].Type;
-
-                        question.Order = nextSectionReference.Questions[i].Order;
-
-                        question.Answer = "";
-
-                        if(question.Type == "Date")
-                        {
-
-                            question.DateAnswer = await HelperFunctions.GetEgyptsCurrentLocalTime();
-
-                        }
-
-                        //Append section question options . 
-                        if (nextSectionReference.Questions[i].QuestionOptions.Count > 0)
-                        {
-
-                            question.Options = new List<QuestionOption>();
-
-                            for (int k = 0; k < nextSectionReference.Questions[i].QuestionOptions.Count; k++)
+                            if (model.CurrentStage == "Prospect")
                             {
+                                //Update the current prospect record to converted .
+                                var prospectsResult = await unitOfWork.ProspectManager.GetAsync(a => a.ID == model.RecordID);
 
-                                QuestionOption questionOption = new QuestionOption();
+                                Prospect referenceProspect = prospectsResult.FirstOrDefault();
 
-                                questionOption.ValueEN = nextSectionReference.Questions[i].QuestionOptions[k].ValueEN;
+                                referenceProspect.State = (int)CustomerStageState.Converted;
 
-                                questionOption.ValueAR = nextSectionReference.Questions[i].QuestionOptions[k].ValueAR;
+                                referenceDealID = referenceProspect.DealID;
 
-                                questionOption.RoutesTo = nextSectionReference.Questions[i].QuestionOptions[k].RoutesTo;
-
-                                questionOption.ID = nextSectionReference.Questions[i].QuestionOptions[k].ID;
-
-                                questionOption.IsSelected = false;
-
-                                question.Options.Add(questionOption);
+                                var updateProspectResutlt = await unitOfWork.ProspectManager.UpdateAsync(referenceProspect);
 
                             }
 
-                        }
+                            if (model.CurrentStage == "Lead")
+                            {
+                                //Update the current lead record to converted .
+                                var leadsResult = await unitOfWork.LeadManager.GetAsync(a => a.ID == model.RecordID);
 
-                        sectionToReturn.Questions.Add(question);
+                                Lead referenceLead = leadsResult.FirstOrDefault();
+
+                                referenceLead.State = (int)CustomerStageState.Converted;
+
+                                referenceDealID = referenceLead.DealID;
+
+                                var updateLeadResult = await unitOfWork.LeadManager.UpdateAsync(referenceLead);
+
+                            }
+
+                            if (model.CurrentStage == "Opportunity")
+                            {
+                                //Update the current opportunity record to converted .
+                                var opportunitiesResult = await unitOfWork.OpportunityManager.GetAsync(a => a.ID == model.RecordID);
+
+                                Opportunity referenceOpportunity = opportunitiesResult.FirstOrDefault();
+
+                                referenceOpportunity.State = (int)CustomerStageState.Converted;
+
+                                referenceDealID = referenceOpportunity.DealID;
+
+                                var updateProspectResutlt = await unitOfWork.OpportunityManager.UpdateAsync(referenceOpportunity);
+
+                            }
+
+
+                            var dealsResult = await unitOfWork.DealManager.GetAsync(a => a.ID == referenceDealID);
+
+                            Deal referenceDeal = dealsResult.FirstOrDefault();
+
+
+                            //Create the new stage record and link it to the current deal record .
+                            if (model.NewStage == "Prospect")
+                            {
+
+                                Prospect newStageRecord = new Prospect();
+
+                                newStageRecord.State = (int)CustomerStageState.Initial;
+
+                                newStageRecord.IsFresh = true;
+
+                                newStageRecord.AssignedUserID = referenceUser.Id;
+
+                                newStageRecord.DealID = referenceDealID;
+
+                                var createNewStageRecordResult = await unitOfWork.ProspectManager.CreateAsync(newStageRecord);
+
+                            }
+
+                            if (model.NewStage == "Lead")
+                            {
+
+                                Lead newStageRecord = new Lead();
+
+                                newStageRecord.State = (int)CustomerStageState.Initial;
+
+                                newStageRecord.IsFresh = true;
+
+                                newStageRecord.AssignedUserID = referenceUser.Id;
+
+                                newStageRecord.DealID = referenceDealID;
+
+                                var createNewStageRecordResult = await unitOfWork.LeadManager.CreateAsync(newStageRecord);
+
+                            }
+
+                            if (model.NewStage == "Opportunity")
+
+                            {
+
+                                Opportunity newStageRecord = new Opportunity();
+
+                                newStageRecord.State = (int)CustomerStageState.Initial;
+
+                                newStageRecord.IsFresh = true;
+
+                                newStageRecord.AssignedUserID = referenceUser.Id;
+
+                                newStageRecord.DealID = referenceDealID;
+
+                                var createNewStageRecordResult = await unitOfWork.OpportunityManager.CreateAsync(newStageRecord);
+
+                            }
+
+
+                            //if the new stage is Done-deal set the related process flow completed flag to true and update the related contact record is finalized flag to true . 
+                            if (model.NewStage == "Done-Deal")
+                            {
+
+                                referenceProcessFlow.IsComplete = true;
+
+                                var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == referenceProcessFlow.ContactID);
+
+                                Contact referenceContact = contactsResult.FirstOrDefault();
+
+                                referenceContact.IsFinalized = true;
+
+                                referenceContact.IsFresh = false;
+
+                                var updateProcessFlowResult = await unitOfWork.ProcessFlowsManager.UpdateAsync(referenceProcessFlow);
+
+                                var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
+
+                            }
+
+                            await unitOfWork.SaveChangesAsync();
+
+                        }
 
                     }
 
-                    //Re-arrange section questions . 
-                    sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
 
-                    result.Data = sectionToReturn;
 
-                    result.Succeeded = true;
 
+
+
+                   
+
+
+
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Failed to submit activity, Please try again !");
+                    result.Errors.Add("Failed to submit activity, Please try again !");
                     return result;
-
-
-
                 }
 
             }
@@ -726,6 +644,279 @@ namespace Stack.ServiceLayer.Modules.Activities
             }
 
         }
+
+
+        //Section navigation.
+        public async Task<ApiResponse<SectionToAnswer>> GetNextActivitySection(SectionToAnswer model)
+    {
+        ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
+        try
+        {
+
+            //Get an update the end date of the current activity section . 
+            var activitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.ID == model.ID);
+
+            ActivitySection currentSection = activitySectionsResult.FirstOrDefault();
+
+            currentSection.EndDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+            currentSection.IsSubmitted = true;
+
+            var updateCurrentSectionResult = await unitOfWork.ActivitySectionsManager.UpdateAsync(currentSection);
+
+            await unitOfWork.SaveChangesAsync();
+
+            string sectionToRouteTo = "";
+
+            SectionToAnswer sectionToReturn = new SectionToAnswer();
+
+            Section nextSectionReference = new Section();
+
+            //Save question answers for the current section  .
+            for (int i = 0; i < model.Questions.Count; i++)
+            {
+
+                SectionQuestionAnswer newSectionQuestionAnswer = new SectionQuestionAnswer();
+
+                newSectionQuestionAnswer.QuestionID = model.Questions[i].ID;
+
+                newSectionQuestionAnswer.Value = model.Questions[i].Answer;
+
+                newSectionQuestionAnswer.DateValue = model.Questions[i].DateAnswer;
+
+                newSectionQuestionAnswer.ActivitySectionID = model.ID;
+
+                var createSectionQuestionAnswer = await unitOfWork.SectionQuestionAnswersManager.CreateAsync(newSectionQuestionAnswer);
+
+                await unitOfWork.SaveChangesAsync();
+
+                //If the question had options to choose from . save the selected answer . 
+                if (model.Questions[i].Options.Count > 0 && model.Questions[i].Options != null)
+                {
+
+                    QuestionOption SelectedOption = model.Questions[i].Options.Find(a => a.IsSelected == true);
+
+                    //Get the id of the section to route to in case the question is a decisional question . 
+                    if (model.Questions[i].IsDecisional == true)
+                    {
+                        if(SelectedOption != null)
+                        {
+                            sectionToRouteTo = SelectedOption.RoutesTo;
+                        }        
+                    }
+
+                    SelectedOption newSelectedOption = new SelectedOption();
+
+                    newSelectedOption.SectionQuestionOptionID = SelectedOption.ID;
+
+                    newSelectedOption.SectionQuestionAnswerID = newSectionQuestionAnswer.ID;
+
+
+                    var createSelectedOptionResult = await unitOfWork.SelectedOptionsManager.CreateAsync(newSelectedOption);
+
+                    await unitOfWork.SaveChangesAsync();
+
+
+                }
+
+            }
+
+            //Get the order of the next section .
+            var activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ActivityTypeID == model.ActivityTypeID);
+
+            List<Section> activityTypeSections = activityTypeSectionsResult.ToList();
+
+            activityTypeSections = activityTypeSections.OrderBy(a => a.Order).ToList();
+
+            int currentSectionIndex = activityTypeSections.FindIndex(a => a.Order == model.ActivityTypeSectionOrder+1);
+
+
+            // Return SectionToAnswer with IsFinal section = true .
+            if ((currentSectionIndex + 1) == activityTypeSections.Count)
+            {
+
+                sectionToReturn.IsFinalSection = true;
+
+                sectionToReturn.ActivityID = model.ActivityID;
+
+                sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+
+                result.Succeeded = true;
+
+                result.Data = sectionToReturn;
+
+                return result;
+
+            }
+            else
+            {
+
+                int nextSectionOrder = activityTypeSections[currentSectionIndex + 1].Order;
+
+                // If the activity has no decisional questions get the next activity section by order . 
+                if (model.HasDecisionalQuestions == false)
+                {
+
+                    activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ActivityTypeID == model.ActivityTypeID && a.Order == nextSectionOrder, includeProperties: "Questions,Questions.QuestionOptions");
+
+                    nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
+
+                }
+                else // if the section has decisional questions find the section that the activity routes to . 
+                {
+
+                    if (sectionToRouteTo == "Submit")
+                    {
+                        sectionToReturn.IsFinalSection = true;
+
+                        sectionToReturn.ActivityID = model.ActivityID;
+
+                        sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+
+                        result.Succeeded = true;
+
+                        result.Data = sectionToReturn;
+
+                        return result;
+                    }
+                    else
+                    {
+
+                        activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.Order == long.Parse(sectionToRouteTo) && a.ActivityTypeID == model.ActivityTypeID, includeProperties: "Questions,Questions.QuestionOptions");
+
+                        nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
+
+                    }
+
+                }
+
+                //Create the new activity section .
+
+                ActivitySection nextSection = new ActivitySection();
+
+                nextSection.ActivityID = model.ActivityID;
+
+                nextSection.Order = model.Order + 1;
+
+                nextSection.SectionID = nextSectionReference.ID;
+
+                nextSection.StartDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                var createNextSectionResult = await unitOfWork.ActivitySectionsManager.CreateAsync(nextSection);
+
+                await unitOfWork.SaveChangesAsync();
+
+                //Create the upcoming section model and return it . 
+
+                sectionToReturn.ID = nextSection.ID;
+
+                sectionToReturn.NameAR = nextSectionReference.NameAR;
+
+                sectionToReturn.NameAR = nextSectionReference.NameAR;
+
+                sectionToReturn.IsFinalSection = false;
+
+                sectionToReturn.ActivityID = model.ActivityID;
+
+                sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+
+                sectionToReturn.Order = nextSection.Order;
+
+                sectionToReturn.ActivityTypeSectionOrder = nextSectionReference.Order;
+
+                sectionToReturn.HasDecisionalQuestions = nextSectionReference.HasDecisionalQuestions;
+
+                sectionToReturn.HasCreateIntrest = nextSectionReference.HasCreateInterest;
+
+                sectionToReturn.HasCreateRequest = nextSectionReference.HasCreateRequest;
+
+                sectionToReturn.HasCreateResale = nextSectionReference.HasCreateResale;
+
+                sectionToReturn.Questions = new List<QuestionToAnswer>();
+
+                //Append section questions . 
+                for (int i = 0; i < nextSectionReference.Questions.Count; i++)
+                {
+
+                    QuestionToAnswer question = new QuestionToAnswer();
+
+                    question.ID = nextSectionReference.Questions[i].ID;
+
+                    question.DescriptionAR = nextSectionReference.Questions[i].DescriptionAR;
+
+                    question.DescriptionEN = nextSectionReference.Questions[i].DescriptionEN;
+
+                    question.isRequired = nextSectionReference.Questions[i].isRequired;
+
+                    question.IsDecisional = nextSectionReference.Questions[i].IsDecisional;
+
+                    question.Type = nextSectionReference.Questions[i].Type;
+
+                    question.Order = nextSectionReference.Questions[i].Order;
+
+                    question.Answer = "";
+
+                    if(question.Type == "Date")
+                    {
+
+                        question.DateAnswer = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                    }
+
+                    //Append section question options . 
+                    if (nextSectionReference.Questions[i].QuestionOptions.Count > 0)
+                    {
+
+                        question.Options = new List<QuestionOption>();
+
+                        for (int k = 0; k < nextSectionReference.Questions[i].QuestionOptions.Count; k++)
+                        {
+
+                            QuestionOption questionOption = new QuestionOption();
+
+                            questionOption.ValueEN = nextSectionReference.Questions[i].QuestionOptions[k].ValueEN;
+
+                            questionOption.ValueAR = nextSectionReference.Questions[i].QuestionOptions[k].ValueAR;
+
+                            questionOption.RoutesTo = nextSectionReference.Questions[i].QuestionOptions[k].RoutesTo;
+
+                            questionOption.ID = nextSectionReference.Questions[i].QuestionOptions[k].ID;
+
+                            questionOption.IsSelected = false;
+
+                            question.Options.Add(questionOption);
+
+                        }
+
+                    }
+
+                    sectionToReturn.Questions.Add(question);
+
+                }
+
+                //Re-arrange section questions . 
+                sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
+
+                result.Data = sectionToReturn;
+
+                result.Succeeded = true;
+
+                return result;
+
+
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            result.Succeeded = false;
+            result.Errors.Add(ex.Message);
+            result.ErrorType = ErrorType.SystemError;
+            return result;
+        }
+
+    }
 
         public async Task<ApiResponse<SectionToAnswer>> CreateNewContactActivity(CreateContactActivityModel model)
         {

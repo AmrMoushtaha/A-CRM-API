@@ -10,10 +10,9 @@ namespace Stack.Entities.Models.Modules.CustomerStage
     {
         public long ID { get; set; }
         public string AssignedUserID { get; set; }
-        public string FirstNameEN { get; set; }
-        public string LastNameEN { get; set; }
-        public string FirstNameAR { get; set; }
-        public string LastNameAR { get; set; }
+
+        public string FullNameEN { get; set; }
+        public string FullNameAR { get; set; }
 
 
         public virtual List<CustomerPhoneNumber> PhoneNumbers { get; set; }

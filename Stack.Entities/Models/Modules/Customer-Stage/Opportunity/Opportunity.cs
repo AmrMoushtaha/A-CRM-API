@@ -11,7 +11,9 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public long DealID { get; set; }
 
         public int State { get; set; }
-        public long StatusID { get; set; }
+        public long? StatusID { get; set; }
+
+        public bool IsFresh { get; set; }
 
         [ForeignKey("StatusID")]
         public virtual OpportunityStatus Status { get; set; }
