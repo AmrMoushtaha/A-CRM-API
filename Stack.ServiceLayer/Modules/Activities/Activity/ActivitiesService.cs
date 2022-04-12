@@ -15,8 +15,7 @@ using Stack.Repository.Common;
 using Stack.DTOs.Models.Modules.Activities;
 using Stack.Entities.Enums.Modules.Activities;
 using Stack.DTOs.Models.Shared;
-using Microsoft.Extensions.Options;
-using Stack.DTOs.Models.Initialization.ActivityTypes;
+
 
 namespace Stack.ServiceLayer.Modules.Activities
 {
@@ -336,127 +335,127 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
-        public async Task<ApiResponse<bool>> SubmitActivity(ActivitySubmissionModel model)
-        {
-            ApiResponse<bool> result = new ApiResponse<bool>();
-            try
-            {
+        //public async Task<ApiResponse<bool>> SubmitActivity(ActivitySubmissionModel model)
+        //{
+        //    ApiResponse<bool> result = new ApiResponse<bool>();
+        //    try
+        //    {
 
-                var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ID == model.ActivityID);
+        //        var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ID == model.ActivityID);
 
-                Activity activityToSubmit = activitiesResult.FirstOrDefault();
+        //        Activity activityToSubmit = activitiesResult.FirstOrDefault();
 
-                if (activityToSubmit != null)
-                {
+        //        if (activityToSubmit != null)
+        //        {
 
-                    activityToSubmit.IsSubmitted = true;
+        //            activityToSubmit.IsSubmitted = true;
 
-                    activityToSubmit.SubtmissionDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+        //            activityToSubmit.SubtmissionDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
 
-                    var updateActivityResult = await unitOfWork.ActivitiesManager.UpdateAsync(activityToSubmit);
+        //            var updateActivityResult = await unitOfWork.ActivitiesManager.UpdateAsync(activityToSubmit);
 
-                    if (updateActivityResult == true)
-                    {
+        //            if (updateActivityResult == true)
+        //            {
 
-                        SubmissionDetails activitySubmissionDetail = new SubmissionDetails();
+        //                SubmissionDetails activitySubmissionDetail = new SubmissionDetails();
 
-                        activitySubmissionDetail.ActivityID = model.ActivityID;
+        //                activitySubmissionDetail.ActivityID = model.ActivityID;
 
-                        activitySubmissionDetail.SubmissionDate = activityToSubmit.SubtmissionDate;
+        //                activitySubmissionDetail.SubmissionDate = activityToSubmit.SubtmissionDate;
 
-                        activitySubmissionDetail.CurrentStage = model.CurrentStage;
+        //                activitySubmissionDetail.CurrentStage = model.CurrentStage;
 
-                        activitySubmissionDetail.CurrentStatus = model.CurrentStatus;
+        //                activitySubmissionDetail.CurrentStatus = model.CurrentStatus;
 
-                        activitySubmissionDetail.Comment = model.Comment;
+        //                activitySubmissionDetail.Comment = model.Comment;
 
-                        activitySubmissionDetail.ScheduledActivityID = model.ScheduledActivityID;
-
-
-                        if (activitySubmissionDetail.IsStatusChanged == true)
-                        {
-
-                            activitySubmissionDetail.NewStatus = model.NewStatus;
-
-                            activitySubmissionDetail.NewStage = model.NewStage;
-
-                            activitySubmissionDetail.IsStatusChanged = true;
-
-                            //Apply change status / stage and notification logic here.
-
-                        }
-                        else
-                        {
-
-                            activitySubmissionDetail.NewStatus = "-";
-
-                            activitySubmissionDetail.NewStage = "-";
-
-                            activitySubmissionDetail.IsStatusChanged = false;
-
-                        }
+        //                activitySubmissionDetail.ScheduledActivityID = model.ScheduledActivityID;
 
 
-                        var createSubmissionDetailsResult = await unitOfWork.SubmissionDetailsManager.CreateAsync(activitySubmissionDetail);
+        //                if (activitySubmissionDetail.IsStatusChanged == true)
+        //                {
 
-                        if (createSubmissionDetailsResult != null)
-                        {
+        //                    activitySubmissionDetail.NewStatus = model.NewStatus;
 
-                            await unitOfWork.SaveChangesAsync();
+        //                    activitySubmissionDetail.NewStage = model.NewStage;
 
-                            result.Succeeded = true;
+        //                    activitySubmissionDetail.IsStatusChanged = true;
 
-                            result.Data = true;
+        //                    //Apply change status / stage and notification logic here.
 
-                            return result;
+        //                }
+        //                else
+        //                {
 
-                        }
-                        else
-                        {
-                            result.Errors.Add("Failed to submit activity, Please try again !");
-                            result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
-                            result.Succeeded = false;
-                            result.Data = false;
-                            return result;
-                        }
+        //                    activitySubmissionDetail.NewStatus = "-";
 
-                    }
-                    else
-                    {
+        //                    activitySubmissionDetail.NewStage = "-";
 
-                        result.Errors.Add("Failed to submit activity, Please try again !");
-                        result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
-                        result.Succeeded = false;
-                        result.Data = false;
-                        return result;
+        //                    activitySubmissionDetail.IsStatusChanged = false;
 
-                    }
-
-                }
-                else
-                {
-                    result.Errors.Add("Failed to submit activity, Please try again !");
-                    result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
-                    result.Succeeded = false;
-                    result.Data = false;
-                    return result;
-                }
+        //                }
 
 
-            }
-            catch (Exception ex)
-            {
-                result.Succeeded = false;
-                result.Errors.Add(ex.Message);
-                result.ErrorType = ErrorType.SystemError;
-                return result;
-            }
+        //                var createSubmissionDetailsResult = await unitOfWork.SubmissionDetailsManager.CreateAsync(activitySubmissionDetail);
 
-        }
+        //                if (createSubmissionDetailsResult != null)
+        //                {
+
+        //                    await unitOfWork.SaveChangesAsync();
+
+        //                    result.Succeeded = true;
+
+        //                    result.Data = true;
+
+        //                    return result;
+
+        //                }
+        //                else
+        //                {
+        //                    result.Errors.Add("Failed to submit activity, Please try again !");
+        //                    result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
+        //                    result.Succeeded = false;
+        //                    result.Data = false;
+        //                    return result;
+        //                }
+
+        //            }
+        //            else
+        //            {
+
+        //                result.Errors.Add("Failed to submit activity, Please try again !");
+        //                result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
+        //                result.Succeeded = false;
+        //                result.Data = false;
+        //                return result;
+
+        //            }
+
+        //        }
+        //        else
+        //        {
+        //            result.Errors.Add("Failed to submit activity, Please try again !");
+        //            result.Errors.Add("فشل إرسال النشاط ، يرجى المحاولة مرة أخرى!");
+        //            result.Succeeded = false;
+        //            result.Data = false;
+        //            return result;
+        //        }
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        result.Succeeded = false;
+        //        result.Errors.Add(ex.Message);
+        //        result.ErrorType = ErrorType.SystemError;
+        //        return result;
+        //    }
+
+        //}
 
 
 
-        //Section navigation . 
+        //Section navigation.
         public async Task<ApiResponse<SectionToAnswer>> GetNextActivitySection(SectionToAnswer model)
         {
             ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();

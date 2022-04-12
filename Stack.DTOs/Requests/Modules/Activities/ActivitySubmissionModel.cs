@@ -5,7 +5,6 @@ using System.Text;
 namespace Stack.DTOs.Requests.Modules.Activities
 {
     public class ActivitySubmissionModel
-
     {
         public long ActivityID { get; set; }
 
@@ -13,15 +12,13 @@ namespace Stack.DTOs.Requests.Modules.Activities
 
         public string NewStage { get; set; }
 
-        public string CurrentStatus { get; set; }
-
-        public string NewStatus { get; set; }
-
-        public bool IsStatusChanged { get; set; }
+        public long NewStatusID { get; set; }
 
         public string Comment { get; set; }
 
-        public long ScheduledActivityID { get; set; }
+        public long ScheduledActivityTypeID { get; set; }
+
+        public long ScheduledActivityDate { get; set; }
 
     }
 
