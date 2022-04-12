@@ -91,6 +91,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             }
 
         }
+
         public async Task<ApiResponse<ContactViewModel>> GetContact(long id)
         {
             ApiResponse<ContactViewModel> result = new ApiResponse<ContactViewModel>();
@@ -754,9 +755,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             }
         }
 
-        public async Task<ApiResponse<bool>> BulkContactCreation(BulkContactCreationModel creationModel)
+        public async Task<ApiResponse<BulkAssignmentResponse>> BulkContactCreation(BulkContactCreationModel creationModel)
         {
-            ApiResponse<bool> result = new ApiResponse<bool>();
+            ApiResponse<BulkAssignmentResponse> result = new ApiResponse<BulkAssignmentResponse>();
             try
             {
                 var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -774,6 +775,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                         if (pool != null)
                         {
                             //Identify pool configuration type
+
                             if (pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignment) //Auto assignemnt config.
                             {
                                 //Can assign to others
@@ -789,9 +791,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         var assignedUsersCount = creationModel.AssignedUsers.Count;
                                         var contactsCount = creationModel.Contacts.Count;
 
-                                        int dividedRations = contactsCount / assignedUsersCount;
-                                        double rationedRecords = dividedRations * assignedUsersCount; //calculated rationed records to be assigned to each user
-                                        var remainingRecords = contactsCount - rationedRecords; //Remaining rationed records if any
+                                        int rationedRecordsCount = contactsCount / assignedUsersCount;  //calculated rationed records to be assigned to each user
+                                        //Calculate remaining records if any
+                                        int multipliedRecords = rationedRecordsCount * assignedUsersCount;
+                                        int remainingRecordsCount = contactsCount - multipliedRecords; //Remaining rationed records
 
                                         //Order specified users by priority
 
@@ -810,7 +813,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 {
                                                     UserID = specifiedUserID,
                                                     Index = poolUsers.IndexOf(matchedUser),
-                                                    UserPoolCapacity = matchedUser.Capacity,
                                                 });
 
                                             }
@@ -818,129 +820,977 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                                         specifiedPoolUsers = specifiedPoolUsers.OrderBy(t => t.Index).ToList();
 
-                                        throw new NotImplementedException();
-                                        //fo
+                                        //If number of records are divisable by pool users count
+                                        if (rationedRecordsCount > 0)
+                                        {
+                                            //rationalize records for each user
+                                            for (int i = 0; i < specifiedPoolUsers.Count; i++)
+                                            {
+                                                var rations = creationModel.Contacts.Take(rationedRecordsCount).ToList();
+
+                                                //Create record
+                                                for (int j = 0; j < rations.Count; j++)
+                                                {
+                                                    var currentRation = rations[j];
+                                                    Contact recordCreationModel = new Contact
+                                                    {
+                                                        PoolID = pool.ID,
+                                                        FullNameEN = currentRation.FullNameEN,
+                                                        FullNameAR = currentRation.FullNameAR,
+                                                        Address = currentRation.Address,
+                                                        AssignedUserID = specifiedPoolUsers[i].UserID,
+                                                        Email = currentRation.Email,
+                                                        LeadSourceName = currentRation.LeadSourceName,
+                                                        LeadSourceType = currentRation.LeadSourceType,
+                                                        Occupation = currentRation.Occupation,
+                                                        PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                        StatusID = currentRation.StatusID,
+                                                        State = (int)CustomerStageState.Initial,
+                                                        IsFinalized = false,
+                                                    };
+
+                                                    var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+                                                }
+
+                                                //Remove assigned rations from contact creation list
+                                                creationModel.Contacts = creationModel.Contacts.Skip(rationedRecordsCount).ToList();
+                                            }
+
+                                            //Re-iterate selected users and assign remaining records if they exist (round robin)
+
+                                            if (remainingRecordsCount > 0 && creationModel.Contacts.Count > 0)
+                                            {
+                                                while (creationModel.Contacts.Count > 0)
+                                                {
+                                                    for (int i = 0; i < specifiedPoolUsers.Count; i++)
+                                                    {
+                                                        var currentRation = creationModel.Contacts.Take(1).FirstOrDefault();
+                                                        if (currentRation != null)
+                                                        {
+                                                            Contact recordCreationModel = new Contact
+                                                            {
+                                                                PoolID = pool.ID,
+                                                                FullNameEN = currentRation.FullNameEN,
+                                                                FullNameAR = currentRation.FullNameAR,
+                                                                Address = currentRation.Address,
+                                                                AssignedUserID = specifiedPoolUsers[i].UserID,
+                                                                Email = currentRation.Email,
+                                                                LeadSourceName = currentRation.LeadSourceName,
+                                                                LeadSourceType = currentRation.LeadSourceType,
+                                                                Occupation = currentRation.Occupation,
+                                                                PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                                StatusID = currentRation.StatusID,
+                                                                State = (int)CustomerStageState.Initial,
+                                                                IsFinalized = false,
+                                                            };
+
+                                                            var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+
+                                                            //Remove assigned rations from contact creation list
+                                                            creationModel.Contacts = creationModel.Contacts.Skip(1).ToList();
+                                                        }
+                                                        else //No more records to assign
+                                                        {
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+
+
+                                                //Commit record creation
+                                                await unitOfWork.SaveChangesAsync();
+                                                result.Succeeded = true;
+                                                return result;
+                                            }
+                                            else //Commit record creation
+                                            {
+                                                await unitOfWork.SaveChangesAsync();
+                                                result.Succeeded = true;
+                                                return result;
+                                            }
+
+                                        }
+                                        else //Round robin process (1 record per user till all records are assigned)
+                                        {
+                                            while (creationModel.Contacts.Count > 0)
+                                            {
+                                                for (int i = 0; i < specifiedPoolUsers.Count; i++)
+                                                {
+                                                    var currentRation = creationModel.Contacts.Take(1).FirstOrDefault();
+                                                    if (currentRation != null)
+                                                    {
+                                                        Contact recordCreationModel = new Contact
+                                                        {
+                                                            PoolID = pool.ID,
+                                                            FullNameEN = currentRation.FullNameEN,
+                                                            FullNameAR = currentRation.FullNameAR,
+                                                            Address = currentRation.Address,
+                                                            AssignedUserID = specifiedPoolUsers[i].UserID,
+                                                            Email = currentRation.Email,
+                                                            LeadSourceName = currentRation.LeadSourceName,
+                                                            LeadSourceType = currentRation.LeadSourceType,
+                                                            Occupation = currentRation.Occupation,
+                                                            PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                            StatusID = currentRation.StatusID,
+                                                            State = (int)CustomerStageState.Initial,
+                                                            IsFinalized = false,
+                                                        };
+
+                                                        var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+
+                                                        //Remove assigned rations from contact creation list
+                                                        creationModel.Contacts = creationModel.Contacts.Skip(1).ToList();
+                                                    }
+                                                    else //No more records to assign
+                                                    {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            //Commit record creation
+                                            await unitOfWork.SaveChangesAsync();
+                                            result.Succeeded = true;
+                                            return result;
+                                        }
 
                                     }
-                                    else//Assign to existing pool prioritized users
+                                    else //Assign to existing pool prioritized users
                                     {
-                                        throw new NotImplementedException();
+                                        var assignedUsersCount = poolUsers.Count;
+                                        var contactsCount = creationModel.Contacts.Count;
+
+                                        int rationedRecordsCount = contactsCount / assignedUsersCount;  //calculated rationed records to be assigned to each user
+                                        //Calculate remaining records if any
+                                        int multipliedRecords = rationedRecordsCount * assignedUsersCount;
+                                        int remainingRecordsCount = contactsCount - multipliedRecords; //Remaining rationed records
+
+                                        //If number of records are divisable by pool users count
+                                        if (rationedRecordsCount > 0)
+                                        {
+                                            //rationalize records for each user
+                                            for (int i = 0; i < poolUsers.Count; i++)
+                                            {
+                                                var rations = creationModel.Contacts.Take(rationedRecordsCount).ToList();
+
+                                                //Create record
+                                                for (int j = 0; j < rations.Count; j++)
+                                                {
+                                                    var currentRation = rations[j];
+                                                    Contact recordCreationModel = new Contact
+                                                    {
+                                                        PoolID = pool.ID,
+                                                        FullNameEN = currentRation.FullNameEN,
+                                                        FullNameAR = currentRation.FullNameAR,
+                                                        Address = currentRation.Address,
+                                                        AssignedUserID = poolUsers[i].UserID,
+                                                        Email = currentRation.Email,
+                                                        LeadSourceName = currentRation.LeadSourceName,
+                                                        LeadSourceType = currentRation.LeadSourceType,
+                                                        Occupation = currentRation.Occupation,
+                                                        PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                        StatusID = currentRation.StatusID,
+                                                        State = (int)CustomerStageState.Initial,
+                                                        IsFinalized = false,
+                                                    };
+
+                                                    var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+                                                }
+
+                                                //Remove assigned rations from contact creation list
+                                                creationModel.Contacts = creationModel.Contacts.Skip(rationedRecordsCount).ToList();
+                                            }
+
+                                            //Re-iterate selected users and assign remaining records if they exist (round robin)
+
+                                            if (remainingRecordsCount > 0 && creationModel.Contacts.Count > 0)
+                                            {
+                                                while (creationModel.Contacts.Count > 0)
+                                                {
+                                                    for (int i = 0; i < poolUsers.Count; i++)
+                                                    {
+                                                        var currentRation = creationModel.Contacts.Take(1).FirstOrDefault();
+                                                        if (currentRation != null)
+                                                        {
+                                                            Contact recordCreationModel = new Contact
+                                                            {
+                                                                PoolID = pool.ID,
+                                                                FullNameEN = currentRation.FullNameEN,
+                                                                FullNameAR = currentRation.FullNameAR,
+                                                                Address = currentRation.Address,
+                                                                AssignedUserID = poolUsers[i].UserID,
+                                                                Email = currentRation.Email,
+                                                                LeadSourceName = currentRation.LeadSourceName,
+                                                                LeadSourceType = currentRation.LeadSourceType,
+                                                                Occupation = currentRation.Occupation,
+                                                                PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                                StatusID = currentRation.StatusID,
+                                                                State = (int)CustomerStageState.Initial,
+                                                                IsFinalized = false,
+                                                            };
+
+                                                            var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+
+                                                            //Remove assigned rations from contact creation list
+                                                            creationModel.Contacts = creationModel.Contacts.Skip(1).ToList();
+                                                        }
+                                                        else //No more records to assign
+                                                        {
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+
+
+                                                //Commit record creation
+                                                await unitOfWork.SaveChangesAsync();
+                                                result.Succeeded = true;
+                                                return result;
+                                            }
+                                            else //Commit record creation
+                                            {
+                                                await unitOfWork.SaveChangesAsync();
+                                                result.Succeeded = true;
+                                                return result;
+                                            }
+
+                                        }
+                                        else //Round robin process (1 record per user till all records are assigned)
+                                        {
+                                            while (creationModel.Contacts.Count > 0)
+                                            {
+                                                for (int i = 0; i < poolUsers.Count; i++)
+                                                {
+                                                    var currentRation = creationModel.Contacts.Take(1).FirstOrDefault();
+                                                    if (currentRation != null)
+                                                    {
+                                                        Contact recordCreationModel = new Contact
+                                                        {
+                                                            PoolID = pool.ID,
+                                                            FullNameEN = currentRation.FullNameEN,
+                                                            FullNameAR = currentRation.FullNameAR,
+                                                            Address = currentRation.Address,
+                                                            AssignedUserID = poolUsers[i].UserID,
+                                                            Email = currentRation.Email,
+                                                            LeadSourceName = currentRation.LeadSourceName,
+                                                            LeadSourceType = currentRation.LeadSourceType,
+                                                            Occupation = currentRation.Occupation,
+                                                            PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                            StatusID = currentRation.StatusID,
+                                                            State = (int)CustomerStageState.Initial,
+                                                            IsFinalized = false,
+                                                        };
+
+                                                        var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+
+                                                        //Remove assigned rations from contact creation list
+                                                        creationModel.Contacts = creationModel.Contacts.Skip(1).ToList();
+                                                    }
+                                                    else //No more records to assign
+                                                    {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            //Commit record creation
+                                            await unitOfWork.SaveChangesAsync();
+                                            result.Succeeded = true;
+                                            return result;
+                                        }
                                     }
                                 }
-                                else
+                                else //Can assign to self
                                 {
-                                    throw new NotImplementedException();
+                                    for (int i = 0; i < creationModel.Contacts.Count; i++)
+                                    {
+                                        var contact = creationModel.Contacts[i];
+
+                                        var modelToCreate = new Contact
+                                        {
+                                            PoolID = creationModel.PoolID,
+                                            FullNameEN = contact.FullNameEN,
+                                            FullNameAR = contact.FullNameAR,
+                                            Address = contact.Address,
+                                            AssignedUserID = userID,
+                                            Email = contact.Email,
+                                            LeadSourceName = contact.LeadSourceName,
+                                            LeadSourceType = contact.LeadSourceType,
+                                            Occupation = contact.Occupation,
+                                            PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                            StatusID = contact.StatusID,
+                                            State = (int)CustomerStageState.Initial,
+                                            IsFinalized = false
+                                        };
+
+                                        modelToCreate.State = (int)CustomerStageState.Initial;
+
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult == null)
+                                        {
+                                            result.Errors.Add("" + (i + 1));
+                                        }
+                                    }
+
+                                    //Commit record creation
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                            }//END OF Auto Assignment flow
+                            else if (pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity)
+                            {
+
+                                if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Administrator.ToString()))//Can assign to others
+                                {
+                                    //Get all pool users
+                                    var poolUsersQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID);
+                                    var poolUsers = poolUsersQuery.ToList();
+
+
+                                    //Assign to specified users
+                                    if (creationModel.AssignedUsers != null && creationModel.AssignedUsers.Count > 0)
+                                    {
+                                        int totalCapacity = 0;
+
+                                        //Order specified users by priority
+                                        List<SpecifiedPoolUser> specifiedPoolUsers = new List<SpecifiedPoolUser>();
+
+                                        for (int i = 0; i < creationModel.AssignedUsers.Count; i++)
+                                        {
+                                            var specifiedUserID = creationModel.AssignedUsers[i];
+
+                                            var matchedUser = poolUsers.Where(t => t.UserID == specifiedUserID).FirstOrDefault();
+
+                                            if (matchedUser != null)
+                                            {
+                                                var assignedPoolContactsQuery = await unitOfWork.ContactManager.GetAsync(t => t.PoolID == pool.ID && t.AssignedUserID == specifiedUserID
+                                                && t.IsFinalized == false);
+                                                var assignedPoolContactsCount = assignedPoolContactsQuery.Count();
+                                                specifiedPoolUsers.Add(new SpecifiedPoolUser
+                                                {
+                                                    UserID = specifiedUserID,
+                                                    Index = poolUsers.IndexOf(matchedUser),
+                                                    UserPoolCapacity = matchedUser.Capacity,
+                                                    AssignedRecordsCount = assignedPoolContactsCount
+                                                });
+
+                                                int userAvailableCapacity = matchedUser.Capacity.Value - assignedPoolContactsCount;
+                                                totalCapacity += userAvailableCapacity;
+
+                                            }
+                                        }
+
+                                        specifiedPoolUsers = specifiedPoolUsers.OrderBy(t => t.Index).ToList();
+
+                                        //Iterate users and assign contacts (round robin process)
+                                        while (creationModel.Contacts.Count > 0 && totalCapacity > 0)
+                                        {
+                                            for (int i = 0; i < specifiedPoolUsers.Count; i++)
+                                            {
+                                                var specifiedUser = specifiedPoolUsers[i];
+
+                                                var currentRation = creationModel.Contacts.Take(1).FirstOrDefault();
+                                                if (currentRation != null)
+                                                {
+                                                    //Verify current capacity
+                                                    int userAvailableCapacity = specifiedUser.UserPoolCapacity.Value - specifiedUser.AssignedRecordsCount.Value;
+                                                    if (userAvailableCapacity > 0) //Available slots found, assign contact
+                                                    {
+                                                        Contact recordCreationModel = new Contact
+                                                        {
+                                                            PoolID = pool.ID,
+                                                            FullNameEN = currentRation.FullNameEN,
+                                                            FullNameAR = currentRation.FullNameAR,
+                                                            Address = currentRation.Address,
+                                                            AssignedUserID = specifiedUser.UserID,
+                                                            Email = currentRation.Email,
+                                                            LeadSourceName = currentRation.LeadSourceName,
+                                                            LeadSourceType = currentRation.LeadSourceType,
+                                                            Occupation = currentRation.Occupation,
+                                                            PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                            StatusID = currentRation.StatusID,
+                                                            State = (int)CustomerStageState.Initial,
+                                                            IsFinalized = false,
+                                                        };
+
+                                                        var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+
+                                                        //Remove assigned rations from contact creation list
+                                                        creationModel.Contacts = creationModel.Contacts.Skip(1).ToList();
+
+                                                        //Adjust current user capacity record & total capacity 
+                                                        if (creationRes != null)
+                                                        {
+                                                            specifiedUser.AssignedRecordsCount += 1;
+                                                            totalCapacity -= 1;
+                                                        }
+                                                    }
+                                                }
+                                                else //No more records to assign
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        //Verify whether any records are still remaining
+
+                                        if (creationModel.Contacts.Count > 0)
+                                        {
+                                            //Return with capacity re-evaluation response if user is a pool administrator
+                                            var poolAdminQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID);
+                                            var isPoolAdmin = poolAdminQuery.FirstOrDefault();
+                                            if (isPoolAdmin == null)
+                                            {
+                                                result.Succeeded = false;
+                                                result.Data = new BulkAssignmentResponse
+                                                {
+                                                    RemainingSlots = creationModel.Contacts.Count,
+                                                    Success = false
+                                                };
+                                                result.ErrorType = ErrorType.IncreaseCapacity;
+                                                return result;
+                                            }
+                                            else //Create remaining records as unassigned if creator is not a pool administrator
+                                            {
+                                                for (int i = 0; i < creationModel.Contacts.Count; i++)
+                                                {
+                                                    var contact = creationModel.Contacts[i];
+                                                    Contact recordCreationModel = new Contact
+                                                    {
+                                                        PoolID = pool.ID,
+                                                        FullNameEN = contact.FullNameEN,
+                                                        FullNameAR = contact.FullNameAR,
+                                                        Address = contact.Address,
+                                                        Email = contact.Email,
+                                                        LeadSourceName = contact.LeadSourceName,
+                                                        LeadSourceType = contact.LeadSourceType,
+                                                        Occupation = contact.Occupation,
+                                                        PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                                        StatusID = contact.StatusID,
+                                                        State = (int)CustomerStageState.Unassigned,
+                                                        IsFinalized = false,
+                                                    };
+
+                                                    var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+                                                }
+
+                                                //Commit record creation
+                                                await unitOfWork.SaveChangesAsync();
+                                                result.Succeeded = true;
+                                                return result;
+                                            }
+                                        }
+                                        else //No more records remaining, commit record creation
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+                                            result.Succeeded = true;
+                                            return result;
+                                        }
+                                    }
+                                    else //Assign to existing pool prioritized users
+                                    {
+                                        int totalCapacity = 0;
+
+                                        List<SpecifiedPoolUser> prioritizedPoolUsers = new List<SpecifiedPoolUser>();
+
+                                        //calculate each user's capacity and assigned records
+                                        for (int i = 0; i < poolUsers.Count; i++)
+                                        {
+                                            var prioritizedUserID = creationModel.AssignedUsers[i];
+
+                                            var matchedUser = poolUsers.Where(t => t.UserID == prioritizedUserID).FirstOrDefault();
+
+                                            if (matchedUser != null)
+                                            {
+                                                var assignedPoolContactsQuery = await unitOfWork.ContactManager.GetAsync(t => t.PoolID == pool.ID && t.AssignedUserID == prioritizedUserID
+                                                && t.IsFinalized == false);
+                                                var assignedPoolContactsCount = assignedPoolContactsQuery.Count();
+                                                prioritizedPoolUsers.Add(new SpecifiedPoolUser
+                                                {
+                                                    UserID = prioritizedUserID,
+                                                    Index = poolUsers.IndexOf(matchedUser),
+                                                    UserPoolCapacity = matchedUser.Capacity,
+                                                    AssignedRecordsCount = assignedPoolContactsCount
+                                                });
+
+                                                int userAvailableCapacity = matchedUser.Capacity.Value - assignedPoolContactsCount;
+                                                totalCapacity += userAvailableCapacity;
+
+                                            }
+                                        }
+
+                                        //Iterate users and assign contacts (round robin process)
+                                        while (creationModel.Contacts.Count > 0 && totalCapacity > 0)
+                                        {
+                                            for (int i = 0; i < prioritizedPoolUsers.Count; i++)
+                                            {
+                                                var prioritizedUser = prioritizedPoolUsers[i];
+
+                                                var currentRation = creationModel.Contacts.Take(1).FirstOrDefault();
+                                                if (currentRation != null)
+                                                {
+                                                    //Verify current capacity
+                                                    int userAvailableCapacity = prioritizedUser.UserPoolCapacity.Value - prioritizedUser.AssignedRecordsCount.Value;
+                                                    if (userAvailableCapacity > 0) //Available slots found, assign contact
+                                                    {
+                                                        Contact recordCreationModel = new Contact
+                                                        {
+                                                            PoolID = pool.ID,
+                                                            FullNameEN = currentRation.FullNameEN,
+                                                            FullNameAR = currentRation.FullNameAR,
+                                                            Address = currentRation.Address,
+                                                            AssignedUserID = prioritizedUser.UserID,
+                                                            Email = currentRation.Email,
+                                                            LeadSourceName = currentRation.LeadSourceName,
+                                                            LeadSourceType = currentRation.LeadSourceType,
+                                                            Occupation = currentRation.Occupation,
+                                                            PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                            StatusID = currentRation.StatusID,
+                                                            State = (int)CustomerStageState.Initial,
+                                                            IsFinalized = false,
+                                                        };
+
+                                                        var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+
+                                                        //Remove assigned rations from contact creation list
+                                                        creationModel.Contacts = creationModel.Contacts.Skip(1).ToList();
+
+                                                        //Adjust current user capacity record & total capacity 
+                                                        if (creationRes != null)
+                                                        {
+                                                            prioritizedUser.AssignedRecordsCount += 1;
+                                                            totalCapacity -= 1;
+                                                        }
+                                                    }
+                                                }
+                                                else //No more records to assign
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        //Verify whether any records are still remaining
+
+                                        if (creationModel.Contacts.Count > 0)
+                                        {
+                                            //Return with capacity re-evaluation response if user is a pool administrator
+                                            var poolAdminQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID);
+                                            var isPoolAdmin = poolAdminQuery.FirstOrDefault();
+                                            if (isPoolAdmin == null)
+                                            {
+                                                result.Succeeded = false;
+                                                result.Data = new BulkAssignmentResponse
+                                                {
+                                                    RemainingSlots = creationModel.Contacts.Count,
+                                                    Success = false
+                                                };
+                                                result.ErrorType = ErrorType.IncreaseCapacity;
+                                                return result;
+                                            }
+                                            else //Create remaining records as unassigned if creator is not a pool administrator
+                                            {
+                                                for (int i = 0; i < creationModel.Contacts.Count; i++)
+                                                {
+                                                    var contact = creationModel.Contacts[i];
+                                                    Contact recordCreationModel = new Contact
+                                                    {
+                                                        PoolID = pool.ID,
+                                                        FullNameEN = contact.FullNameEN,
+                                                        FullNameAR = contact.FullNameAR,
+                                                        Address = contact.Address,
+                                                        Email = contact.Email,
+                                                        LeadSourceName = contact.LeadSourceName,
+                                                        LeadSourceType = contact.LeadSourceType,
+                                                        Occupation = contact.Occupation,
+                                                        PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                                        StatusID = contact.StatusID,
+                                                        State = (int)CustomerStageState.Unassigned,
+                                                        IsFinalized = false,
+                                                    };
+
+                                                    var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+                                                }
+
+                                                //Commit record creation
+                                                await unitOfWork.SaveChangesAsync();
+                                                result.Succeeded = true;
+                                                return result;
+                                            }
+                                        }
+                                        else //No more records remaining, commit record creation
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+                                            result.Succeeded = true;
+                                            return result;
+                                        }
+                                    }
+                                }
+                                else //Can assign to self
+                                {
+                                    for (int i = 0; i < creationModel.Contacts.Count; i++)
+                                    {
+                                        var contact = creationModel.Contacts[i];
+
+                                        var modelToCreate = new Contact
+                                        {
+                                            PoolID = creationModel.PoolID,
+                                            FullNameEN = contact.FullNameEN,
+                                            FullNameAR = contact.FullNameAR,
+                                            Address = contact.Address,
+                                            AssignedUserID = userID,
+                                            Email = contact.Email,
+                                            LeadSourceName = contact.LeadSourceName,
+                                            LeadSourceType = contact.LeadSourceType,
+                                            Occupation = contact.Occupation,
+                                            PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                            StatusID = contact.StatusID,
+                                            State = (int)CustomerStageState.Initial,
+                                            IsFinalized = false
+                                        };
+
+                                        modelToCreate.State = (int)CustomerStageState.Initial;
+
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult == null)
+                                        {
+                                            result.Errors.Add("" + (i + 1));
+                                        }
+                                    }
+
+                                    //Commit record creation
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                            } //END OF Auto Assignment W/Capacity flow
+                            else if (pool.ConfigurationType == (int)PoolConfigurationTypes.Capacity)
+                            {
+                                //Can assign to others
+                                if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Administrator.ToString()) && (creationModel.AssignedUsers != null && creationModel.AssignedUsers.Count > 0))
+                                {
+                                    //Get all pool users
+                                    var poolUsersQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID);
+                                    var poolUsers = poolUsersQuery.ToList();
+
+                                    int totalCapacity = 0;
+
+                                    //Calculate current user's capacity
+                                    List<SpecifiedPoolUser> specifiedPoolUsers = new List<SpecifiedPoolUser>();
+
+                                    for (int i = 0; i < creationModel.AssignedUsers.Count; i++)
+                                    {
+                                        var specifiedUserID = creationModel.AssignedUsers[i];
+
+                                        var matchedUser = poolUsers.Where(t => t.UserID == specifiedUserID).FirstOrDefault();
+
+                                        if (matchedUser != null)
+                                        {
+                                            var assignedPoolContactsQuery = await unitOfWork.ContactManager.GetAsync(t => t.PoolID == pool.ID && t.AssignedUserID == specifiedUserID
+                                            && t.IsFinalized == false);
+                                            var assignedPoolContactsCount = assignedPoolContactsQuery.Count();
+                                            specifiedPoolUsers.Add(new SpecifiedPoolUser
+                                            {
+                                                UserID = specifiedUserID,
+                                                UserPoolCapacity = matchedUser.Capacity,
+                                                AssignedRecordsCount = assignedPoolContactsCount
+                                            });
+
+                                            int userAvailableCapacity = matchedUser.Capacity.Value - assignedPoolContactsCount;
+                                            totalCapacity += userAvailableCapacity;
+
+                                        }
+                                    }
+
+                                    //Iterate users and assign contacts (round robin process)
+                                    while (creationModel.Contacts.Count > 0 && totalCapacity > 0)
+                                    {
+                                        for (int i = 0; i < specifiedPoolUsers.Count; i++)
+                                        {
+                                            var specifiedUser = specifiedPoolUsers[i];
+
+                                            var currentRation = creationModel.Contacts.Take(1).FirstOrDefault();
+                                            if (currentRation != null)
+                                            {
+                                                //Verify current capacity
+                                                int userAvailableCapacity = specifiedUser.UserPoolCapacity.Value - specifiedUser.AssignedRecordsCount.Value;
+                                                if (userAvailableCapacity > 0) //Available slots found, assign contact
+                                                {
+                                                    Contact recordCreationModel = new Contact
+                                                    {
+                                                        PoolID = pool.ID,
+                                                        FullNameEN = currentRation.FullNameEN,
+                                                        FullNameAR = currentRation.FullNameAR,
+                                                        Address = currentRation.Address,
+                                                        AssignedUserID = specifiedUser.UserID,
+                                                        Email = currentRation.Email,
+                                                        LeadSourceName = currentRation.LeadSourceName,
+                                                        LeadSourceType = currentRation.LeadSourceType,
+                                                        Occupation = currentRation.Occupation,
+                                                        PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                        StatusID = currentRation.StatusID,
+                                                        State = (int)CustomerStageState.Initial,
+                                                        IsFinalized = false,
+                                                    };
+
+                                                    var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+
+                                                    //Remove assigned rations from contact creation list
+                                                    creationModel.Contacts = creationModel.Contacts.Skip(1).ToList();
+
+                                                    //Adjust current user capacity record & total capacity 
+                                                    if (creationRes != null)
+                                                    {
+                                                        specifiedUser.AssignedRecordsCount += 1;
+                                                        totalCapacity -= 1;
+                                                    }
+                                                }
+                                            }
+                                            else //No more records to assign
+                                            {
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    //Create remaining records as unassigned if found
+
+                                    if (creationModel.Contacts.Count > 0)
+                                    {
+                                        for (int i = 0; i < creationModel.Contacts.Count; i++)
+                                        {
+                                            var contact = creationModel.Contacts[i];
+                                            Contact recordCreationModel = new Contact
+                                            {
+                                                PoolID = pool.ID,
+                                                FullNameEN = contact.FullNameEN,
+                                                FullNameAR = contact.FullNameAR,
+                                                Address = contact.Address,
+                                                Email = contact.Email,
+                                                LeadSourceName = contact.LeadSourceName,
+                                                LeadSourceType = contact.LeadSourceType,
+                                                Occupation = contact.Occupation,
+                                                PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                                StatusID = contact.StatusID,
+                                                State = (int)CustomerStageState.Unassigned,
+                                                IsFinalized = false,
+                                            };
+
+                                            var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+                                        }
+
+                                        //Commit record creation
+                                        await unitOfWork.SaveChangesAsync();
+                                        result.Succeeded = true;
+                                        return result;
+                                    }
+                                    else //No more records remaining, commit record creation
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+                                        result.Succeeded = true;
+                                        return result;
+                                    }
+                                }
+                                else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))//Can assign to self
+                                {
+                                    for (int i = 0; i < creationModel.Contacts.Count; i++)
+                                    {
+                                        var contact = creationModel.Contacts[i];
+
+                                        var modelToCreate = new Contact
+                                        {
+                                            PoolID = creationModel.PoolID,
+                                            FullNameEN = contact.FullNameEN,
+                                            FullNameAR = contact.FullNameAR,
+                                            Address = contact.Address,
+                                            AssignedUserID = userID,
+                                            Email = contact.Email,
+                                            LeadSourceName = contact.LeadSourceName,
+                                            LeadSourceType = contact.LeadSourceType,
+                                            Occupation = contact.Occupation,
+                                            PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                            StatusID = contact.StatusID,
+                                            State = (int)CustomerStageState.Initial,
+                                            IsFinalized = false
+                                        };
+
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult == null)
+                                        {
+                                            result.Errors.Add("" + (i + 1));
+                                        }
+                                    }
+
+                                    //Commit record creation
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                                else //Create all records as unassigned
+                                {
+                                    for (int i = 0; i < creationModel.Contacts.Count; i++)
+                                    {
+                                        var contact = creationModel.Contacts[i];
+
+                                        var modelToCreate = new Contact
+                                        {
+                                            PoolID = creationModel.PoolID,
+                                            FullNameEN = contact.FullNameEN,
+                                            FullNameAR = contact.FullNameAR,
+                                            Address = contact.Address,
+                                            Email = contact.Email,
+                                            LeadSourceName = contact.LeadSourceName,
+                                            LeadSourceType = contact.LeadSourceType,
+                                            Occupation = contact.Occupation,
+                                            PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                            StatusID = contact.StatusID,
+                                            State = (int)CustomerStageState.Unassigned,
+                                            IsFinalized = false
+                                        };
+
+
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult == null)
+                                        {
+                                            result.Errors.Add("" + (i + 1));
+                                        }
+                                    }
+
+                                    //Commit record creation
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                            } //END OF Capacity flow
+                            else //Default pool configuration flow
+                            {
+                                //Can assign to others
+                                if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Administrator.ToString()) && (creationModel.AssignedUsers != null && creationModel.AssignedUsers.Count > 0))
+                                {
+                                    while (creationModel.Contacts.Count > 0)
+                                    {
+                                        for (int i = 0; i < creationModel.AssignedUsers.Count; i++)
+                                        {
+                                            var assignedUserID = creationModel.AssignedUsers[i];
+
+                                            var currentRation = creationModel.Contacts.Take(1).FirstOrDefault();
+                                            if (currentRation != null)
+                                            {
+                                                Contact recordCreationModel = new Contact
+                                                {
+                                                    PoolID = pool.ID,
+                                                    FullNameEN = currentRation.FullNameEN,
+                                                    FullNameAR = currentRation.FullNameAR,
+                                                    Address = currentRation.Address,
+                                                    AssignedUserID = assignedUserID,
+                                                    Email = currentRation.Email,
+                                                    LeadSourceName = currentRation.LeadSourceName,
+                                                    LeadSourceType = currentRation.LeadSourceType,
+                                                    Occupation = currentRation.Occupation,
+                                                    PrimaryPhoneNumber = currentRation.PrimaryPhoneNumber,
+                                                    StatusID = currentRation.StatusID,
+                                                    State = (int)CustomerStageState.Initial,
+                                                    IsFinalized = false,
+                                                };
+
+                                                var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
+
+                                                //Remove assigned rations from contact creation list
+                                                creationModel.Contacts = creationModel.Contacts.Skip(1).ToList();
+                                            }
+                                            else //No more records to assign
+                                            {
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    //Commit record creation
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
                                 }
                                 //Can assign to self
-                                //    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
-                                //    {
-                                //        for (int i = 0; i < creationModel.Contacts.Count; i++)
-                                //        {
-                                //            var contact = creationModel.Contacts[i];
+                                else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Administrator.ToString()) && creationModel.AssignedUsers == null)
+                                {
+                                    for (int i = 0; i < creationModel.Contacts.Count; i++)
+                                    {
+                                        var contact = creationModel.Contacts[i];
 
-                                //            var modelToCreate = new Contact
-                                //            {
-                                //                PoolID = creationModel.PoolID,
-                                //                FullNameEN = contact.FullNameEN,
-                                //                FullNameAR = contact.FullNameAR,
-                                //                Address = contact.Address,
-                                //                AssignedUserID = userID,
-                                //                Email = contact.Email,
-                                //                LeadSourceName = contact.LeadSourceName,
-                                //                LeadSourceType = contact.LeadSourceType,
-                                //                Occupation = contact.Occupation,
-                                //                PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
-                                //                StatusID = contact.StatusID,
-                                //                IsFinalized = false
-                                //            };
+                                        var modelToCreate = new Contact
+                                        {
+                                            PoolID = creationModel.PoolID,
+                                            FullNameEN = contact.FullNameEN,
+                                            FullNameAR = contact.FullNameAR,
+                                            Address = contact.Address,
+                                            AssignedUserID = userID,
+                                            Email = contact.Email,
+                                            LeadSourceName = contact.LeadSourceName,
+                                            LeadSourceType = contact.LeadSourceType,
+                                            Occupation = contact.Occupation,
+                                            PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                            StatusID = contact.StatusID,
+                                            State = (int)CustomerStageState.Initial,
+                                            IsFinalized = false
+                                        };
 
-                                //            modelToCreate.State = (int)CustomerStageState.Initial;
+                                        modelToCreate.State = (int)CustomerStageState.Initial;
 
-                                //            var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
-                                //            if (creationModelResult == null)
-                                //            {
-                                //                result.Errors.Add("" + (i + 1));
-                                //            }
-                                //        }
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult == null)
+                                        {
+                                            result.Errors.Add("" + (i + 1));
+                                        }
+                                    }
 
-                                //        await unitOfWork.SaveChangesAsync();
-                                //        result.Succeeded = true;
-                                //        return result;
-                                //    }
-                                //    //Error
-                                //    else
-                                //    {
-                                //        result.Succeeded = false;
-                                //        result.Errors.Add("Not authorized");
-                                //        return result;
-                                //    }
-                                //}
-                                //else if (pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity) //Auto assignment w/ capacity config.
-                                //{
-                                //    //Can assign to others
-                                //    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
-                                //    {
-                                //        throw new NotImplementedException();
-                                //    }
-                                //    //Can assign to self
-                                //    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
-                                //    {
-                                //        throw new NotImplementedException();
+                                    //Commit record creation
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                                //Create all records as unassigned
+                                else
+                                {
+                                    for (int i = 0; i < creationModel.Contacts.Count; i++)
+                                    {
+                                        var contact = creationModel.Contacts[i];
 
-                                //    }
-                                //    else
-                                //    {
-                                //        result.Succeeded = false;
-                                //        result.Errors.Add("Not authorized");
-                                //        return result;
-                                //    }
-                                //}
-                                //else if (pool.ConfigurationType == (int)PoolConfigurationTypes.Capacity)
-                                //{
-                                //    //Can assign to others
-                                //    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
-                                //    {
+                                        var modelToCreate = new Contact
+                                        {
+                                            PoolID = creationModel.PoolID,
+                                            FullNameEN = contact.FullNameEN,
+                                            FullNameAR = contact.FullNameAR,
+                                            Address = contact.Address,
+                                            Email = contact.Email,
+                                            LeadSourceName = contact.LeadSourceName,
+                                            LeadSourceType = contact.LeadSourceType,
+                                            Occupation = contact.Occupation,
+                                            PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                            StatusID = contact.StatusID,
+                                            State = (int)CustomerStageState.Unassigned,
+                                            IsFinalized = false
+                                        };
 
-                                //    }
-                                //    //Can assign to self
-                                //    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
-                                //    {
+                                        var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
+                                        if (creationModelResult == null)
+                                        {
+                                            result.Errors.Add("" + (i + 1));
+                                        }
+                                    }
 
-                                //    }
-                                //    //Create contact as unassigned
-                                //    else
-                                //    {
-                                //    }
-                                //}
-                                //else //Default config type
-                                //{
-                                //    //Can assign to others
-                                //    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
-                                //    {
-
-                                //    }
-                                //    //Can assign to self
-                                //    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
-                                //    {
-
-                                //    }
-                                //    else //Create contact as unassigned
-                                //    {
-
-                                //    }
-                                //}
-                            }
-                            else
-                            {
-                                result.Succeeded = false;
-                                result.Errors.Add("bla");
-                                return result;
-                            }
+                                    //Commit record creation
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                            } //END OF Default pool configuration flow
                         }
-                        else // pool not found
+                        else //Pool not found
                         {
                             result.Succeeded = false;
-                            result.Errors.Add("Invalid pool");
+                            result.Errors.Add("Pool not found or does not exist");
                             return result;
                         }
                     }
