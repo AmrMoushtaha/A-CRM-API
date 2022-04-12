@@ -43,6 +43,7 @@ namespace Stack.Core.Managers.Modules.Materials
                        PrimaryPhoneNumber = p.PrimaryPhoneNumber,
                        StatusEN = p.Status.EN,
                        StatusAR = p.Status.AR,
+                       StatusID = p.Status.ID,
                        AssignedUserName = p.AssignedUser.FirstName + " " + p.AssignedUser.LastName,
                    }).FirstOrDefault();
 

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220404203122_updated-activity-submission")]
+    partial class updatedactivitysubmission
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -439,8 +441,8 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("CurrentStage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("CurrentStatus")
-                        .HasColumnType("bigint");
+                    b.Property<string>("CurrentStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsStageChanged")
                         .HasColumnType("bit");
@@ -451,8 +453,8 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("NewStage")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("NewStatus")
-                        .HasColumnType("bigint");
+                    b.Property<string>("NewStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("ScheduledActivityDate")
                         .HasColumnType("datetime2");
@@ -574,12 +576,6 @@ namespace Stack.DAL.Migrations
                     b.Property<long>("InterestAttributeID")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("ID")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.HasKey("LInterestID", "InterestAttributeID");
 
                     b.HasIndex("InterestAttributeID");
@@ -594,12 +590,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<long>("LInterestInputID")
                         .HasColumnType("bigint");
-
-                    b.Property<long>("ID")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.HasKey("LInterestID", "LInterestInputID");
 
@@ -1077,12 +1067,6 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsFinalized")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsFresh")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LeadSourceName")
                         .HasColumnType("nvarchar(max)");
 
@@ -1218,14 +1202,20 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("AssignedUserID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("FullNameAR")
+                    b.Property<string>("FirstNameAR")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FullNameEN")
+                    b.Property<string>("FirstNameEN")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("LastNameAR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastNameEN")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -1302,13 +1292,10 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsFresh")
-                        .HasColumnType("bit");
-
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<long?>("StatusID")
+                    b.Property<long>("StatusID")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
@@ -1338,6 +1325,9 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<long>("LeadID")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
@@ -1362,13 +1352,10 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsFresh")
-                        .HasColumnType("bit");
-
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<long?>("StatusID")
+                    b.Property<long>("StatusID")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
@@ -1398,6 +1385,9 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<long>("OpportunityID")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
@@ -1416,8 +1406,8 @@ namespace Stack.DAL.Migrations
                     b.Property<int?>("Capacity")
                         .HasColumnType("int");
 
-                    b.Property<int>("ConfigurationType")
-                        .HasColumnType("int");
+                    b.Property<string>("ConfigurationType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DescriptionAR")
                         .HasColumnType("nvarchar(max)");
@@ -1447,9 +1437,6 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("UserID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("Capacity")
-                        .HasColumnType("int");
-
                     b.HasKey("PoolID", "UserID");
 
                     b.HasIndex("UserID");
@@ -1464,9 +1451,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<string>("UserID")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("Capacity")
-                        .HasColumnType("int");
 
                     b.HasKey("PoolID", "UserID");
 
@@ -1491,13 +1475,10 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsFresh")
-                        .HasColumnType("bit");
-
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<long?>("StatusID")
+                    b.Property<long>("StatusID")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
@@ -1526,6 +1507,9 @@ namespace Stack.DAL.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<long>("ProspectID")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
@@ -1976,7 +1960,9 @@ namespace Stack.DAL.Migrations
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.LeadStatus", "Status")
                         .WithMany("Leads")
-                        .HasForeignKey("StatusID");
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Opportunity", b =>
@@ -1993,7 +1979,9 @@ namespace Stack.DAL.Migrations
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.OpportunityStatus", "Status")
                         .WithMany("Opportunities")
-                        .HasForeignKey("StatusID");
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Pool_Admin", b =>
@@ -2040,7 +2028,9 @@ namespace Stack.DAL.Migrations
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.ProspectStatus", "Status")
                         .WithMany("Prospects")
-                        .HasForeignKey("StatusID");
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

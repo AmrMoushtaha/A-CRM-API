@@ -40,6 +40,7 @@ namespace Stack.API.AutoMapperConfig
            .ForMember(dist => dist.Comments, opt => opt.MapFrom(t => t.Comments))
            .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.EN))
            .ForMember(dist => dist.StatusAR, opt => opt.MapFrom(t => t.Status.AR))
+           .ForMember(dist => dist.StatusID, opt => opt.MapFrom(t => t.Status.ID))
            .ForMember(dist => dist.Tags, opt => opt.MapFrom(t => t.Tags))
            .ReverseMap();
 

@@ -83,12 +83,12 @@ namespace Stack.API.Controllers.Modules.Activities
             return await GetResponseHandler(async () => await service.GetCurrentActivitySectionByContactID(ID));
         }
 
-        [AllowAnonymous]
-        [HttpGet("SubmitActivity")]
-        public async Task<IActionResult> SubmitActivity(ActivitySubmissionModel ID)
-        {
-            return await AddItemResponseHandler(async () => await service.SubmitActivity(ID));
-        }
+        //[AllowAnonymous]
+        //[HttpGet("SubmitActivity")]
+        //public async Task<IActionResult> SubmitActivity(ActivitySubmissionModel ID)
+        //{
+        //    return await AddItemResponseHandler(async () => await service.SubmitActivity(ID));
+        //}
 
         [AllowAnonymous]
         [HttpGet("GetActivityHistoryByContactID/{ContactID}")]

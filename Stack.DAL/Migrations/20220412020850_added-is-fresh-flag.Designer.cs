@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220412020850_added-is-fresh-flag")]
+    partial class addedisfreshflag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1218,14 +1220,20 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("AssignedUserID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("FullNameAR")
+                    b.Property<string>("FirstNameAR")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FullNameEN")
+                    b.Property<string>("FirstNameEN")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("LastNameAR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastNameEN")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
@@ -1308,7 +1316,7 @@ namespace Stack.DAL.Migrations
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<long?>("StatusID")
+                    b.Property<long>("StatusID")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
@@ -1368,7 +1376,7 @@ namespace Stack.DAL.Migrations
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<long?>("StatusID")
+                    b.Property<long>("StatusID")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
@@ -1497,7 +1505,7 @@ namespace Stack.DAL.Migrations
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<long?>("StatusID")
+                    b.Property<long>("StatusID")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
@@ -1976,7 +1984,9 @@ namespace Stack.DAL.Migrations
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.LeadStatus", "Status")
                         .WithMany("Leads")
-                        .HasForeignKey("StatusID");
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Opportunity", b =>
@@ -1993,7 +2003,9 @@ namespace Stack.DAL.Migrations
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.OpportunityStatus", "Status")
                         .WithMany("Opportunities")
-                        .HasForeignKey("StatusID");
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Pool_Admin", b =>
@@ -2040,7 +2052,9 @@ namespace Stack.DAL.Migrations
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.ProspectStatus", "Status")
                         .WithMany("Prospects")
-                        .HasForeignKey("StatusID");
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

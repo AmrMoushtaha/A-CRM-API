@@ -28,10 +28,16 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public virtual List<Contact_Tag> Tags { get; set; }
 
         public long PoolID { get; set; }
+
+        public long? CustomerID { get; set; }
+
         public long? StatusID { get; set; }
+
         public string AssignedUserID { get; set; }
 
         public bool IsFinalized { get; set; }
+
+        public bool IsFresh { get; set; }
 
         [ForeignKey("StatusID")]
         public virtual ContactStatus Status { get; set; }
