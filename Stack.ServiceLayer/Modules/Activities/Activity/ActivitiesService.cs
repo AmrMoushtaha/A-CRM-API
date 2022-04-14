@@ -357,6 +357,8 @@ namespace Stack.ServiceLayer.Modules.Activities
                 if (referenceActivity != null && referenceProcessFlow != null && referenceUser != null)
                 {
 
+                    
+                    //If the stage is being updated . 
                     if (model.CurrentStage != model.NewStage)
                     {
                         //if the current stage is Contact, create a new customer &  deal and assign it to the existing process flow .
@@ -529,7 +531,6 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                             }
 
-
                             var dealsResult = await unitOfWork.DealManager.GetAsync(a => a.ID == referenceDealID);
 
                             Deal referenceDeal = dealsResult.FirstOrDefault();
@@ -571,7 +572,6 @@ namespace Stack.ServiceLayer.Modules.Activities
                             }
 
                             if (model.NewStage == "Opportunity")
-
                             {
 
                                 Opportunity newStageRecord = new Opportunity();
@@ -615,15 +615,133 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     }
 
+                    //Update the activities submitted flag and submission date . 
+                    referenceActivity.IsSubmitted = true;
+
+                    referenceActivity.SubtmissionDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                    var updateActivityResult = await unitOfWork.ActivitiesManager.UpdateAsync(referenceActivity);
+
+                    //Save the activity submission details . 
+                    SubmissionDetails activitySubmissionDetails = new SubmissionDetails();
+
+                    activitySubmissionDetails.CurrentStage = model.CurrentStage;
+
+                    activitySubmissionDetails.CurrentStatus = model.CurrentStatusID;
+
+                    activitySubmissionDetails.NewStatus = model.NewStatusID;
+
+                    activitySubmissionDetails.ActivityID = referenceActivity.ID;
+
+                    activitySubmissionDetails.SubmissionDate = referenceActivity.SubtmissionDate;
+
+                    activitySubmissionDetails.Comment = model.Comment;
 
 
+                    //If the stage has been changed . 
+                    if (model.CurrentStage != model.NewStage)
+                    {
+                        activitySubmissionDetails.IsStageChanged = true;
+
+                        activitySubmissionDetails.NewStage = model.NewStage;
+
+                    }
+                    else
+                    {
+
+                        activitySubmissionDetails.IsStageChanged = false;
 
 
+                        if (model.CurrentStage == "Contact")
+                        {
 
-                   
+                            var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == model.RecordID);
+
+                            Contact referenceContact = contactsResult.FirstOrDefault();
+
+                            referenceContact.IsFresh = false;
+
+                            var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
+
+                        }
+
+                            if (model.CurrentStage == "Prospect")
+                        {
+                            //Update the current prospect record to converted .
+                            var prospectsResult = await unitOfWork.ProspectManager.GetAsync(a => a.ID == model.RecordID);
+
+                            Prospect referenceProspect = prospectsResult.FirstOrDefault();
+
+                            referenceProspect.IsFresh = false;
+
+                            var updateProspectResutlt = await unitOfWork.ProspectManager.UpdateAsync(referenceProspect);
+          
+                        }
+
+                        if (model.CurrentStage == "Lead")
+                        {
+                            //Update the current lead record to converted .
+                            var leadsResult = await unitOfWork.LeadManager.GetAsync(a => a.ID == model.RecordID);
+
+                            Lead referenceLead = leadsResult.FirstOrDefault();
+
+                            referenceLead.IsFresh = false;
+
+                            var updateLeadResult = await unitOfWork.LeadManager.UpdateAsync(referenceLead);
+
+                        }
+
+                        if (model.CurrentStage == "Opportunity")
+                        {
+                            //Update the current opportunity record to converted .
+                            var opportunitiesResult = await unitOfWork.OpportunityManager.GetAsync(a => a.ID == model.RecordID);
+
+                            Opportunity referenceOpportunity = opportunitiesResult.FirstOrDefault();
+
+                            referenceOpportunity.IsFresh = false;
+
+                            var updateProspectResutlt = await unitOfWork.OpportunityManager.UpdateAsync(referenceOpportunity);
+
+                        }
 
 
+                    }
 
+                    //If the status has been changed . 
+                    if (model.CurrentStatusID != model.NewStatusID && model.CurrentStatusID != 0)
+                    {
+
+                        activitySubmissionDetails.IsStatusChanged = true;
+
+                        activitySubmissionDetails.NewStatus = model.NewStatusID;
+
+                    }
+                    else
+                    {
+
+                        activitySubmissionDetails.IsStatusChanged = false;
+
+                    }
+
+                    // if there an an activity to be scheduled . 
+                    if( model.ScheduledActivityTypeID != null && activitySubmissionDetails.NewStage != "Done-Deal")
+                    {
+
+                        activitySubmissionDetails.ScheduledActivityDate = model.ScheduledActivityDate;
+
+                        activitySubmissionDetails.ScheduledActivityID = model.ScheduledActivityTypeID;
+
+                    }
+
+                    var createActivitySubmissionDetailsModel = await unitOfWork.SubmissionDetailsManager.CreateAsync(activitySubmissionDetails);
+
+                    await unitOfWork.SaveChangesAsync();
+
+                    result.Succeeded = true;
+
+                    result.Data = true;
+
+                    return result;
 
                 }
                 else
@@ -956,7 +1074,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                     if (createProcessFlowResult != null)
                     {
 
-                        newActivity.ProcessFlowID = referenceProcessFlow.ID;
+                        newActivity.ProcessFlowID = createProcessFlowResult.ID;
 
                     }
                     else

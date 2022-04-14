@@ -13,9 +13,9 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public string NewStage { get; set; }
 
-        public long CurrentStatus { get; set; }
+        public long? CurrentStatus { get; set; }
 
-        public long NewStatus { get; set; }
+        public long? NewStatus { get; set; }
 
         public bool IsStatusChanged { get; set; }
 

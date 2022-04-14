@@ -14,13 +14,16 @@ namespace Stack.DTOs.Requests.Modules.Activities
 
         public string NewStage { get; set; }
 
-        public long NewStatusID { get; set; }
+
+        public long? CurrentStatusID { get; set; }
+
+        public long? NewStatusID { get; set; }
 
         public string Comment { get; set; }
 
-        public long ScheduledActivityTypeID { get; set; }
+        public long? ScheduledActivityTypeID { get; set; }
 
-        public long ScheduledActivityDate { get; set; }
+        public DateTime? ScheduledActivityDate { get; set; }
 
     }
 

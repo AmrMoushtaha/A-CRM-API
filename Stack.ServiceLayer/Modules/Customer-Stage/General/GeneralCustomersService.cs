@@ -77,7 +77,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                 StageModel contactStage = new StageModel();
 
-                StageModel doneDealStage = new StageModel();
+                //StageModel doneDealStage = new StageModel();
 
 
                 leadStage.StageNameEN = "Lead";
@@ -97,9 +97,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 contactStage.StageNameAR = "رقم هاتف";
                 contactStage.Statuses = new List<StatusModel>();
 
-                doneDealStage.StageNameEN = "Done-Deal";
-                opportunityStage.StageNameAR = "صفقة منتهية";
-                opportunityStage.Statuses = new List<StatusModel>();
+                //doneDealStage.StageNameEN = "Done-Deal";
+                //opportunityStage.StageNameAR = "صفقة منتهية";
+                //opportunityStage.Statuses = new List<StatusModel>();
 
 
 
@@ -196,7 +196,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                 result.Data.Stages.Add(contactStage);
 
-                result.Data.Stages.Add(doneDealStage);
+                //result.Data.Stages.Add(doneDealStage);
 
 
                 result.Succeeded = true;
