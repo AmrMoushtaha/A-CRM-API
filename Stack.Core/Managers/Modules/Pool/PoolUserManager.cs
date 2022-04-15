@@ -12,15 +12,15 @@ using System.Threading.Tasks;
 
 namespace Stack.Core.Managers.Modules.Pools
 {
-    public class PoolUserManager : Repository<Pool_Users, ApplicationDbContext>
+    public class PoolUserManager : Repository<Pool_User, ApplicationDbContext>
     {
 
 
-        public DbSet<Pool_Users> dbSet;
+        public DbSet<Pool_User> dbSet;
         public ApplicationDbContext context;
         public PoolUserManager(ApplicationDbContext _context) : base(_context)
         {
-            dbSet = _context.Set<Pool_Users>();
+            dbSet = _context.Set<Pool_User>();
             context = _context;
 
         }

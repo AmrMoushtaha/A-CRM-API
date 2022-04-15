@@ -28,8 +28,7 @@ namespace Stack.Entities.Models.Modules.Auth
         public virtual List<Prospect> Prospects { get; set; }
         public virtual List<Lead> Leads { get; set; }
         public virtual List<Opportunity> Opportunities { get; set; }
-        public virtual List<Pool_Users> Pools { get; set; }
-        public virtual List<Pool_Admin> Pool_Admins { get; set; }
+        public virtual List<Pool_User> Pools { get; set; }
 
     }
 

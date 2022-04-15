@@ -21,16 +21,16 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<ApplicationUser, ApplicationUserDTO>()
             .ReverseMap();
 
-            CreateMap<Pool_Users, PoolSidebarViewModel>()
+            CreateMap<Pool_User, PoolSidebarViewModel>()
             .ForMember(dist => dist.NameEN, opt => opt.MapFrom(t => t.Pool.NameEN))
             .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.Pool.NameAR))
             .ReverseMap();
 
-            CreateMap<Pool_Admin, PoolSidebarViewModel>()
-           .ForMember(dist => dist.NameEN, opt => opt.MapFrom(t => t.Pool.NameEN))
-           .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.Pool.NameAR))
-           .ReverseMap();
-
+            CreateMap<Pool_User, PoolAssignedUsersModel>()
+            .ForMember(dist => dist.UserID, opt => opt.MapFrom(t => t.UserID))
+            .ForMember(dist => dist.NameEN, opt => opt.MapFrom(t => t.User.FirstName + " " + t.User.LastName))
+            .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.User.FirstName + " " + t.User.LastName))
+            .ReverseMap();
 
 
             //Contact

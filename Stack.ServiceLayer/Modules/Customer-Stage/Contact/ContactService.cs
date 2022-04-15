@@ -26,6 +26,12 @@ using Stack.Entities.Enums.Modules.Auth;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.DTOs.Models.Modules.Pool;
 using Stack.Entities.Enums.Modules.Pool;
+using ExcelDataReader;
+using System.Data;
+using System.IO;
+using System.Net;
+using System.Web;
+using System.Net.Http.Headers;
 
 namespace Stack.ServiceLayer.Modules.CustomerStage
 {
@@ -120,7 +126,90 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 return result;
             }
         }
+        public async Task<ApiResponse<List<ExcelTranscribedRecord>>> UploadContactExcelFile(UploadFileModel encodedFile)
+        {
+            ApiResponse<List<ExcelTranscribedRecord>> result = new ApiResponse<List<ExcelTranscribedRecord>>();
+            try
+            {
+                return await Task.Run(() =>
+                {
 
+                    //Convert uploaded base 64 string to file
+                    byte[] bytes = Convert.FromBase64String(encodedFile.EncodedFile);
+                    //MemoryStream conversionStream = new MemoryStream(bytes);
+
+
+                    List<ExcelTranscribedRecord> contacts = new List<ExcelTranscribedRecord>();
+
+                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+                    //Access resources folder and add current excel file
+                    var folderName = Path.Combine("Resources");
+                    var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+                    var fullPath = Path.Combine(pathToSave, "excel-template.xlsx");
+
+                    File.WriteAllBytes(fullPath, bytes);
+
+                    //using (var stream = new FileStream(fullPath, FileMode.Create))
+                    //{
+                    //    form.CopyTo(stream);
+                    //}
+                    //End of file storage method
+
+                    //Read file and transcribe into record model
+                    using (var stream = File.Open(fullPath, FileMode.Open, FileAccess.Read))
+                    {
+                        using (var reader = ExcelReaderFactory.CreateReader(stream))
+                        {
+                            do
+                            {
+                                while (reader.Read())
+                                {
+                                    contacts.Add(new ExcelTranscribedRecord
+                                    {
+                                        FullNameAR = reader.GetValue(0).ToString(),
+                                        FullNameEN = reader.GetValue(1).ToString(),
+                                        PrimaryPhoneNumber = reader.GetValue(2).ToString(),
+                                        Email = reader.GetValue(3).ToString(),
+                                        Address = reader.GetValue(4).ToString(),
+                                        LeadSourceType = reader.GetValue(5).ToString(),
+                                        LeadSourceName = reader.GetValue(6).ToString(),
+                                        Occupation = reader.GetValue(7).ToString(),
+                                    });
+                                }
+                            } while (reader.NextResult());
+                            // The result of each spreadsheet is in result.Tables
+                        }
+                    }
+
+                    //Remove excel processing file from resources folder
+                    File.Delete(fullPath);
+                    if (contacts.Count > 1)
+                    {
+                        contacts = contacts.Skip(1).ToList(); //Remove header row
+                        result.Succeeded = true;
+                        result.Data = contacts;
+                        return result;
+                    }
+                    else //Empty
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("File invalid");
+                        return result;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+        //Single contact creation
         public async Task<ApiResponse<bool>> CreateContact(ContactCreationModel creationModel)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -150,7 +239,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 if (pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignment) //Auto assignemnt config.
                                 {
                                     //Can assign to others
-                                    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
+                                    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()) && creationModel.AssigneeID != null)
                                     {
                                         var modelToCreate = new Contact
                                         {
@@ -185,7 +274,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         }
                                     }
                                     //Can assign to self
-                                    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
+                                    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Administrator.ToString()))
                                     {
                                         var modelToCreate = new Contact
                                         {
@@ -231,7 +320,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 else if (pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity) //Auto assignment w/ capacity config.
                                 {
                                     //Can assign to others
-                                    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
+                                    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()) && creationModel.AssigneeID != null)
                                     {
                                         //Verify selected user's pool capacity
                                         var selectedAssigneeQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == creationModel.AssigneeID);
@@ -281,7 +370,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 }
                                                 else //Capacity exceeded, Verify creator pool priviliges
                                                 {
-                                                    var poolAdminQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID);
+                                                    var poolAdminQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID && t.IsAdmin == true);
                                                     var poolAdmin = poolAdminQuery.FirstOrDefault();
 
                                                     if (poolAdmin != null) //Selected agent capacity increase response
@@ -346,7 +435,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         }
                                     }
                                     //Can assign to self
-                                    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
+                                    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Administrator.ToString()))
                                     {
                                         var modelToCreate = new Contact
                                         {
@@ -392,7 +481,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 else if (pool.ConfigurationType == (int)PoolConfigurationTypes.Capacity)
                                 {
                                     //Can assign to others
-                                    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
+                                    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()) && creationModel.AssigneeID != null)
                                     {
                                         //Verify selected user's pool capacity
                                         var selectedAssigneeQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == creationModel.AssigneeID);
@@ -443,7 +532,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 }
                                                 else //Capacity exceeded, Verify creator pool priviliges
                                                 {
-                                                    var poolAdminQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID);
+                                                    var poolAdminQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID && t.IsAdmin == true);
                                                     var poolAdmin = poolAdminQuery.FirstOrDefault();
 
                                                     if (poolAdmin != null) //Selected agent capacity increase response
@@ -508,7 +597,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         }
                                     }
                                     //Can assign to self
-                                    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
+                                    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Administrator.ToString()))
                                     {
                                         var modelToCreate = new Contact
                                         {
@@ -582,7 +671,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 else //Default config type
                                 {
                                     //Can assign to others
-                                    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()))
+                                    if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.TeamLeader.ToString()) && creationModel.AssigneeID != null)
                                     {
                                         var modelToCreate = new Contact
                                         {
@@ -617,7 +706,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         }
                                     }
                                     //Can assign to self
-                                    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()))
+                                    else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Administrator.ToString()))
                                     {
                                         var modelToCreate = new Contact
                                         {
@@ -632,10 +721,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             Occupation = creationModel.Occupation,
                                             PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                             StatusID = creationModel.StatusID,
+                                            State = (int)CustomerStageState.Initial,
                                             IsFinalized = false
                                         };
-
-                                        modelToCreate.State = (int)CustomerStageState.Initial;
 
                                         var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
                                         if (creationModelResult != null)
@@ -666,10 +754,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             LeadSourceType = creationModel.LeadSourceType,
                                             Occupation = creationModel.Occupation,
                                             PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
+                                            State = (int)CustomerStageState.Unassigned,
                                             StatusID = creationModel.StatusID
                                         };
-
-                                        modelToCreate.State = (int)CustomerStageState.Unassigned;
 
                                         var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
                                         if (creationModelResult != null)
@@ -708,6 +795,11 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                         //duplicated contact is unassigned
                         if (model.AssignedUserID == null && model.Status.Status == CustomerStageState.Unassigned.ToString())
                         {
+                            //Transfer contact to current user's pool
+                            if (model.PoolID != creationModel.PoolID)
+                            {
+                                model.PoolID = creationModel.PoolID;
+                            }
                             //assign contact to user
                             model.AssignedUserID = userID;
 
@@ -755,6 +847,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             }
         }
 
+        //Bulk contact creation (post-verification)
         public async Task<ApiResponse<BulkAssignmentResponse>> BulkContactCreation(BulkContactCreationModel creationModel)
         {
             ApiResponse<BulkAssignmentResponse> result = new ApiResponse<BulkAssignmentResponse>();
@@ -792,7 +885,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         var contactsCount = creationModel.Contacts.Count;
 
                                         int rationedRecordsCount = contactsCount / assignedUsersCount;  //calculated rationed records to be assigned to each user
-                                        //Calculate remaining records if any
+                                                                                                        //Calculate remaining records if any
                                         int multipliedRecords = rationedRecordsCount * assignedUsersCount;
                                         int remainingRecordsCount = contactsCount - multipliedRecords; //Remaining rationed records
 
@@ -961,7 +1054,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         var contactsCount = creationModel.Contacts.Count;
 
                                         int rationedRecordsCount = contactsCount / assignedUsersCount;  //calculated rationed records to be assigned to each user
-                                        //Calculate remaining records if any
+                                                                                                        //Calculate remaining records if any
                                         int multipliedRecords = rationedRecordsCount * assignedUsersCount;
                                         int remainingRecordsCount = contactsCount - multipliedRecords; //Remaining rationed records
 
@@ -1239,7 +1332,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         if (creationModel.Contacts.Count > 0)
                                         {
                                             //Return with capacity re-evaluation response if user is a pool administrator
-                                            var poolAdminQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID);
+                                            var poolAdminQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID && t.IsAdmin == true);
                                             var isPoolAdmin = poolAdminQuery.FirstOrDefault();
                                             if (isPoolAdmin == null)
                                             {
@@ -1377,7 +1470,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         if (creationModel.Contacts.Count > 0)
                                         {
                                             //Return with capacity re-evaluation response if user is a pool administrator
-                                            var poolAdminQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID);
+                                            var poolAdminQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID && t.IsAdmin == true);
                                             var isPoolAdmin = poolAdminQuery.FirstOrDefault();
                                             if (isPoolAdmin == null)
                                             {

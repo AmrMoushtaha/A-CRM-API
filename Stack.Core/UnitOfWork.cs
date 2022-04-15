@@ -458,20 +458,6 @@ namespace Stack.Core
             }
         }
 
-
-        private PoolAdminManager poolAdminManager;
-        public PoolAdminManager PoolAdminManager
-        {
-            get
-            {
-                if (poolAdminManager == null)
-                {
-                    poolAdminManager = new PoolAdminManager(context);
-                }
-                return poolAdminManager;
-            }
-        }
-
         private TagManager tagManager;
         public TagManager TagManager
         {

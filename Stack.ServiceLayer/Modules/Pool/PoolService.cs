@@ -76,13 +76,14 @@ namespace Stack.ServiceLayer.Modules.pool
                             await unitOfWork.SaveChangesAsync();
 
                             //Assign pool creator as admin
-                            Pool_Admin poolAdmin = new Pool_Admin
+                            Pool_User poolAdmin = new Pool_User
                             {
                                 PoolID = creationResult.ID,
-                                UserID = userID
+                                UserID = userID,
+                                IsAdmin = true
                             };
 
-                            var adminAssignmentResult = await unitOfWork.PoolAdminManager.CreateAsync(poolAdmin);
+                            var adminAssignmentResult = await unitOfWork.PoolUserManager.CreateAsync(poolAdmin);
                             if (adminAssignmentResult != null)
                             {
                                 await unitOfWork.SaveChangesAsync();
@@ -146,7 +147,7 @@ namespace Stack.ServiceLayer.Modules.pool
                 if (userID != null)
                 {
                     //Verify admin priviliges
-                    var adminVerificationQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.UserID == userID, includeProperties: "Pool");
+                    var adminVerificationQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.UserID == userID && t.PoolID == model.PoolID && t.IsAdmin == true, includeProperties: "Pool");
                     var adminVerification = adminVerificationQuery.FirstOrDefault();
 
                     if (adminVerification != null)
@@ -295,7 +296,7 @@ namespace Stack.ServiceLayer.Modules.pool
                 if (userID != null)
                 {
                     //Verify admin priviliges
-                    var adminVerificationQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.UserID == userID, includeProperties: "Pool");
+                    var adminVerificationQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.UserID == userID && t.PoolID == model.PoolID && t.IsAdmin == true, includeProperties: "Pool");
                     var adminVerification = adminVerificationQuery.FirstOrDefault();
 
                     if (adminVerification != null)
@@ -306,7 +307,7 @@ namespace Stack.ServiceLayer.Modules.pool
                         {
                             var currentUserID = model.UserIDs[i];
 
-                            Pool_Users pool_Users = new Pool_Users
+                            Pool_User pool_Users = new Pool_User
                             {
                                 PoolID = model.PoolID,
                                 UserID = currentUserID,
@@ -375,6 +376,38 @@ namespace Stack.ServiceLayer.Modules.pool
 
         //Get
 
+        public async Task<ApiResponse<List<PoolAssignedUsersModel>>> GetPoolAssignedUsers(long poolID)
+        {
+            ApiResponse<List<PoolAssignedUsersModel>> result = new ApiResponse<List<PoolAssignedUsersModel>>();
+            try
+            {
+                var poolUsersQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID, includeProperties: "User");
+                var poolUsers = poolUsersQuery.ToList();
+
+                if (poolUsers != null && poolUsers.Count > 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<PoolAssignedUsersModel>>(poolUsers);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No users found");
+                    result.Errors.Add("لم يتم العثور على مستخدمين");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
         //Sidebar view
         //Includes count of available contacts/leads/prospects/opportunities/donedeals within user assignesd pools
         public async Task<ApiResponse<List<PoolSidebarViewModel>>> GetUserAssignedPools()
@@ -393,14 +426,6 @@ namespace Stack.ServiceLayer.Modules.pool
                     if (userPools != null && userPools.Count > 0)
                     {
                         poolSidebarViewModel.AddRange(userPools);
-                    }
-
-
-                    var adminPools = await unitOfWork.PoolAdminManager.GetUserPools(userID);
-
-                    if (adminPools != null && adminPools.Count > 0)
-                    {
-                        poolSidebarViewModel.AddRange(adminPools);
                     }
 
 
@@ -569,38 +594,13 @@ namespace Stack.ServiceLayer.Modules.pool
                             return result;
                         }
                     }
-                    else //Attempt admin verification check
+                    else
                     {
-                        //Verify user pool permissions
-                        var adminPoolQuery = await unitOfWork.PoolAdminManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
-                        var adminPool = adminPoolQuery.FirstOrDefault();
 
-                        if (adminPool != null) //Get administrator contacts
-                        {
-                            var poolContacts = await unitOfWork.PoolAdminManager.GetPoolContacts(poolID, userID);
-
-                            if (poolContacts != null)
-                            {
-                                result.Succeeded = true;
-                                result.Data = poolContacts;
-                                return result;
-                            }
-                            else
-                            {
-                                result.Succeeded = false;
-                                result.Data = null;
-                                result.Errors.Add("No contacts found");
-                                result.Errors.Add("No contacts found");
-                                return result;
-                            }
-                        }
-                        else //Unauthorized
-                        {
-                            result.Succeeded = false;
-                            result.Errors.Add("Unauthorized");
-                            result.Errors.Add("غير مصرح");
-                            return result;
-                        }
+                        result.Succeeded = false;
+                        result.Errors.Add("Unauthorized");
+                        result.Errors.Add("غير مصرح");
+                        return result;
                     }
                 }
                 else
