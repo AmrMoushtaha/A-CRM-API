@@ -15,6 +15,7 @@ namespace Stack.DTOs.Requests.Modules.CustomerStage
         public string LeadSourceType { get; set; }
         public string LeadSourceName { get; set; }
         public string Occupation { get; set; }
+        public bool? IsValid { get; set; }
     }
 
 }

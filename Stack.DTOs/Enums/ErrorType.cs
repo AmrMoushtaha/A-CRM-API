@@ -13,5 +13,6 @@ namespace Stack.DTOs.Enums
         NotFound,
         IncreaseCapacity,
         ReselectUser,
+        CapacityReached,
     }
 }

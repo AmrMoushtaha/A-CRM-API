@@ -375,7 +375,6 @@ namespace Stack.ServiceLayer.Modules.pool
 
 
         //Get
-
         public async Task<ApiResponse<List<PoolAssignedUsersModel>>> GetPoolAssignedUsers(long poolID)
         {
             ApiResponse<List<PoolAssignedUsersModel>> result = new ApiResponse<List<PoolAssignedUsersModel>>();
@@ -622,6 +621,78 @@ namespace Stack.ServiceLayer.Modules.pool
         }
 
 
+        //Verify record before viewing for capacity related pool configuration / authorization
+        public async Task<ApiResponse<bool>> ViewRecord_VerifyUser(long poolID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    var poolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
+                    var poolUser = poolQuery.FirstOrDefault();
+
+                    if (poolUser != null)
+                    {
+                        var pool = poolUser.Pool;
+
+                        if (pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity
+                            || pool.ConfigurationType == (int)PoolConfigurationTypes.Capacity)
+                        {
+                            //Verify user capacity
+                            var assignedPoolContactsQuery = await unitOfWork.ContactManager.GetAsync(t => t.PoolID == pool.ID && t.AssignedUserID == userID
+                                               && t.IsFinalized == false);
+                            var assignedPoolContactsCount = assignedPoolContactsQuery.Count();
+
+                            if (assignedPoolContactsCount < poolUser.Capacity.Value)
+                            {
+                                result.Succeeded = true;
+                                result.Data = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Space Capacity limit reached");
+                                result.Errors.Add("تم الوصول إلى حد السعة");
+                                result.ErrorType = ErrorType.CapacityReached;
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = true;
+                            result.Data = true;
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("User not enrolled or Space does not exist");
+                        result.Errors.Add("غير مصرح");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
     }
 
 }

@@ -126,12 +126,13 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 return result;
             }
         }
+
         public async Task<ApiResponse<List<ExcelTranscribedRecord>>> UploadContactExcelFile(UploadFileModel encodedFile)
         {
             ApiResponse<List<ExcelTranscribedRecord>> result = new ApiResponse<List<ExcelTranscribedRecord>>();
             try
             {
-                return await Task.Run(() =>
+                return await Task.Run(async () =>
                 {
 
                     //Convert uploaded base 64 string to file
@@ -188,9 +189,12 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     if (contacts.Count > 1)
                     {
                         contacts = contacts.Skip(1).ToList(); //Remove header row
-                        result.Succeeded = true;
-                        result.Data = contacts;
-                        return result;
+
+                        //Validate records
+                        var validatedRecordsResult = await ValidateBulkContactsList(contacts);
+
+                        return validatedRecordsResult;
+
                     }
                     else //Empty
                     {
@@ -199,6 +203,46 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                         return result;
                     }
                 });
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+        //Validates uploaded excel file for contact duplication
+        public async Task<ApiResponse<List<ExcelTranscribedRecord>>> ValidateBulkContactsList(List<ExcelTranscribedRecord> contactsList)
+        {
+            ApiResponse<List<ExcelTranscribedRecord>> result = new ApiResponse<List<ExcelTranscribedRecord>>();
+            try
+            {
+                //Iterate each record and validate duplication
+                for (int i = 0; i < contactsList.Count; i++)
+                {
+                    var record = contactsList[i];
+
+                    //Validate record via phoneNumber
+                    var recordExistsQuery = await unitOfWork.ContactManager.GetAsync(t => t.PrimaryPhoneNumber == record.PrimaryPhoneNumber);
+                    var recordExists = recordExistsQuery.FirstOrDefault();
+
+                    if (recordExists != null) //record exists, set record as invalid
+                    {
+                        record.IsValid = false;
+                    }
+                    else //record does not exist, set record as valid
+                    {
+                        record.IsValid = true;
+                    }
+                }
+
+                contactsList = contactsList.OrderBy(t => t.IsValid).ToList();
+
+                result.Succeeded = true;
+                result.Data = contactsList;
+                return result;
             }
             catch (Exception ex)
             {
@@ -1193,7 +1237,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         }
                                     }
                                 }
-                                else //Can assign to self
+                                else if (await unitOfWork.UserManager.IsInRoleAsync(user, UserRoles.Agent.ToString()) && (creationModel.AssignedUsers == null || creationModel.AssignedUsers.Count == 0)) //Can assign to self
                                 {
                                     for (int i = 0; i < creationModel.Contacts.Count; i++)
                                     {
@@ -1228,6 +1272,13 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                     //Commit record creation
                                     await unitOfWork.SaveChangesAsync();
                                     result.Succeeded = true;
+                                    return result;
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.ErrorCode = ErrorCode.A500;
+                                    result.Errors.Add("Unauthorized");
                                     return result;
                                 }
                             }//END OF Auto Assignment flow

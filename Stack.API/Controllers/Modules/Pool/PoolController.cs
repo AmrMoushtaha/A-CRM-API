@@ -69,6 +69,12 @@ namespace Stack.API.Controllers.Modules.Pool
             return await AddItemResponseHandler(async () => await service.AssignUsersToPool(model));
         }
 
+        [AllowAnonymous]
+        [HttpGet("ViewRecord_VerifyUser/{poolID}")]
+        public async Task<IActionResult> ViewRecord_VerifyUser(long poolID)
+        {
+            return await GetResponseHandler(async () => await service.ViewRecord_VerifyUser(poolID));
+        }
 
     }
 
