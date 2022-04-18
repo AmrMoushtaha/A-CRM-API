@@ -17,6 +17,8 @@ using Stack.Entities.Models.Modules.Auth;
 using Stack.Core.Managers.Modules.Auth;
 using Stack.DTOs.Models.Initialization.ActivityTypes;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Stack.API.Hubs;
 
 namespace Stack.API
 {
@@ -67,7 +69,7 @@ namespace Stack.API
                 options.AddPolicy(name: AllowSpecificOrigins,
                              builder =>
                              {
-                                 builder.WithOrigins("http://localhost:4200", "http://localhost:4201")
+                                 builder.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://localhost:4200")
                                     .AllowAnyMethod()
                                     .AllowAnyHeader()
                                     .AllowCredentials();
@@ -99,26 +101,25 @@ namespace Stack.API
                     ValidateAudience = false,
                 };
 
-                //options.Events = new JwtBearerEvents
-                //{
-                //    OnMessageReceived = context =>
-                //    {
-                //        var accessToken = context.Request.Query["access_token"];
+                //Record Lock Hub
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
 
-                //        //// If the request is for our hub...
-                //        //var path = context.HttpContext.Request.Path;
-                //        //if (!string.IsNullOrEmpty(accessToken) &&
-                //        //    (path.StartsWithSegments("/chatHub")))
-                //        //{
-                //        //    // Read the token out of the query string
-                //        //    context.Token = accessToken;
-                //        //}
+                        // If the request is for our hub...
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/recordLockHub")))
+                        {
+                            // Read the token out of the query string
+                            context.Token = accessToken;
+                        }
 
-                //        return Task.CompletedTask;
-                //    }
-
-
-                //};
+                        return Task.CompletedTask;
+                    }
+                };
 
 
                 services.AddAuthentication(options =>
@@ -136,7 +137,7 @@ namespace Stack.API
             services.AddControllers();
 
 
-            //services.AddSignalR();
+            services.AddSignalR();
 
         }
 
@@ -208,6 +209,7 @@ namespace Stack.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<RecordLockHub>("/recordLockHub");
             });
 
         }

@@ -39,6 +39,8 @@ namespace Stack.Entities.Models.Modules.CustomerStage
 
         public bool IsFresh { get; set; }
 
+        public bool IsLocked { get; set; }
+
         [ForeignKey("StatusID")]
         public virtual ContactStatus Status { get; set; }
 

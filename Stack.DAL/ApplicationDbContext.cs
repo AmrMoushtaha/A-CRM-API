@@ -4,6 +4,7 @@ using Stack.Entities.Models.Modules.Activities;
 using Stack.Entities.Models.Modules.AreaInterest;
 using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
+using Stack.Entities.Models.Modules.Common;
 using Stack.Entities.Models.Modules.CustomerRequest;
 using Stack.Entities.Models.Modules.CustomerStage;
 using System.Linq;
@@ -369,6 +370,9 @@ namespace Stack.DAL
         public virtual DbSet<LInterest_InterestAttribute> LInterest_InterestAttributes { get; set; }
         public virtual DbSet<LInterest_LInterestInput> LInterest_LInterestInputs { get; set; }
         public virtual DbSet<InterestAttribute> InterestAttributes { get; set; }
+        public virtual DbSet<ConnectionID> ConnectionIDs { get; set; }
+        public virtual DbSet<SystemConfiguration> SystemConfiguration { get; set; }
+
 
     }
 

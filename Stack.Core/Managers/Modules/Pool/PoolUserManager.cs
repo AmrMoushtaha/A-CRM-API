@@ -59,7 +59,8 @@ namespace Stack.Core.Managers.Modules.Pools
                                 ID = p.ID,
                                 FullNameAR = p.FullNameAR,
                                 FullNameEN = p.FullNameEN,
-                                PrimaryPhoneNumber = p.PrimaryPhoneNumber
+                                PrimaryPhoneNumber = p.PrimaryPhoneNumber,
+                                IsLocked = p.IsLocked
                             })).ToList();
 
                 List<ContactListViewModel> asList = new List<ContactListViewModel>();

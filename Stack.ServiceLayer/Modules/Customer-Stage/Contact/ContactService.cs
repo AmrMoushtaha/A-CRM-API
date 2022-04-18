@@ -167,16 +167,17 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                             {
                                 while (reader.Read())
                                 {
+
                                     contacts.Add(new ExcelTranscribedRecord
                                     {
-                                        FullNameAR = reader.GetValue(0).ToString(),
-                                        FullNameEN = reader.GetValue(1).ToString(),
-                                        PrimaryPhoneNumber = reader.GetValue(2).ToString(),
-                                        Email = reader.GetValue(3).ToString(),
-                                        Address = reader.GetValue(4).ToString(),
-                                        LeadSourceType = reader.GetValue(5).ToString(),
-                                        LeadSourceName = reader.GetValue(6).ToString(),
-                                        Occupation = reader.GetValue(7).ToString(),
+                                        FullNameAR = (reader.IsDBNull(0)) ? null : reader.GetValue(0).ToString(),
+                                        FullNameEN = (reader.IsDBNull(1)) ? null : reader.GetValue(1).ToString(),
+                                        PrimaryPhoneNumber = (reader.IsDBNull(2)) ? null : reader.GetValue(2).ToString(),
+                                        Email = (reader.IsDBNull(3)) ? null : reader.GetValue(3).ToString(),
+                                        Address = (reader.IsDBNull(4)) ? null : reader.GetValue(4).ToString(),
+                                        Occupation = (reader.IsDBNull(5)) ? null : reader.GetValue(5).ToString(),
+                                        LeadSourceType = "LST",
+                                        LeadSourceName = "LSN"
                                     });
                                 }
                             } while (reader.NextResult());
@@ -223,7 +224,11 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 for (int i = 0; i < contactsList.Count; i++)
                 {
                     var record = contactsList[i];
-
+                    if (record.PrimaryPhoneNumber == null)
+                    {
+                        record.IsValid = false;
+                        continue;
+                    }
                     //Validate record via phoneNumber
                     var recordExistsQuery = await unitOfWork.ContactManager.GetAsync(t => t.PrimaryPhoneNumber == record.PrimaryPhoneNumber);
                     var recordExists = recordExistsQuery.FirstOrDefault();

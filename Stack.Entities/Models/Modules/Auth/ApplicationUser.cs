@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using Stack.Entities.Models.Modules.Common;
 using Stack.Entities.Models.Modules.CustomerStage;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,8 @@ namespace Stack.Entities.Models.Modules.Auth
         public virtual List<Lead> Leads { get; set; }
         public virtual List<Opportunity> Opportunities { get; set; }
         public virtual List<Pool_User> Pools { get; set; }
+        public virtual List<ConnectionID> ConnectionIDs { get; set; }
+
 
     }
 

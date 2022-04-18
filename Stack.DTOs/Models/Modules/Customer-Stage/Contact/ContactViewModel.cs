@@ -26,6 +26,8 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
 
         public string AssignedUserName { get; set; }
 
+        public bool IsLocked { get; set; }
+
         public List<ContactPhoneNumberDTO> ContactPhoneNumbers { get; set; }
         public List<ContactCommentDTO> Comments { get; set; }
         public List<ContactTagDTO> Tags { get; set; }

@@ -70,10 +70,24 @@ namespace Stack.API.Controllers.Modules.Pool
         }
 
         [AllowAnonymous]
-        [HttpGet("ViewRecord_VerifyUser/{poolID}")]
-        public async Task<IActionResult> ViewRecord_VerifyUser(long poolID)
+        [HttpPost("ViewRecord_VerifyUser")]
+        public async Task<IActionResult> ViewRecord_VerifyUser(VerifyRecordModel model)
         {
-            return await GetResponseHandler(async () => await service.ViewRecord_VerifyUser(poolID));
+            return await AddItemResponseHandler(async () => await service.ViewRecord_VerifyUser(model));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("LogUsersActivePool/{poolID}")]
+        public async Task<IActionResult> LogUsersActivePool(long poolID)
+        {
+            return await GetResponseHandler(async () => await service.LogUsersActivePool(poolID));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("LockRecord")]
+        public async Task<IActionResult> LockRecord(LockRecordModel model)
+        {
+            return await GetResponseHandler(async () => await service.LockRecord(model));
         }
 
     }

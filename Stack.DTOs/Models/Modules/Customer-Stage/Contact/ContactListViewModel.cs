@@ -10,6 +10,7 @@ namespace Stack.DTOs.Models.Modules.Pool
         public string FullNameAR { get; set; }
         public string FullNameEN { get; set; }
         public string PrimaryPhoneNumber { get; set; }
+        public bool IsLocked { get; set; }
 
     }
 }

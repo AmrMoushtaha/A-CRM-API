@@ -2,6 +2,7 @@
 using Stack.Core.Managers.Modules.Activities;
 using Stack.Core.Managers.Modules.area;
 using Stack.Core.Managers.Modules.Auth;
+using Stack.Core.Managers.Modules.Common;
 using Stack.Core.Managers.Modules.CR;
 using Stack.Core.Managers.Modules.Interest;
 using Stack.Core.Managers.Modules.Materials;
@@ -586,6 +587,32 @@ namespace Stack.Core
                     crSectionQuestionAnswersManager = new CRSectionQuestionAnswersManager(context);
                 }
                 return crSectionQuestionAnswersManager;
+            }
+        }
+
+        private ConnectionIDsManager connectionIDsManager;
+        public ConnectionIDsManager ConnectionIDsManager
+        {
+            get
+            {
+                if (connectionIDsManager == null)
+                {
+                    connectionIDsManager = new ConnectionIDsManager(context);
+                }
+                return connectionIDsManager;
+            }
+        }
+
+        private SystemConfigurationManager systemConfigurationManager;
+        public SystemConfigurationManager SystemConfigurationManager
+        {
+            get
+            {
+                if (systemConfigurationManager == null)
+                {
+                    systemConfigurationManager = new SystemConfigurationManager(context);
+                }
+                return systemConfigurationManager;
             }
         }
     }

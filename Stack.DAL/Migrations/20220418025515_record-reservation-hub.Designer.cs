@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220418025515_record-reservation-hub")]
+    partial class recordreservationhub
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -774,9 +776,6 @@ namespace Stack.DAL.Migrations
                     b.Property<long>("PoolID")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("RecordID")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("UserID")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)")
@@ -787,24 +786,6 @@ namespace Stack.DAL.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("ConnectionIDs");
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.Common.SystemConfiguration", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<double>("AutomaticUnassignmentDuration")
-                        .HasColumnType("float");
-
-                    b.Property<double>("LockDuration")
-                        .HasColumnType("float");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("SystemConfiguration");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSection", b =>
@@ -1123,9 +1104,6 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsFresh")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsLocked")
                         .HasColumnType("bit");
 
                     b.Property<string>("LeadSourceName")
