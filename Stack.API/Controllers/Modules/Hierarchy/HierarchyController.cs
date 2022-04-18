@@ -19,21 +19,21 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
         #region Level
-        
+
         [HttpGet]
         public async Task<IActionResult> GetLevels()
         {
             return await GetResponseHandler(async () => await service.Get_Levels());
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> CreateLevel(LevelToAdd LevelToAdd)
         {
             return await AddItemResponseHandler(async () => await service.Create_Level(LevelToAdd));
         }
-        
+
         [HttpPost]
-        public async Task<IActionResult> EditAttribute(LevelToEdit LevelToEdit)
+        public async Task<IActionResult> EditLevel(LevelToEdit LevelToEdit)
         {
             return await AddItemResponseHandler(async () => await service.Edit_Level(LevelToEdit));
         }
@@ -60,7 +60,7 @@ namespace Stack.API.Controllers.Modules.Auth
             return await AddItemResponseHandler(async () => await service.Edit_Section(SectionToEdit));
         }
 
-        [HttpGet("/{ID}")]
+        [HttpGet("{ID}")]
         public async Task<IActionResult> GetSectionsByLevelID(long ID)
         {
             return await GetResponseHandler(async () => await service.Get_SectionsByLevelID(ID));
@@ -89,13 +89,13 @@ namespace Stack.API.Controllers.Modules.Auth
             return await AddItemResponseHandler(async () => await service.Edit_Input(InputToEdit));
         }
 
-        [HttpGet("/{ID}")]
+        [HttpGet("{ID}")]
         public async Task<IActionResult> GetInputsByLevelID(long ID)
         {
             return await GetResponseHandler(async () => await service.Get_InputsByLevelID(ID));
         }
 
-        [HttpGet("/{ID}")]
+        [HttpGet("{ID}")]
         public async Task<IActionResult> Get_InputsBySectionID(long ID)
         {
             return await GetResponseHandler(async () => await service.Get_InputsBySectionID(ID));
@@ -111,27 +111,26 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.Get_Attributes());
         }
 
-        
+
         [HttpPost]
         public async Task<IActionResult> CreateAttribute(AttributeToAdd AttributeToAdd)
         {
             return await AddItemResponseHandler(async () => await service.Create_Attribute(AttributeToAdd));
         }
 
-        
-        [HttpGet("/{ID}")]
+
+        [HttpGet("{ID}")]
         public async Task<IActionResult> DeleteAttribute(long ID)
         {
             return await GetResponseHandler(async () => await service.Delete_Attribute(ID));
         }
 
-
-        
         [HttpPost]
-        public async Task<IActionResult> EditAttribute(AttributeToEdit AttributeToEdit)
+        public async Task<IActionResult> EditAttribute(AttributeToEdit AttributeToAdd)
         {
-            return await AddItemResponseHandler(async () => await service.Edit_Attribute(AttributeToEdit));
+            return await AddItemResponseHandler(async () => await service.Edit_Attribute(AttributeToAdd));
         }
+
         #endregion
 
 
