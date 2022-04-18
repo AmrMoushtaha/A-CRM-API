@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Stack.Entities.Models.Modules.Activities;
-using Stack.Entities.Models.Modules.AreaInterest;
 using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.CustomerRequest;
 using Stack.Entities.Models.Modules.CustomerStage;
-using System.Linq;
+using Stack.Entities.Models.Modules.Hierarchy;
+using Stack.Entities.Models.Modules.Interest;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -49,9 +49,6 @@ namespace Stack.DAL
 
             base.OnModelCreating(modelBuilder);
 
-
-            modelBuilder.Entity<InterestAttribute>()
-            .Property<bool>("IsDeleted");
 
             modelBuilder.Entity<Contact>()
             .Property<bool>("IsDeleted");
@@ -128,8 +125,6 @@ namespace Stack.DAL
 
             //Soft delete query filters . 
 
-            modelBuilder.Entity<InterestAttribute>()
-               .HasQueryFilter(InterestAttribute => EF.Property<bool>(InterestAttribute, "IsDeleted") == false);
 
             modelBuilder.Entity<Contact>()
                 .HasQueryFilter(Contact => EF.Property<bool>(Contact, "IsDeleted") == false);
@@ -222,29 +217,6 @@ namespace Stack.DAL
             modelBuilder.Entity<Tag>()
              .HasQueryFilter(Tag => EF.Property<bool>(Tag, "IsDeleted") == false);
 
-
-
-
-            modelBuilder.Entity<LInterest_InterestAttribute>().HasKey(x => new { x.LInterestID, x.InterestAttributeID });
-            modelBuilder.Entity<LInterest_InterestAttribute>()
-            .HasOne(pr => pr.LInterest)
-            .WithMany(p => p.Attributes)
-            .HasForeignKey(pr => pr.LInterestID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<LInterest_InterestAttribute>()
-            .HasOne(pr => pr.InterestAttribute)
-            .WithMany(p => p.LInterest_InterestAttributes)
-            .HasForeignKey(pr => pr.InterestAttributeID).OnDelete(DeleteBehavior.NoAction);
-
-
-            modelBuilder.Entity<LInterest_LInterestInput>().HasKey(x => new { x.LInterestID, x.LInterestInputID });
-            modelBuilder.Entity<LInterest_LInterestInput>()
-            .HasOne(pr => pr.LInterest)
-            .WithMany(p => p.Inputs)
-            .HasForeignKey(pr => pr.LInterestID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<LInterest_LInterestInput>()
-            .HasOne(pr => pr.LInterestInput)
-            .WithMany(p => p.LInterest_LInterestInputs)
-            .HasForeignKey(pr => pr.LInterestInputID).OnDelete(DeleteBehavior.NoAction);
 
 
             modelBuilder.Entity<Location_Pool>().HasKey(x => new { x.LocationID, x.PoolID });
@@ -375,11 +347,12 @@ namespace Stack.DAL
         public virtual DbSet<ProcessFlow> ProcessFlows { get; set; }
         public virtual DbSet<Location_Pool> Location_Pools { get; set; }
         public virtual DbSet<Location> Locations { get; set; }
-        public virtual DbSet<LInterest> LInterests { get; set; }
+        public virtual DbSet<Level> Levels { get; set; }
+        public virtual DbSet<LSection> LSections { get; set; }
+        public virtual DbSet<Input> Inputs { get; set; }
         public virtual DbSet<LInterestInput> LInterestInputs { get; set; }
-        public virtual DbSet<LInterest_InterestAttribute> LInterest_InterestAttributes { get; set; }
-        public virtual DbSet<LInterest_LInterestInput> LInterest_LInterestInputs { get; set; }
-        public virtual DbSet<InterestAttribute> InterestAttributes { get; set; }
+        public virtual DbSet<LInterest> LInterests { get; set; }
+        public virtual DbSet<LAttribute> LAttributes { get; set; }
 
     }
 

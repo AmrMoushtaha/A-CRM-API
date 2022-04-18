@@ -368,7 +368,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<List<PoolSidebarViewModel>> result = new ApiResponse<List<PoolSidebarViewModel>>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (userID != null)
                 {
@@ -431,7 +431,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<AssignedPoolSidebarViewModel> result = new ApiResponse<AssignedPoolSidebarViewModel>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (userID != null)
                 {

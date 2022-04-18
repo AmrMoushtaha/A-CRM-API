@@ -6,11 +6,13 @@ using Stack.DTOs.Models.Modules.CustomerStage;
 using Stack.DTOs.Models.Modules.Pool;
 using Stack.DTOs.Requests.Modules.AreaInterest;
 using Stack.DTOs.Requests.Modules.CustomerStage;
-using Stack.DTOs.Requests.Modules.Pool;
-using Stack.Entities.Models.Modules.AreaInterest;
+using Stack.DTOs.Requests.Modules.Hierarchy;
+using Stack.DTOs.Requests.Modules.Interest;
 using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.CustomerStage;
+using Stack.Entities.Models.Modules.Hierarchy;
+using Stack.Entities.Models.Modules.Interest;
 
 namespace Stack.API.AutoMapperConfig
 {
@@ -78,9 +80,25 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<LInterestInput, InputToEdit>()
             .ReverseMap();
 
-            CreateMap<LInterest_InterestAttribute, LInterest_InterestAttributeModel>()
-           .ForMember(dist => dist.LInterest, opt => opt.Ignore())
-           .ForMember(dist => dist.InterestAttribute, opt => opt.Ignore())
+            CreateMap<Level, LevelToAdd>() 
+            .ReverseMap();
+            CreateMap<Level, LevelToEdit>()
+            .ReverseMap();
+
+            CreateMap<LSection, SectionToAdd>()
+            .ReverseMap();
+            CreateMap<LSection, SectionToEdit>()
+            .ReverseMap();
+
+
+            CreateMap<Input, InputToAdd>()
+            .ReverseMap();
+            CreateMap<Input, InputToEdit>()
+            .ReverseMap();
+
+            CreateMap<LAttribute, AttributeToAdd>()
+            .ReverseMap();
+            CreateMap<LAttribute, AttributeToEdit>()
             .ReverseMap();
 
             CreateMap<Location, LocationModel>()
@@ -91,12 +109,11 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<Location, LocationToEdit>()
             .ReverseMap();
 
-            CreateMap<LInterest_LInterestInput, LInterestInputToAdd>()
+            CreateMap<Input, InputToAdd>()
            .ReverseMap();
-            CreateMap<LInterest_LInterestInput, LInterestInputToEdit>()
+            CreateMap<Input, InputToEdit>()
            .ReverseMap();
-            CreateMap<LInterest_InterestAttribute, InterestAttributeToAdd>()
-           .ReverseMap();
+
 
         }
 

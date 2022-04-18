@@ -1,13 +1,13 @@
 ﻿
 using Microsoft.Extensions.DependencyInjection;
+using Stack.ServiceLayer.Modules.Activities;
 using Stack.ServiceLayer.Modules.Auth;
 using Stack.ServiceLayer.Modules.CustomerStage;
+using Stack.ServiceLayer.Modules.Hierarchy;
 using Stack.ServiceLayer.Modules.Interest;
 using Stack.ServiceLayer.Modules.pool;
-using Stack.ServiceLayer.Modules.Region;
-using Stack.ServiceLayer.Modules.Activities;
-using Stack.ServiceLayer.Modules.Zoom;
 using Stack.ServiceLayer.Modules.SystemInitialization;
+using Stack.ServiceLayer.Modules.Zoom;
 
 namespace Stack.API.Extensions
 {
@@ -25,15 +25,15 @@ namespace Stack.API.Extensions
             caller.AddScoped<LeadService>();
             caller.AddScoped<OpportunityService>();
             caller.AddScoped<ProspectService>();
-            caller.AddScoped<InterestService>();
             caller.AddScoped<PoolService>();
             caller.AddScoped<ActivitiesService>();
             caller.AddScoped<SectionsService>();
             caller.AddScoped<ProcessFlowService>();
-            caller.AddScoped<RegionService>();
             caller.AddScoped<ZoomService>();
             caller.AddScoped<SystemInitializationService>();
             caller.AddScoped<LocationService>();
+            caller.AddScoped<InterestService>();
+            caller.AddScoped<HierarchyService>();
         }
 
     }

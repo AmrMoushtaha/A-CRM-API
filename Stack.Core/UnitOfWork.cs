@@ -3,6 +3,7 @@ using Stack.Core.Managers.Modules.Activities;
 using Stack.Core.Managers.Modules.area;
 using Stack.Core.Managers.Modules.Auth;
 using Stack.Core.Managers.Modules.CR;
+using Stack.Core.Managers.Modules.Hierarchy;
 using Stack.Core.Managers.Modules.Interest;
 using Stack.Core.Managers.Modules.Materials;
 using Stack.Core.Managers.Modules.Pools;
@@ -355,55 +356,55 @@ namespace Stack.Core
         }
 
 
-        private LInterest_LInterestInputManager lInterest_LInterestInputManager;
-        public LInterest_LInterestInputManager LInterest_LInterestInputManager
+        private LevelManager levelManager;
+        public LevelManager LevelManager
         {
             get
             {
-                if (lInterest_LInterestInputManager == null)
+                if (levelManager == null)
                 {
-                    lInterest_LInterestInputManager = new LInterest_LInterestInputManager(context);
+                    levelManager = new LevelManager(context);
                 }
-                return lInterest_LInterestInputManager;
+                return levelManager;
             }
         }
 
-        private LInterest_InterestAttributeManager lInterest_InterestAttributeManager;
-        public LInterest_InterestAttributeManager LInterest_InterestAttributeManager
+        private SectionManager sectionManager;
+        public SectionManager SectionManager
         {
             get
             {
-                if (lInterest_InterestAttributeManager == null)
+                if (sectionManager == null)
                 {
-                    lInterest_InterestAttributeManager = new LInterest_InterestAttributeManager(context);
+                    sectionManager = new SectionManager(context);
                 }
-                return lInterest_InterestAttributeManager;
+                return sectionManager;
             }
         }
 
-        private InterestAttributesManager interestAttributesManager;
-        public InterestAttributesManager InterestAttributesManager
+        private AttributesManager attributesManager;
+        public AttributesManager AttributesManager
         {
             get
             {
-                if (interestAttributesManager == null)
+                if (attributesManager == null)
                 {
-                    interestAttributesManager = new InterestAttributesManager(context);
+                    attributesManager = new AttributesManager(context);
                 }
-                return interestAttributesManager;
+                return attributesManager;
             }
         }
 
-        private LInterestInputManager lInterestInputManager;
-        public LInterestInputManager LInterestInputManager
+        private LInputManager lInputManager;
+        public LInputManager LInputManager
         {
             get
             {
-                if (lInterestInputManager == null)
+                if (lInputManager == null)
                 {
-                    lInterestInputManager = new LInterestInputManager(context);
+                    lInputManager = new LInputManager(context);
                 }
-                return lInterestInputManager;
+                return lInputManager;
             }
         }
 

@@ -1,17 +1,20 @@
 ﻿using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.CustomerStage;
+using Stack.Entities.Models.Modules.Hierarchy;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Stack.Entities.Models.Modules.AreaInterest
+namespace Stack.Entities.Models.Modules.Interest
 {
     public class LInterest : BaseEntity
     {
         public string DescriptionEN { get; set; }
         public string DescriptionAR { get; set; }
         public bool IsSeparate { get; set; } // is resale
-        public int Type { get; set; } //commercial ..... TypeEnum
-        public int Level { get; set; } //Developer..project ... LevelEnum
+
+        public long LevelID { get; set; } 
+        [ForeignKey("LevelID")]
+        public virtual Level Level { get; set; }
 
         public long? OwnerID { get; set; } //if Separated
         [ForeignKey("OwnerID")]
@@ -25,8 +28,7 @@ namespace Stack.Entities.Models.Modules.AreaInterest
         [ForeignKey("ParentLInterestID")]
         public virtual LInterest ParentLInterest { get; set; }
 
-        public virtual List<LInterest_LInterestInput> Inputs { get; set; }
-        public virtual List<LInterest_InterestAttribute> Attributes { get; set; }
+        public virtual List<LInterestInput> Inputs { get; set; }
 
     }
 

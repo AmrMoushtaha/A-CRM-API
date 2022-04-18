@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Stack.DTOs.Requests.Modules.AreaInterest
+namespace Stack.DTOs.Requests.Modules.Interest
 {
     public class LInterestInputToEdit
     {
