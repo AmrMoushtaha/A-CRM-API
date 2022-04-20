@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Stack.Entities.Models.Modules.Common
 {
-    public class ConnectionID
+    public class PoolConnectionID
     {
         [Key]
         [MaxLength(256)]
@@ -15,6 +15,8 @@ namespace Stack.Entities.Models.Modules.Common
         public long PoolID { get; set; }
 
         public long RecordID { get; set; }
+
+        public int RecordType { get; set; }
 
         [Required]
         [MaxLength(450)]

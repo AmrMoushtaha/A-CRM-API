@@ -590,16 +590,16 @@ namespace Stack.Core
             }
         }
 
-        private ConnectionIDsManager connectionIDsManager;
-        public ConnectionIDsManager ConnectionIDsManager
+        private PoolConnectionIDsManager poolConnectionIDsManager;
+        public PoolConnectionIDsManager PoolConnectionIDsManager
         {
             get
             {
-                if (connectionIDsManager == null)
+                if (poolConnectionIDsManager == null)
                 {
-                    connectionIDsManager = new ConnectionIDsManager(context);
+                    poolConnectionIDsManager = new PoolConnectionIDsManager(context);
                 }
-                return connectionIDsManager;
+                return poolConnectionIDsManager;
             }
         }
 

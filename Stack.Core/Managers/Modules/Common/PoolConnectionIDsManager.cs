@@ -13,10 +13,10 @@ using System.Threading.Tasks;
 
 namespace Stack.Core.Managers.Modules.Common
 {
-    public class ConnectionIDsManager : Repository<ConnectionID, ApplicationDbContext>
+    public class PoolConnectionIDsManager : Repository<PoolConnectionID, ApplicationDbContext>
     {
 
-        public ConnectionIDsManager(ApplicationDbContext _context) : base(_context)
+        public PoolConnectionIDsManager(ApplicationDbContext _context) : base(_context)
         {
         }
 

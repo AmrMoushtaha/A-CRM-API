@@ -33,35 +33,72 @@ namespace Stack.API.Hubs
         {
             var username = Context.User.Identity.Name;
             var user = await unitOfWork.UserManager.FindByNameAsync(username);
-            ConnectionID conId = new ConnectionID
+            PoolConnectionID conId = new PoolConnectionID
             {
                 ID = Context.ConnectionId,
                 UserID = user.Id
             };
-            await unitOfWork.ConnectionIDsManager.CreateAsync(conId);
+            await unitOfWork.PoolConnectionIDsManager.CreateAsync(conId);
             await unitOfWork.SaveChangesAsync();
         }
 
         public async override Task OnDisconnectedAsync(Exception exception)
         {
-            var conId = await unitOfWork.ConnectionIDsManager.GetByIdAsync(Context.ConnectionId);
-            await unitOfWork.ConnectionIDsManager.RemoveAsync(conId);
-            await unitOfWork.SaveChangesAsync();
+            var username = Context.User.Identity.Name;
+            var user = await unitOfWork.UserManager.FindByNameAsync(username);
+            if (user != null)
+            {
+                var conIdQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(t => t.UserID == user.Id); //User Connection exists
+                var connection = conIdQuery.FirstOrDefault();
+                if (connection != null) //Unlock record destroy active connection
+                {
+                    if (connection.RecordID != 0)
+                    {
+                        if (connection.RecordType == 0) //Contact
+                        {
+                            var recordQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == connection.RecordID);
+                            var record = recordQ.FirstOrDefault();
+                            if (record != null)
+                            {
+                                record.IsLocked = false;
+                                var updateResult = await unitOfWork.ContactManager.UpdateAsync(record);
+                            }
+                        }
+                        else if (connection.RecordType == 1)//Lead
+                        {
+                            throw new NotImplementedException();
+                        }
+
+
+
+                        //Update current pool for users
+                        await UpdatePool(connection.PoolID);
+                    }
+                    //Destroy connection
+                    await unitOfWork.PoolConnectionIDsManager.RemoveAsync(connection);
+                    await unitOfWork.SaveChangesAsync();
+                }
+
+            }
         }
 
         //Send pool update request for pool connected users
-        public async Task<ApiResponse<bool>> UpdatePool(long poolID)
+        public async Task<ApiResponse<bool>> UpdatePool(long poolID, long? recordID = null, int? customerStage = null)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-
-                var connectedPoolUsersQuery = await unitOfWork.ConnectionIDsManager.GetAsync(a => a.PoolID == poolID);
+                var connectedPoolUsersQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(a => a.PoolID == poolID);
                 var connectedPoolUsers = connectedPoolUsersQuery.ToList();
                 if (connectedPoolUsers != null && connectedPoolUsers.Count > 0)
                 {
                     var List = connectedPoolUsers.Select(c => c.ID).ToList();
-                    await _context.Clients.Clients(List).SendAsync("updatePool");
+                    await _context.Clients.Clients(List).SendAsync("updatePool", new
+                    {
+                        RecordID = recordID,
+                        PoolID = poolID,
+                        CustomerStage = customerStage
+                    });
 
                     result.Succeeded = true;
                     result.Data = true;
@@ -91,14 +128,14 @@ namespace Stack.API.Hubs
             try
             {
 
-                var connectedPoolUserQuery = await unitOfWork.ConnectionIDsManager.GetAsync(a => a.UserID == userID);
+                var connectedPoolUserQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(a => a.UserID == userID);
                 var connectedPoolUser = connectedPoolUserQuery.FirstOrDefault();
                 if (connectedPoolUser != null)
                 {
                     //Update current connection with Pool ID
                     connectedPoolUser.PoolID = poolID;
 
-                    var updateRes = await unitOfWork.ConnectionIDsManager.UpdateAsync(connectedPoolUser);
+                    var updateRes = await unitOfWork.PoolConnectionIDsManager.UpdateAsync(connectedPoolUser);
 
                     if (updateRes)
                     {

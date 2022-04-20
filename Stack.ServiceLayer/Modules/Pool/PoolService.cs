@@ -26,6 +26,7 @@ using Stack.Entities.Enums.Modules.Pool;
 using Microsoft.AspNetCore.SignalR;
 using Stack.API.Hubs;
 using Stack.Entities.Enums.Modules.CustomerStage;
+using Hangfire;
 
 namespace Stack.ServiceLayer.Modules.pool
 {
@@ -679,7 +680,7 @@ namespace Stack.ServiceLayer.Modules.pool
                                 //Verify locked record's assignee
                                 if (record.IsLocked == true)
                                 {
-                                    var connectionQuery = await unitOfWork.ConnectionIDsManager.GetAsync(t => t.UserID == userID && t.PoolID == pool.ID && t.RecordID == record.ID);
+                                    var connectionQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(t => t.UserID == userID && t.PoolID == pool.ID && t.RecordID == record.ID);
                                     var connection = connectionQuery.FirstOrDefault();
 
                                     if (connection != null)
@@ -813,10 +814,40 @@ namespace Stack.ServiceLayer.Modules.pool
                         if (updateRes)
                         {
                             //Schedule record unlock - TODO
+                            //Get system configuration's lock duration
+                            var systemConfigQuery = await unitOfWork.SystemConfigurationManager.GetAsync();
+                            var systemConfig = systemConfigQuery.FirstOrDefault();
+                            if (systemConfig != null && systemConfig.LockDuration > 0)
+                            {
+                                //Get current time and add lock duration
+                                var currentTime = await HelperFunctions.GetEgyptsCurrentLocalTime();
+                                var extendedTime = currentTime.AddMinutes(systemConfig.LockDuration);
 
-                            await unitOfWork.SaveChangesAsync();
-                            recordLockedSuccessfully = true;
+                                var scheduledTimespan = extendedTime - currentTime;
 
+                                //Schedule force unlock
+                                if (scheduledTimespan.TotalMinutes > 0)
+                                {
+                                    var jobID = BackgroundJob.Schedule(() => UnlockRecord(model), scheduledTimespan);
+
+                                    //Update contact with current schedule ID
+                                    record.ForceUnlock_JobID = jobID;
+
+                                    var recordScheduleUpdateResult = await unitOfWork.ContactManager.UpdateAsync(record);
+                                    if (recordScheduleUpdateResult)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+                                        recordLockedSuccessfully = true;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Error locking record");
+                                        result.Errors.Add("Error locking record");
+                                        return result;
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -839,13 +870,15 @@ namespace Stack.ServiceLayer.Modules.pool
                     if (recordLockedSuccessfully)
                     {
                         //Update lock connection record
-                        var connectionQuery = await unitOfWork.ConnectionIDsManager.GetAsync(t => t.UserID == userID && t.PoolID == model.PoolID);
+                        var connectionQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(t => t.UserID == userID && t.PoolID == model.PoolID);
                         var connection = connectionQuery.FirstOrDefault();
 
                         if (connection != null)
                         {
                             connection.RecordID = model.RecordID;
-                            var connectionUpdateRes = await unitOfWork.ConnectionIDsManager.UpdateAsync(connection);
+                            connection.RecordType = model.CustomerStage;
+
+                            var connectionUpdateRes = await unitOfWork.PoolConnectionIDsManager.UpdateAsync(connection);
                             if (connectionUpdateRes)
                             {
                                 await unitOfWork.SaveChangesAsync();
@@ -883,6 +916,90 @@ namespace Stack.ServiceLayer.Modules.pool
                     result.Succeeded = false;
                     result.Errors.Add("Unauthorized");
                     result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        //Unlock record on record leave or lock duration end
+        public async Task<ApiResponse<bool>> UnlockRecord(LockRecordModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+
+
+                //Update lock connection record
+                var connectionQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(t => t.PoolID == model.PoolID && t.RecordID == model.RecordID);
+                var connection = connectionQuery.FirstOrDefault();
+
+                if (connection != null)
+                {
+                    //Remove connection ID
+                    connection.RecordID = 0;
+                    connection.RecordType = 0;
+                    var connectionUpdateRes = await unitOfWork.PoolConnectionIDsManager.UpdateAsync(connection);
+                    if (connectionUpdateRes)
+                    {
+
+                        if (model.CustomerStage == (int)CustomerStageIndicator.Contact)
+                        {
+                            var recordQuery = await unitOfWork.ContactManager.GetAsync(t => t.ID == model.RecordID);
+                            var record = recordQuery.FirstOrDefault();
+
+                            record.IsLocked = false;
+                            record.ForceUnlock_JobID = null;
+
+                            var updateRes = await unitOfWork.ContactManager.UpdateAsync(record);
+                            if (updateRes)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error locking record");
+                                result.Errors.Add("Error locking record");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
+                        {
+                            throw new NotImplementedException();
+
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
+                        }
+
+                        //Emit lock update response
+                        RecordLockHub recordLockHub = new RecordLockHub(unitOfWork, mapper, _recordLockContext);
+
+                        var lockResult = await recordLockHub.UpdatePool(model.PoolID);
+
+                        return lockResult;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Error updating connection status");
+                        return result;
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Error updating connection status");
                     return result;
                 }
             }

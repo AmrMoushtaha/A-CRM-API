@@ -19,6 +19,7 @@ using Stack.DTOs.Models.Initialization.ActivityTypes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Stack.API.Hubs;
+using Hangfire;
 
 namespace Stack.API
 {
@@ -44,7 +45,9 @@ namespace Stack.API
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             //Live server connection string
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=tcp:162.214.98.181,1433; Database = RFQDB; User Id = sa; Password = P@ssw0rd@./;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
+            //services.AddHangfire(x => x.UseSqlServerStorage("Server=tcp:162.214.98.181,1433; Database = CRMDB; User Id = sa; Password = P@ssw0rd@./;"));
+
 
             //Local server connection string
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
@@ -53,8 +56,10 @@ namespace Stack.API
 
 
             //Hangfire connection string
-            //services.AddHangfire(x => x.UseSqlServerStorage("Server=tcp:162.214.98.181,1433; Database = RFQDB; User Id = sa; Password = P@ssw0rd@./;"));
-            //services.AddHangfireServer();
+            //Local connection string
+            services.AddHangfire(x => x.UseSqlServerStorage("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
+
+            services.AddHangfireServer();
 
             //Add Identity framework.
             services.AddIdentity<ApplicationUser, ApplicationRole>()
@@ -211,6 +216,9 @@ namespace Stack.API
                 endpoints.MapControllers();
                 endpoints.MapHub<RecordLockHub>("/recordLockHub");
             });
+
+            app.UseHangfireDashboard("/mydashboard");
+
 
         }
 

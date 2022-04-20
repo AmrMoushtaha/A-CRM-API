@@ -41,6 +41,8 @@ namespace Stack.Entities.Models.Modules.CustomerStage
 
         public bool IsLocked { get; set; }
 
+        public string ForceUnlock_JobID { get; set; }
+
         [ForeignKey("StatusID")]
         public virtual ContactStatus Status { get; set; }
 

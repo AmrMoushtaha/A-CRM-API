@@ -30,7 +30,7 @@ namespace Stack.Entities.Models.Modules.Auth
         public virtual List<Lead> Leads { get; set; }
         public virtual List<Opportunity> Opportunities { get; set; }
         public virtual List<Pool_User> Pools { get; set; }
-        public virtual List<ConnectionID> ConnectionIDs { get; set; }
+        public virtual List<PoolConnectionID> ConnectionIDs { get; set; }
 
 
     }

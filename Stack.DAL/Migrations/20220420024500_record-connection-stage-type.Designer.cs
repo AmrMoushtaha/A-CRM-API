@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220420024500_record-connection-stage-type")]
+    partial class recordconnectionstagetype
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -765,7 +767,7 @@ namespace Stack.DAL.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("Stack.Entities.Models.Modules.Common.PoolConnectionID", b =>
+            modelBuilder.Entity("Stack.Entities.Models.Modules.Common.ConnectionID", b =>
                 {
                     b.Property<string>("ID")
                         .HasColumnType("nvarchar(256)")
@@ -789,7 +791,7 @@ namespace Stack.DAL.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("PoolConnectionIDs");
+                    b.ToTable("ConnectionIDs");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Common.SystemConfiguration", b =>
@@ -1111,9 +1113,6 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ForceUnlock_JobID")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullNameAR")
@@ -1816,7 +1815,7 @@ namespace Stack.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Stack.Entities.Models.Modules.Common.PoolConnectionID", b =>
+            modelBuilder.Entity("Stack.Entities.Models.Modules.Common.ConnectionID", b =>
                 {
                     b.HasOne("Stack.Entities.Models.Modules.Auth.ApplicationUser", "User")
                         .WithMany("ConnectionIDs")

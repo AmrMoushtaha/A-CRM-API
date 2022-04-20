@@ -370,7 +370,7 @@ namespace Stack.DAL
         public virtual DbSet<LInterest_InterestAttribute> LInterest_InterestAttributes { get; set; }
         public virtual DbSet<LInterest_LInterestInput> LInterest_LInterestInputs { get; set; }
         public virtual DbSet<InterestAttribute> InterestAttributes { get; set; }
-        public virtual DbSet<ConnectionID> ConnectionIDs { get; set; }
+        public virtual DbSet<PoolConnectionID> PoolConnectionIDs { get; set; }
         public virtual DbSet<SystemConfiguration> SystemConfiguration { get; set; }
 
 
