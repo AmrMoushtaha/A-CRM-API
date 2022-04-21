@@ -21,6 +21,9 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<ApplicationUser, ApplicationUserDTO>()
             .ReverseMap();
 
+            CreateMap<ApplicationRole, ApplicationRoleDTO>()
+            .ReverseMap();
+
             CreateMap<Pool_User, PoolSidebarViewModel>()
             .ForMember(dist => dist.NameEN, opt => opt.MapFrom(t => t.Pool.NameEN))
             .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.Pool.NameAR))

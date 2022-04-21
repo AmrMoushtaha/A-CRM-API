@@ -20,7 +20,9 @@ namespace Stack.Entities.Models.Modules.Auth
         [Column(TypeName = "varchar(70)")]
         public string LastName { get; set; }
 
-        public string Status { get; set; }
+        public int Status { get; set; }
+
+        public string SystemAuthorizations { get; set; }
 
         //public string ManagerID { get; set; } //Not migrated
 

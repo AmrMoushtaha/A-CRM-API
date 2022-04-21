@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Stack.API.Hubs;
 using Hangfire;
+using Stack.DTOs.Requests.Modules.System;
 
 namespace Stack.API
 {
@@ -40,6 +41,8 @@ namespace Stack.API
         {
 
             services.Configure<List<ActivityTypeModel>>(Configuration.GetSection("DefaultActivityTypes"));
+                                                                                                                                                                                                                            
+            services.Configure<List<DTOs.Requests.Modules.System.AuthorizationSection>>(Configuration.GetSection("SystemAuthorizationSections"));
 
 
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
@@ -50,8 +53,8 @@ namespace Stack.API
 
 
             //Local server connection string
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= B-YASMIN-GHAZY\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
 
 

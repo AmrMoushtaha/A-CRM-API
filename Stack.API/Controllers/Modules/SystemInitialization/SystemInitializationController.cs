@@ -26,6 +26,22 @@ namespace Stack.API.Controllers.Modules.SystemInitialization
             return await AddItemResponseHandler(async () => await service.InitializeDefaultSystemActivityTypes());
         }
 
+        [AllowAnonymous]
+        [HttpPost("InitializeSystemAuthorizationsScheme")]
+        public async Task<IActionResult> InitializeSystemAuthorizationsScheme()
+        {
+            return await AddItemResponseHandler(async () => await service.InitializeSystemAuthorizationsScheme());
+        }
+
+
+        [AllowAnonymous]
+        [HttpGet("InitializeSystem/{Password}")]
+        public async Task<IActionResult> InitializeSystem(string Password)
+        {
+            return await GetResponseHandler(async () => await service.InitializeSystem(Password));
+        }
+
+
 
 
     }

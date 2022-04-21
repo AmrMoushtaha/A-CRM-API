@@ -1,5 +1,4 @@
 ﻿
-using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,12 +6,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 
-namespace Stack.Entities.Models.Modules.Auth
+namespace Stack.DTOs.Models.Modules.Auth
 {
-    public class ApplicationRole : IdentityRole
+    public class ApplicationRoleDTO
     {
-       
-        public string SystemAuthorizations { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
 
     }
 

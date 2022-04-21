@@ -615,6 +615,35 @@ namespace Stack.Core
                 return systemConfigurationManager;
             }
         }
+
+        private AuthorizationSectionsManager authorizationSectionsManager;
+        public AuthorizationSectionsManager AuthorizationSectionsManager
+        {
+            get
+            {
+                if (authorizationSectionsManager == null)
+                {
+                    authorizationSectionsManager = new AuthorizationSectionsManager(context);
+                }
+                return authorizationSectionsManager;
+            }
+        }
+
+        private SectionAuthorizationsManager sectionAuthorizationsManager;
+        public SectionAuthorizationsManager SectionAuthorizationsManager
+        {
+            get
+            {
+                if (sectionAuthorizationsManager == null)
+                {
+                    sectionAuthorizationsManager = new SectionAuthorizationsManager(context);
+                }
+                return sectionAuthorizationsManager;
+            }
+        }
+
+
+
     }
 
 }

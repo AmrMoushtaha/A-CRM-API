@@ -372,6 +372,10 @@ namespace Stack.DAL
         public virtual DbSet<InterestAttribute> InterestAttributes { get; set; }
         public virtual DbSet<PoolConnectionID> PoolConnectionIDs { get; set; }
         public virtual DbSet<SystemConfiguration> SystemConfiguration { get; set; }
+        public virtual DbSet<AuthorizationSection> AuthorizationSections { get; set; }
+        public virtual DbSet<SectionAuthorization> SectionAuthorizations { get; set; }
+
+
 
 
     }

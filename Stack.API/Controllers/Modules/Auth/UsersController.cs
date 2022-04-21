@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
+using Stack.DTOs.Models.Modules.Auth;
 using Stack.DTOs.Requests.Modules.Auth;
 using Stack.ServiceLayer.Modules.Auth;
 using System.Threading.Tasks;
@@ -24,6 +25,14 @@ namespace Stack.API.Controllers.Modules.Auth
             return await AddItemResponseHandler(async () => await service.LoginAsync(model));
         }
 
+
+
+        [AllowAnonymous] // Allow anonymous calls without authorization to this specific endpoint . 
+        [HttpPost("CreateNewUser")]
+        public async Task<IActionResult> CreateNewUser(UserCreationModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.CreateNewUser(model));
+        }
 
         //[AllowAnonymous] // Allow anonymous calls without authorization to this specific endpoint . 
         //[HttpGet("SeedDB")]

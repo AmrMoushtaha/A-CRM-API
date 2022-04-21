@@ -65,7 +65,12 @@ namespace Stack.ServiceLayer.Modules.Auth
                         {
                                 new Claim(ClaimTypes.Name, user.UserName),
                                 new Claim(ClaimTypes.NameIdentifier, user.Id)
+                       
+
                         });
+
+
+                        claims.AddClaim(new Claim("AuthModel", user.SystemAuthorizations));
 
                         IList<string> userRoles = await unitOfWork.UserManager.GetRolesAsync(user);
 
@@ -174,6 +179,63 @@ namespace Stack.ServiceLayer.Modules.Auth
             }
 
         }
+
+
+        public async Task<ApiResponse<bool>> CreateNewUser(UserCreationModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                ApplicationUser user = new ApplicationUser
+                {
+
+                    Email = model.Email,
+                    UserName = model.FirstName+model.LastName,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    PhoneNumber = model.PhoneNumber,
+                    Status = (int)UserStatus.Activated
+                    
+                };
+
+                var roleResult = await unitOfWork.RoleManager.FindByIdAsync(model.RoleID);
+
+                user.SystemAuthorizations = roleResult.SystemAuthorizations;
+
+                var createUserResult = await unitOfWork.UserManager.CreateAsync(user, model.Password);
+
+                await unitOfWork.SaveChangesAsync();
+
+                if (createUserResult.Succeeded)
+                {
+
+                    result.Data = true;
+                    result.Succeeded = true;
+                    return result;
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    foreach (var error in createUserResult.Errors)
+                    {
+                        result.Errors.Add(error.Description);
+                    }
+                    result.ErrorType = ErrorType.LogicalError;
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
 
 
         //Get user details via http context accessor
