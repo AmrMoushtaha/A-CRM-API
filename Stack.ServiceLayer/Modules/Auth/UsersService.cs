@@ -70,7 +70,7 @@ namespace Stack.ServiceLayer.Modules.Auth
                         });
 
 
-                        claims.AddClaim(new Claim("AuthModel", user.SystemAuthorizations));
+                        //claims.AddClaim(new Claim("AuthModel", user.SystemAuthorizations));
 
                         IList<string> userRoles = await unitOfWork.UserManager.GetRolesAsync(user);
 

@@ -643,6 +643,44 @@ namespace Stack.ServiceLayer.Modules.pool
 
                     if (poolUser != null)
                     {
+
+                        //Existing locked record check
+                        //Un-lock/schedule existing record if found
+
+                        var currentPoolConnectionQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(t => t.UserID == userID &&
+                        t.PoolID == model.PoolID);
+                        var currentPoolConnection = currentPoolConnectionQuery.FirstOrDefault();
+                        if (currentPoolConnection != null && currentPoolConnection.RecordID != 0) //Unlock record
+                        {
+                            if (currentPoolConnection.RecordType == 0) //Contact
+                            {
+                                var recordQuery = await unitOfWork.ContactManager.GetAsync(t => t.ID == currentPoolConnection.RecordID);
+                                var record = recordQuery.FirstOrDefault();
+                                if (record != null)
+                                {
+                                    record.IsLocked = false;
+                                    //Remove scheduled unlock
+                                    var jobDeletionRes = BackgroundJob.Delete(record.ForceUnlock_JobID);
+                                    record.ForceUnlock_JobID = null;
+
+                                    var updateRecordRes = await unitOfWork.ContactManager.UpdateAsync(record);
+                                    if (jobDeletionRes && updateRecordRes)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+                                    }
+
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Record not found");
+                                    result.Errors.Add("Record not found");
+                                    return result;
+                                }
+                            }
+                        }
+                        //End of existing record lock check
+
                         var pool = poolUser.Pool;
 
                         if (pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity
@@ -680,23 +718,11 @@ namespace Stack.ServiceLayer.Modules.pool
                                 //Verify locked record's assignee
                                 if (record.IsLocked == true)
                                 {
-                                    var connectionQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(t => t.UserID == userID && t.PoolID == pool.ID && t.RecordID == record.ID);
-                                    var connection = connectionQuery.FirstOrDefault();
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Record is locked");
+                                    result.Errors.Add("Record is locked");
+                                    return result;
 
-                                    if (connection != null)
-                                    {
-                                        result.Succeeded = true;
-                                        result.Data = true;
-                                        return result;
-                                    }
-                                    else
-                                    {
-                                        result.Succeeded = false;
-                                        result.Data = false;
-                                        result.Errors.Add("Connection Record not found");
-                                        result.Errors.Add("Connection Record not found");
-                                        return result;
-                                    }
                                 }
                                 else
                                 {
@@ -813,7 +839,7 @@ namespace Stack.ServiceLayer.Modules.pool
                         var updateRes = await unitOfWork.ContactManager.UpdateAsync(record);
                         if (updateRes)
                         {
-                            //Schedule record unlock - TODO
+                            //Schedule record unlock
                             //Get system configuration's lock duration
                             var systemConfigQuery = await unitOfWork.SystemConfigurationManager.GetAsync();
                             var systemConfig = systemConfigQuery.FirstOrDefault();
@@ -984,7 +1010,7 @@ namespace Stack.ServiceLayer.Modules.pool
                         //Emit lock update response
                         RecordLockHub recordLockHub = new RecordLockHub(unitOfWork, mapper, _recordLockContext);
 
-                        var lockResult = await recordLockHub.UpdatePool(model.PoolID);
+                        var lockResult = await recordLockHub.UpdatePool(model.PoolID, model.RecordID, model.CustomerStage);
 
                         return lockResult;
                     }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Stack.Core;
@@ -60,8 +61,13 @@ namespace Stack.API.Hubs
                             var record = recordQ.FirstOrDefault();
                             if (record != null)
                             {
+                                //Remove scheduled job
+                                var jobDeletionRes = BackgroundJob.Delete(record.ForceUnlock_JobID);
+
                                 record.IsLocked = false;
+                                record.ForceUnlock_JobID = null;
                                 var updateResult = await unitOfWork.ContactManager.UpdateAsync(record);
+
                             }
                         }
                         else if (connection.RecordType == 1)//Lead
