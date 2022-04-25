@@ -13,8 +13,6 @@ namespace Stack.DTOs.Models.Modules.Pool
         public string DescriptionAR { get; set; }
         public string DescriptionEN { get; set; }
 
-        public int? ContactCount { get; set; }
-
     }
 
 

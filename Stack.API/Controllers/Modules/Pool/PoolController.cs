@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
+using Stack.DTOs.Models.Modules.Pool;
 using Stack.DTOs.Requests.Modules.Auth;
 using Stack.DTOs.Requests.Modules.Pool;
 using Stack.ServiceLayer.Modules.Auth;
@@ -34,13 +35,6 @@ namespace Stack.API.Controllers.Modules.Pool
         }
 
         [AllowAnonymous]
-        [HttpGet("GetUserAssignedPoolStages")]
-        public async Task<IActionResult> GetUserAssignedPoolStages()
-        {
-            return await GetResponseHandler(async () => await service.GetUserAssignedPoolStages());
-        }
-
-        [AllowAnonymous]
         [HttpGet("GetPoolDetails/{poolID}")]
         public async Task<IActionResult> GetPoolDetails(long poolID)
         {
@@ -54,6 +48,19 @@ namespace Stack.API.Controllers.Modules.Pool
             return await GetResponseHandler(async () => await service.GetPoolContacts(poolID));
         }
 
+        [AllowAnonymous]
+        [HttpPost("GetPoolAssignedUsersCapacity")]
+        public async Task<IActionResult> GetPoolAssignedUsersCapacity(GetPoolAssignedUsersCapacityModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetPoolAssignedUsersCapacity(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("UpdateUsersCapacity")]
+        public async Task<IActionResult> UpdateUsersCapacity(UpatePoolUsersCapacityModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.UpdateUsersCapacity(model));
+        }
 
         [AllowAnonymous]
         [HttpPost("CreatePool")]

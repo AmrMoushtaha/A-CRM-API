@@ -41,14 +41,14 @@ namespace Stack.API
         {
 
             services.Configure<List<ActivityTypeModel>>(Configuration.GetSection("DefaultActivityTypes"));
-                                                                                                                                                                                                                            
+
             services.Configure<List<DTOs.Requests.Modules.System.AuthorizationSection>>(Configuration.GetSection("SystemAuthorizationSections"));
 
 
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             //Live server connection string
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
             //services.AddHangfire(x => x.UseSqlServerStorage("Server=tcp:162.214.98.181,1433; Database = CRMDB; User Id = sa; Password = P@ssw0rd@./;"));
 
 
@@ -83,6 +83,18 @@ namespace Stack.API
                                     .AllowCredentials();
                              });
             });
+
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy(name: AllowSpecificOrigins,
+            //                 builder =>
+            //                 {
+            //                     builder.WithOrigins("https://crm.app-blender.com")
+            //                        .AllowAnyMethod()
+            //                        .AllowAnyHeader()
+            //                        .AllowCredentials();
+            //                 });
+            //});
 
             //Configure Auto Mapper .
             services.AddAutoMapper(typeof(AutoMapperProfile));
@@ -186,10 +198,13 @@ namespace Stack.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+
+            app.UseDeveloperExceptionPage();
+
 
             app.UseHttpsRedirection();
 
