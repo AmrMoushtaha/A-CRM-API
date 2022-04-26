@@ -65,6 +65,12 @@ namespace Stack.API.Controllers.Modules.Auth
         {
             return await GetResponseHandler(async () => await service.Get_SectionsByLevelID(ID));
         }
+
+        [HttpGet("{ID}")]
+        public async Task<IActionResult> DeleteSectionByID(long ID)
+        {
+            return await GetResponseHandler(async () => await service.Delete_SectionByID(ID));
+        }
         #endregion
 
 
@@ -96,9 +102,14 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
         [HttpGet("{ID}")]
-        public async Task<IActionResult> Get_InputsBySectionID(long ID)
+        public async Task<IActionResult> GetInputsBySectionID(long ID)
         {
             return await GetResponseHandler(async () => await service.Get_InputsBySectionID(ID));
+        }
+        [HttpGet("{ID}")]
+        public async Task<IActionResult> DeleteInput(long ID)
+        {
+            return await GetResponseHandler(async () => await service.Delete_Input(ID));
         }
         #endregion
 

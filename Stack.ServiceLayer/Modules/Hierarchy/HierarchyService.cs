@@ -170,10 +170,15 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<List<LSection>> result = new ApiResponse<List<LSection>>();
             try
             {
-                var SectionResult = await unitOfWork.SectionManager.GetAsync(a=>a.LevelID== levelID);
+                var SectionResult = await unitOfWork.SectionManager.GetAsync(a=>a.LevelID== levelID && !a.IsDeleted , includeProperties: "Inputs");
                 List<LSection> SectionsList = SectionResult.ToList();
                 if (SectionsList != null && SectionsList.Count != 0)
                 {
+                    SectionsList = SectionsList.Select(a => {
+                        a.Inputs = a.Inputs.Where(i => !i.IsDeleted).ToList();
+                        return a;
+                        }).ToList();
+
                     result.Succeeded = true;
                     result.Data = mapper.Map<List<LSection>>(SectionsList);
                     return result;
@@ -193,12 +198,54 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
 
         }
 
+        public async Task<ApiResponse<bool>> Delete_SectionByID(long ID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var SectionResult = await unitOfWork.SectionManager.GetByIdAsync(ID);
+                if (SectionResult != null)
+                {
+                    SectionResult.IsDeleted = true;
+                    var updateResult = await unitOfWork.SectionManager.UpdateAsync(SectionResult);
+                    var SaveResult = await unitOfWork.SaveChangesAsync();
+                    if (SaveResult)
+                    {
+                        result.Succeeded = true;
+                        result.Data = true;
+                        return result;
+                    }
+                    else
+                    {
+
+                        result.Errors.Add("Failed to delete Section !");
+                        result.Succeeded = false;
+                        return result;
+                    }
+
+                }
+
+                result.Errors.Add("Failed to delete Section !");
+                result.Succeeded = false;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
         public async Task<ApiResponse<List<LSection>>> Get_Sections()
         {
             ApiResponse<List<LSection>> result = new ApiResponse<List<LSection>>();
             try
             {
-                var SectionResult = await unitOfWork.SectionManager.GetAsync();
+                var SectionResult = await unitOfWork.SectionManager.GetAsync(includeProperties: "Inputs");
                 List<LSection> SectionsList = SectionResult.ToList();
                 if (SectionsList != null && SectionsList.Count != 0)
                 {
@@ -327,7 +374,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<List<LAttribute>> result = new ApiResponse<List<LAttribute>>();
             try
             {
-                var InterestAttributeResult = await unitOfWork.AttributesManager.GetAsync();
+                var InterestAttributeResult = await unitOfWork.AttributesManager.GetAsync(a=>!a.IsDeleted);
                 List<LAttribute> InterestAttributeList = InterestAttributeResult.ToList();
                 if (InterestAttributeList != null && InterestAttributeList.Count != 0)
                 {
@@ -360,11 +407,13 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
 
                 if (DuplicateInterestAttributeResult == null)
                 {
-                    LAttribute InputToCreate = mapper.Map<LAttribute>(AttributeToAdd); ;
-                    var createInputResult = await unitOfWork.AttributesManager.CreateAsync(InputToCreate);
-                    await unitOfWork.SaveChangesAsync();
+                    LAttribute InputToCreate = mapper.Map<LAttribute>(AttributeToAdd);
+                   if(InputToCreate.ParentAttributeID==0) InputToCreate.ParentAttributeID = null;
 
-                    if (createInputResult != null)
+                    var createInputResult = await unitOfWork.AttributesManager.CreateAsync(InputToCreate);
+                    var saveResult =await unitOfWork.SaveChangesAsync();
+
+                    if (saveResult )
                     {
                         result.Succeeded = true;
                         result.Data = true;
@@ -410,8 +459,10 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                     AttributeR.LabelAR = AttributeToEdit.LabelAR;
                     AttributeR.LabelEN = AttributeToEdit.LabelEN;
                     AttributeR.ParentAttributeID = AttributeToEdit.ParentAttributeID;
+                    if (AttributeR.ParentAttributeID == 0) AttributeR.ParentAttributeID = null;
 
                     var createInputResult = await unitOfWork.AttributesManager.UpdateAsync(AttributeR);
+               
                     var SaveResult = await unitOfWork.SaveChangesAsync();
 
                     if (SaveResult)
@@ -627,6 +678,12 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                     InputResult.LabelAR = InputToEdit.LabelAR;
                     InputResult.LabelEN = InputToEdit.LabelEN;
                     InputResult.Type = InputToEdit.Type;
+                    InputResult.IsLevelDependent = InputToEdit.IsLevelDependent;
+                    InputResult.IsRequired = InputToEdit.IsRequired;
+                    InputResult.MinValue = InputToEdit.MinValue;
+                    InputResult.MaxValue = InputToEdit.MaxValue;
+                    InputResult.AttributeID = InputToEdit.AttributeID;
+
                     var createInputResult = await unitOfWork.LInputManager.UpdateAsync(InputResult);
                     var SaveResult = await unitOfWork.SaveChangesAsync();
 

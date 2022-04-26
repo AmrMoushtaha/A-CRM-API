@@ -8,7 +8,7 @@ namespace Stack.DTOs.Requests.Modules.Interest
         public long ID { get; set; }
         public string LabelAR { get; set; }
         public string LabelEN { get; set; }
-        public long ParentAttributeID { get; set; }
+        public long? ParentAttributeID { get; set; }
 
     }
 
