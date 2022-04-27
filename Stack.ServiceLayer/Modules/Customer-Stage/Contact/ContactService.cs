@@ -1447,7 +1447,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         //calculate each user's capacity and assigned records
                                         for (int i = 0; i < poolUsers.Count; i++)
                                         {
-                                            var prioritizedUserID = creationModel.AssignedUsers[i];
+                                            string prioritizedUserID = poolUsers[i].UserID;
 
                                             var matchedUser = poolUsers.Where(t => t.UserID == prioritizedUserID).FirstOrDefault();
 
@@ -1528,7 +1528,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             //Return with capacity re-evaluation response if user is a pool administrator
                                             var poolAdminQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID && t.UserID == userID && t.IsAdmin == true);
                                             var isPoolAdmin = poolAdminQuery.FirstOrDefault();
-                                            if (isPoolAdmin == null)
+                                            if (isPoolAdmin != null)
                                             {
                                                 result.Succeeded = false;
                                                 result.Data = new BulkAssignmentResponse
