@@ -5,8 +5,11 @@ using System.Text;
 
 namespace Stack.DTOs.Requests.Modules.Auth
 {
-    public  class RoleCreationModel
+    public  class EditRoleModel
     {
+
+        public string Id { get; set; }
+
         public string NameEN { get; set; }
 
         public string NameAR { get; set; }

@@ -10,7 +10,7 @@ namespace Stack.API.Controllers.Modules.Auth
 {
     [Route("api/User")]
     [ApiController]
-    [Authorize] // Require Authorization to access API endpoints . 
+    [Authorize]
     public class UsersController : BaseResultHandlerController<UsersService>
     {
         public UsersController(UsersService _service) : base(_service)
@@ -18,30 +18,19 @@ namespace Stack.API.Controllers.Modules.Auth
 
         }
 
-        [AllowAnonymous] // Allow anonymous calls without authorization to this specific endpoint . 
+        [AllowAnonymous]
         [HttpPost("Login")]
         public async Task<IActionResult> LoginAsync(LoginModel model)
         {
             return await AddItemResponseHandler(async () => await service.LoginAsync(model));
         }
 
-
-
-        [AllowAnonymous] // Allow anonymous calls without authorization to this specific endpoint . 
+        [AllowAnonymous]
         [HttpPost("CreateNewUser")]
         public async Task<IActionResult> CreateNewUser(UserCreationModel model)
         {
             return await AddItemResponseHandler(async () => await service.CreateNewUser(model));
         }
-
-        //[AllowAnonymous] // Allow anonymous calls without authorization to this specific endpoint . 
-        //[HttpGet("SeedDB")]
-        //public async Task<IActionResult> SeedDB()
-        //{
-        //    return await GetResponseHandler(async () => await service.SeedDB());
-        //}
-
-
 
         [AllowAnonymous]
         [HttpGet("GetUserDetails")]
@@ -49,6 +38,7 @@ namespace Stack.API.Controllers.Modules.Auth
         {
             return await GetResponseHandler(async () => await service.GetUserDetails());
         }
+
     }
 
 

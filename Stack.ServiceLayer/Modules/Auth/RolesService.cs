@@ -37,84 +37,57 @@ namespace Stack.ServiceLayer.Modules.Auth
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                bool x = await unitOfWork.RoleManager.RoleExistsAsync(model.RoleName);
+                bool x = await unitOfWork.RoleManager.RoleExistsAsync(model.NameEN);
 
                 if (!x)
                 {
 
                     var role = new ApplicationRole();
 
-                    role.Name = model.RoleName;
+                    role.Name = model.NameEN;
+
+                    role.NameAR = model.NameAR;
+
+                    role.DescriptionEN = model.DescriptionEN;
+
+                    role.DescriptionAR = model.DescriptionAR;
+
+                    
+
+                    if(model.ParentRoleID != null || model.ParentRoleID != "")
+                    {
+                        role.HasParent = true;
+                        role.ParentRoleID = model.ParentRoleID;
+                    }
+                    else
+                    {
+                        role.ParentRoleID = null;
+                        role.HasParent = false;
+                    }
 
                     var res = await unitOfWork.RoleManager.CreateAsync(role);
 
                     if (res.Succeeded)
                     {
 
-                        var SystemAuthorizationsResult = await unitOfWork.AuthorizationSectionsManager.GetAsync(includeProperties:"SectionAuthorizations");
+                        var roleResult = await unitOfWork.RoleManager.FindByNameAsync(model.NameEN);
 
-                        List<AuthorizationSection> AuthorizationSections = SystemAuthorizationsResult.ToList();
+                        model.AuthModel.RoleID = roleResult.Id;
 
-                        AuthorizationsModel roleAuthModel = new AuthorizationsModel();
+                        model.AuthModel.RoleNameEN = roleResult.Name;
 
-                        List<AuthorizationSectionModel> roleDefaultSectionAuthorizations = new List<AuthorizationSectionModel>();
+                        model.AuthModel.RoleNameAR = roleResult.NameAR;
 
-                        for(int i = 0; i < AuthorizationSections.Count; i++)
-                        {
-
-                            AuthorizationSectionModel authSectionModel = new AuthorizationSectionModel();
-
-                            authSectionModel.ID = AuthorizationSections[i].ID;
-
-                            authSectionModel.NameAR = AuthorizationSections[i].NameAR;
-
-                            authSectionModel.NameEN = AuthorizationSections[i].NameEN;
-
-                            authSectionModel.Code = AuthorizationSections[i].Code;
-
-                            authSectionModel.SectionAuthorizations = new List<SectionAuthorizationModel>();
-
-                            for(int j = 0; j < AuthorizationSections[i].SectionAuthorizations.Count; j++)
-                            {
-
-                                SectionAuthorizationModel sectionAuthModel = new SectionAuthorizationModel();
-
-                                sectionAuthModel.ID = AuthorizationSections[i].SectionAuthorizations[j].ID;
-
-                                sectionAuthModel.NameAR = AuthorizationSections[i].SectionAuthorizations[j].NameAR;
-
-                                sectionAuthModel.NameEN = AuthorizationSections[i].SectionAuthorizations[j].NameEN;
-
-                                sectionAuthModel.Code = AuthorizationSections[i].SectionAuthorizations[j].Code;
-
-                                sectionAuthModel.AuthorizationSectionID = AuthorizationSections[i].ID;
-
-                                sectionAuthModel.IsAuthorized = false;
-
-                                authSectionModel.SectionAuthorizations.Add(sectionAuthModel);
-
-                            }
-
-                            roleDefaultSectionAuthorizations.Add(authSectionModel);
-
-                        }
-
-                        var roleResult = await unitOfWork.RoleManager.FindByNameAsync(model.RoleName);
-
-                        roleAuthModel.AuthorizationSections = roleDefaultSectionAuthorizations;
-
-                        roleAuthModel.RoleName = roleResult.Name;
-
-                        roleAuthModel.RoleID = roleResult.Id;
-
-                        roleResult.SystemAuthorizations = JsonConvert.SerializeObject(roleAuthModel);
+                        roleResult.SystemAuthorizations = JsonConvert.SerializeObject(model.AuthModel);
 
                         var updateRoleResult  = await unitOfWork.RoleManager.UpdateAsync(roleResult);
 
                         await unitOfWork.SaveChangesAsync();
 
                         result.Data = true;
+
                         result.Succeeded = true;
+
                         return result;
 
                     }
@@ -144,25 +117,93 @@ namespace Stack.ServiceLayer.Modules.Auth
 
         }
 
-        //public async Task<ApiResponse<bool>> UpdateUserRole(UpdateUserRoleModel model)
-        //{
-        //    ApiResponse<bool> result = new ApiResponse<bool>();
-        //    try
-        //    {
+
+        /// <summary>
+        /// Update an existing use role .
+        /// </summary>
+        /// <param name="roleName"></param>
+        /// <returns></returns>
+        public async Task<ApiResponse<bool>> UpdateRole(EditRoleModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+
+                var roleResult = await unitOfWork.RoleManager.FindByIdAsync(model.Id);
+
+                if (roleResult != null)
+                {
+
+                    var duplicateRoleNameResult = await unitOfWork.RoleManager.CheckDuplicateName(model.Id, model.NameEN, model.NameAR);
+
+                    if (duplicateRoleNameResult != null)
+                    {
+
+                        roleResult.Name = model.NameEN;
+
+                        roleResult.NameAR = model.NameAR;
+
+                        roleResult.DescriptionEN = model.DescriptionEN;
+
+                        roleResult.DescriptionAR = model.DescriptionAR;
+
+                        roleResult.SystemAuthorizations = JsonConvert.SerializeObject(model.AuthModel);
+
+                        if (model.ParentRoleID != null || model.ParentRoleID != "")
+                        {
+                            roleResult.HasParent = true;
+                            roleResult.ParentRoleID = model.ParentRoleID;
+                        }
+                        else
+                        {
+                            roleResult.ParentRoleID = null;
+                            roleResult.HasParent = false;
+                        }
 
 
+                        var updateRoleResult = await unitOfWork.RoleManager.UpdateAsync(roleResult);
 
+                        if(updateRoleResult.Succeeded == true)
+                        {
 
+                            await unitOfWork.SaveChangesAsync();
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        result.Succeeded = false;
-        //        result.Errors.Add(ex.Message);
-        //        return result;
-        //    }
+                            result.Succeeded = true;
+                            result.Data = true;
+                            return result;
 
-        //}
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Failed to update role !");
+                            return result;
+                        }
+
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Failed to update user type, a type with a similar name already exists !");
+                        return result;
+                    }
+                  
+
+                }
+
+                result.Succeeded = false;
+                result.Errors.Add("Failed to update role !");
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                return result;
+            }
+
+        }
 
 
         /// <summary>
