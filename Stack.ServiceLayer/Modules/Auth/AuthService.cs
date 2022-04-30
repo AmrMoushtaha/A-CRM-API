@@ -71,6 +71,8 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                     authSectionModel.Code = AuthorizationSections[i].Code;
 
+                    authSectionModel.IsAuthorized = true;
+
                     authSectionModel.SectionAuthorizations = new List<SectionAuthorizationModel>();
 
                     for (int j = 0; j < AuthorizationSections[i].SectionAuthorizations.Count; j++)

@@ -246,7 +246,39 @@ namespace Stack.ServiceLayer.Modules.Auth
 
         }
 
+        /// <summary>
+        /// Fetch the list of system users . 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ApiResponse<List<ApplicationUserDTO>>> GetAllSystemUsers()
+        {
+            ApiResponse<List<ApplicationUserDTO>> result = new ApiResponse<List<ApplicationUserDTO>>();
+            try
+            {
 
+                List<ApplicationUser> usersList = await unitOfWork.UserManager.GetAllSystemUsers();
+
+
+                 var  usersToReturn = mapper.Map<List<ApplicationUserDTO>>(usersList);
+
+                usersToReturn = usersToReturn.FindAll(a => a.AuthModel.RoleNameEN != "Administrator");
+
+
+                result.Data = usersToReturn;
+
+                result.Succeeded = true;
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                return result;
+            }
+
+        }
 
 
         //Get user details via http context accessor

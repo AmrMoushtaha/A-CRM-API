@@ -39,6 +39,13 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.GetUserDetails());
         }
 
+        [AllowAnonymous]
+        [HttpGet("GetAllSystemUsers")]
+        public async Task<IActionResult> GetAllSystemUsers()
+        {
+            return await GetResponseHandler(async () => await service.GetAllSystemUsers());
+        }
+
     }
 
 

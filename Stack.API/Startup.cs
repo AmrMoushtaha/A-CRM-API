@@ -48,7 +48,7 @@ namespace Stack.API
 
             //Live server connection string
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
-            //services.AddHangfire(x => x.UseSqlServerStorage("Server=tcp:162.214.98.181,1433; Database = CRMDB; User Id = sa; Password = P@ssw0rd@./;"));
+            //services.AddHangfire(x => x.UseSqlServerStorage("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
 
 
             //Local server connection string
