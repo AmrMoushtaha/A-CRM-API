@@ -8,6 +8,7 @@ namespace Stack.Entities.Models.Modules.Hierarchy
     {
         public string LabelAR { get; set; }
         public string LabelEN { get; set; }
+        public bool IsPredefined { get; set; }
 
         public long? ParentAttributeID { get; set; }
         [ForeignKey("ParentAttributeID")]

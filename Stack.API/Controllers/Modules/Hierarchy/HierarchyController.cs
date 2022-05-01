@@ -121,6 +121,12 @@ namespace Stack.API.Controllers.Modules.Auth
         {
             return await GetResponseHandler(async () => await service.Get_Attributes());
         }
+        
+        [HttpGet]
+        public async Task<IActionResult> GetPredefinedAttributes()
+        {
+            return await GetResponseHandler(async () => await service.GetPredefinedAttributes());
+        }
 
 
         [HttpPost]

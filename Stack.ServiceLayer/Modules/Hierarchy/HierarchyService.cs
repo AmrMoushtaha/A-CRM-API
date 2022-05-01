@@ -396,6 +396,35 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             }
 
         }
+        public async Task<ApiResponse<List<LAttribute>>> GetPredefinedAttributes()
+        {
+            ApiResponse<List<LAttribute>> result = new ApiResponse<List<LAttribute>>();
+            try
+            {
+                var InterestAttributeResult = await unitOfWork.AttributesManager.GetAsync(a => !a.IsDeleted && a.IsPredefined);
+                List<LAttribute> InterestAttributeList = InterestAttributeResult.ToList();
+                if (InterestAttributeList != null && InterestAttributeList.Count != 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<LAttribute>>(InterestAttributeList);
+                    return result;
+                }
+
+                result.Errors.Add("Failed to find Attributes !");
+                result.Succeeded = false;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
 
         public async Task<ApiResponse<bool>> Create_Attribute(AttributeToAdd AttributeToAdd)
         {
@@ -678,10 +707,8 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                     InputResult.LabelAR = InputToEdit.LabelAR;
                     InputResult.LabelEN = InputToEdit.LabelEN;
                     InputResult.Type = InputToEdit.Type;
-                    InputResult.IsLevelDependent = InputToEdit.IsLevelDependent;
                     InputResult.IsRequired = InputToEdit.IsRequired;
-                    InputResult.MinValue = InputToEdit.MinValue;
-                    InputResult.MaxValue = InputToEdit.MaxValue;
+
                     InputResult.AttributeID = InputToEdit.AttributeID;
 
                     var createInputResult = await unitOfWork.LInputManager.UpdateAsync(InputResult);
