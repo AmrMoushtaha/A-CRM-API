@@ -65,7 +65,7 @@ namespace Stack.ServiceLayer.Modules.Auth
                         {
                                 new Claim(ClaimTypes.Name, user.UserName),
                                 new Claim(ClaimTypes.NameIdentifier, user.Id)
-                       
+
 
                         });
 
@@ -190,12 +190,12 @@ namespace Stack.ServiceLayer.Modules.Auth
                 {
 
                     Email = model.Email,
-                    UserName = model.FirstName+model.LastName,
+                    UserName = model.FirstName + model.LastName,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     PhoneNumber = model.PhoneNumber,
                     Status = (int)UserStatus.Activated
-                    
+
                 };
 
                 var roleResult = await unitOfWork.RoleManager.FindByIdAsync(model.RoleID);
@@ -271,6 +271,37 @@ namespace Stack.ServiceLayer.Modules.Auth
                 }
 
 
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<ApplicationUserDTO>>> GetAllUsers()
+        {
+            ApiResponse<List<ApplicationUserDTO>> result = new ApiResponse<List<ApplicationUserDTO>>();
+            try
+            {
+
+                var systemUsers = await unitOfWork.UserManager.GetAllUsers();
+
+                if (systemUsers != null && systemUsers.Count > 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<ApplicationUserDTO>>(systemUsers);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No users on the system");
+                    result.Errors.Add("No users on the system");
+                    return result;
+                }
             }
             catch (Exception ex)
             {

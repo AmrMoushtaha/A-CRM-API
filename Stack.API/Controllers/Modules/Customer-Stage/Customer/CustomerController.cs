@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Stack.API.Controllers.Modules.Auth
 {
-    [Route("api/User")]
+    [Route("api/Customer")]
     [ApiController]
     [Authorize] // Require Authorization to access API endpoints . 
     public class CustomerController : BaseResultHandlerController<CustomerService>

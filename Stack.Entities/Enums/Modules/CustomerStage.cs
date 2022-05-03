@@ -7,8 +7,8 @@ namespace Stack.Entities.Enums.Modules.CustomerStage
     public enum CustomerStageIndicator
     {
         Contact,
-        Lead,
         Prospect,
+        Lead,
         Opportunity,
         DoneDeal
     }

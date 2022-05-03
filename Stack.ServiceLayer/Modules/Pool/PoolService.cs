@@ -383,6 +383,8 @@ namespace Stack.ServiceLayer.Modules.pool
         //---------------------------- Get ----------------------------//
 
         //Sidebar view - Get user pools
+
+        //Get user assigned pools via user token
         public async Task<ApiResponse<List<PoolSidebarViewModel>>> GetUserAssignedPools()
         {
             ApiResponse<List<PoolSidebarViewModel>> result = new ApiResponse<List<PoolSidebarViewModel>>();
@@ -437,6 +439,50 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
+        //Get user assigned pools via user ID
+
+        public async Task<ApiResponse<List<PoolSidebarViewModel>>> GetUserAssignedPoolsByUserID(string userID)
+        {
+            ApiResponse<List<PoolSidebarViewModel>> result = new ApiResponse<List<PoolSidebarViewModel>>();
+            try
+            {
+
+                List<PoolSidebarViewModel> poolSidebarViewModel = new List<PoolSidebarViewModel>();
+
+                var userPools = await unitOfWork.PoolUserManager.GetUserPools(userID);
+
+                if (userPools != null && userPools.Count > 0)
+                {
+                    poolSidebarViewModel.AddRange(userPools);
+                }
+
+
+                if (poolSidebarViewModel.Count > 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = poolSidebarViewModel;
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No spaces found");
+                    result.Errors.Add("لا يوجد مساحات");
+                    result.ErrorType = ErrorType.NotFound;
+                    return result;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
         //Pool view - Get main pool details
         public async Task<ApiResponse<PoolSidebarViewModel>> GetPoolDetails(long poolID)
         {
@@ -516,6 +562,105 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
+
+        public async Task<ApiResponse<List<PoolAssignedUsersModel>>> GetPoolAssignedUsers_ExcludeAdmins(long poolID)
+        {
+            ApiResponse<List<PoolAssignedUsersModel>> result = new ApiResponse<List<PoolAssignedUsersModel>>();
+            try
+            {
+                var poolUsersQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID && !t.IsAdmin, includeProperties: "User");
+                var poolUsers = poolUsersQuery.ToList();
+
+                if (poolUsers != null && poolUsers.Count > 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<PoolAssignedUsersModel>>(poolUsers);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No users found");
+                    result.Errors.Add("لم يتم العثور على مستخدمين");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        //Get pool admins
+
+        public async Task<ApiResponse<List<PoolAssignedUsersModel>>> GetPoolAssignedAdmins(long poolID)
+        {
+            ApiResponse<List<PoolAssignedUsersModel>> result = new ApiResponse<List<PoolAssignedUsersModel>>();
+            try
+            {
+                var poolUsersQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID && t.IsAdmin == true, includeProperties: "User");
+                var poolUsers = poolUsersQuery.ToList();
+
+                if (poolUsers != null && poolUsers.Count > 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<PoolAssignedUsersModel>>(poolUsers);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No users found");
+                    result.Errors.Add("لم يتم العثور على مستخدمين");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<PoolConfigurationModel>> GetPoolConfiguration(long poolID)
+        {
+            ApiResponse<PoolConfigurationModel> result = new ApiResponse<PoolConfigurationModel>();
+            try
+            {
+                var poolQuery = await unitOfWork.PoolManager.GetAsync(t => t.ID == poolID);
+                var pool = poolQuery.FirstOrDefault();
+
+                if (pool != null)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<PoolConfigurationModel>(pool);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No users found");
+                    result.Errors.Add("لم يتم العثور على مستخدمين");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
 
         //Get pool specified pool users / all pool users with their capacity
         public async Task<ApiResponse<List<PoolAssignedUserCapacityModel>>> GetPoolAssignedUsersCapacity(GetPoolAssignedUsersCapacityModel model)

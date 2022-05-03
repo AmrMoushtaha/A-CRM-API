@@ -15,10 +15,22 @@ namespace Stack.Core.Managers.Modules.Common
 {
     public class PoolConnectionIDsManager : Repository<PoolConnectionID, ApplicationDbContext>
     {
+        public DbSet<PoolConnectionID> dbSet;
+        public ApplicationDbContext context;
 
         public PoolConnectionIDsManager(ApplicationDbContext _context) : base(_context)
         {
+            dbSet = _context.Set<PoolConnectionID>();
+            context = _context;
         }
+
+        //public async Task<int> ClearAllConnections()
+        //{
+        //    return await Task.Run(() =>
+        //    {
+        //        return context.Database.ExecuteSqlRaw("TRUNCATE TABLE [PoolConnectionIDs]");
+        //    });
+        //}
 
     }
 
