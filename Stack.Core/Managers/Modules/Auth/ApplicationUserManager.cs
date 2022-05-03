@@ -44,6 +44,26 @@ namespace Stack.Core.Managers.Modules.Auth
             });
         }
 
+        public async Task<ApplicationUser> FindDuplicateUsername(string userId, string username)
+        {
+            return await Task.Run(() =>
+            {
+                var usersResult = dbSet.Where(a => a.Id != userId && a.UserName == username);
+                if (usersResult.ToList().Count != 0)
+                {
+
+                    var applicationUserToReturn = usersResult.ToList().FirstOrDefault();
+
+                    return applicationUserToReturn;
+
+                }
+                else
+                {
+                    return null;
+                }
+            });
+        }
+
         public async Task<List<ApplicationUser>> GetAllSystemUsers()
         {
             return await Task.Run(() =>
