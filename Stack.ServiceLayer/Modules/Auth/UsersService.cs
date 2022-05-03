@@ -324,37 +324,6 @@ namespace Stack.ServiceLayer.Modules.Auth
 
         }
 
-        public async Task<ApiResponse<List<ApplicationUserDTO>>> GetAllUsers()
-        {
-            ApiResponse<List<ApplicationUserDTO>> result = new ApiResponse<List<ApplicationUserDTO>>();
-            try
-            {
-
-                var systemUsers = await unitOfWork.UserManager.GetAllUsers();
-
-                if (systemUsers != null && systemUsers.Count > 0)
-                {
-                    result.Succeeded = true;
-                    result.Data = mapper.Map<List<ApplicationUserDTO>>(systemUsers);
-                    return result;
-                }
-                else
-                {
-                    result.Succeeded = false;
-                    result.Errors.Add("No users on the system");
-                    result.Errors.Add("No users on the system");
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                result.Succeeded = false;
-                result.Errors.Add(ex.Message);
-                return result;
-            }
-
-        }
-
         //public async Task<ApiResponse<List<ApplicationUserDTO>>> GetAllSystemEmployees()
         //{
         //    ApiResponse<List<ApplicationUserDTO>> result = new ApiResponse<List<ApplicationUserDTO>>();
