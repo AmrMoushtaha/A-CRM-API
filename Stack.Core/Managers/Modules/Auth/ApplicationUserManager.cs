@@ -44,18 +44,13 @@ namespace Stack.Core.Managers.Modules.Auth
             });
         }
 
-        public async Task<List<ApplicationUser>> GetAllUsers()
+        public async Task<List<ApplicationUser>> GetAllSystemUsers()
         {
             return await Task.Run(() =>
             {
-                return dbSet.Select(t => new ApplicationUser
-                {
-                    Id = t.Id,
-                    FirstName = t.FirstName,
-                    LastName = t.LastName,
-                    Email = t.Email,
+                var usersResult = dbSet.Where(a => a.Id != null).ToList();
 
-                }).ToList();
+                return usersResult;
 
             });
         }

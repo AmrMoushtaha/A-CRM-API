@@ -16,6 +16,8 @@ namespace Stack.DTOs.Models.Modules.Auth
         public string NameEN { get; set; }
         public string Code { get; set; }
 
+        public bool IsAuthorized { get; set; }
+
         public List<SectionAuthorizationModel> SectionAuthorizations { get; set; }
 
     }

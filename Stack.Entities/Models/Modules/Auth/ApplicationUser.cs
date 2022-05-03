@@ -1,5 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
+using Stack.DTOs.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.Common;
 using Stack.Entities.Models.Modules.CustomerStage;
 using System;
@@ -33,6 +35,23 @@ namespace Stack.Entities.Models.Modules.Auth
         public virtual List<Opportunity> Opportunities { get; set; }
         public virtual List<Pool_User> Pools { get; set; }
         public virtual List<PoolConnectionID> ConnectionIDs { get; set; }
+
+        public AuthorizationsModel GetAuthModel()
+        {
+
+            if (SystemAuthorizations != null)
+            {
+                AuthorizationsModel AuthModel = JsonConvert.DeserializeObject<AuthorizationsModel>(SystemAuthorizations);
+
+                return AuthModel;
+
+            }
+            else
+            {
+                return null;
+            }
+
+        }
 
 
     }

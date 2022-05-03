@@ -39,5 +39,18 @@ namespace Stack.Core.Managers.Modules.Auth
             });
         }
 
+        public async Task<List<ApplicationRole>> CheckDuplicateName(string RoleID , string RoleName, string RoleNameAR)
+        {
+            return await Task.Run(() =>
+            {
+
+                var rolesResult = dbSet.Where(a => ( a.Name != RoleName || a.NameAR == RoleNameAR ) && a.Id != RoleID).ToList();
+
+                return rolesResult;
+
+            });
+
+        }
+
     }
 }

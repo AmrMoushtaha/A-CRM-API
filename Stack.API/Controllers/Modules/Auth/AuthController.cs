@@ -34,10 +34,10 @@ namespace Stack.API.Controllers.Modules.Auth
 
 
         [AllowAnonymous]
-        [HttpPost("UpdateUserAuthorizationsModel")]
-        public async Task<IActionResult> UpdateUserAuthorizationsModel(UpdateUserAuthModel model)
+        [HttpPost("UpdateUserAuthorizations")]
+        public async Task<IActionResult> UpdateUserAuthorizations(UpdateUserAuthModel model)
         {
-            return await EditItemResponseHandler(async () => await service.UpdateUserAuthorizationsModel(model));
+            return await EditItemResponseHandler(async () => await service.UpdateUserAuthorizations(model));
         }
 
         [AllowAnonymous]
@@ -47,7 +47,6 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.GetAuthModelByRoleID(RoleID));
         }
 
-
         [AllowAnonymous]
         [HttpGet("GetAuthModelByUserID")]
         public async Task<IActionResult> GetAuthModelByUserID(string UserID)
@@ -55,8 +54,13 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.GetAuthModelByUserID(UserID));
         }
 
+        [AllowAnonymous]
+        [HttpGet("GetSystemAuthModel")]
+        public async Task<IActionResult> GetSystemAuthModel()
+        {
+            return await GetResponseHandler(async () => await service.GetSystemAuthModel());
+        }
+
     }
-
-
 
 }

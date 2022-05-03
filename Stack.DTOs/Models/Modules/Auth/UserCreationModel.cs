@@ -16,7 +16,7 @@ namespace Stack.DTOs.Models.Modules.Auth
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
 
-        public string RoleID { get; set; }
+        public AuthorizationsModel AuthModel { get; set; }
 
 
     }

@@ -9,7 +9,8 @@ namespace Stack.DTOs.Models.Modules.Auth
     {
         public string RoleID { get; set; }
 
-        public string RoleName { get; set; }
+        public string RoleNameEN { get; set; }
+        public string RoleNameAR { get; set; }
 
         public List<AuthorizationSectionModel> AuthorizationSections { get; set; }
 

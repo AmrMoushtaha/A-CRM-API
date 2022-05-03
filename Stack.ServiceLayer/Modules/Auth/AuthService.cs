@@ -71,6 +71,8 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                     authSectionModel.Code = AuthorizationSections[i].Code;
 
+                    authSectionModel.IsAuthorized = true;
+
                     authSectionModel.SectionAuthorizations = new List<SectionAuthorizationModel>();
 
                     for (int j = 0; j < AuthorizationSections[i].SectionAuthorizations.Count; j++)
@@ -102,7 +104,9 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                 roleAuthModel.AuthorizationSections = roleDefaultSectionAuthorizations;
 
-                roleAuthModel.RoleName = roleResult.Name;
+                roleAuthModel.RoleNameEN = roleResult.Name;
+
+                roleAuthModel.RoleNameAR = roleResult.NameAR;
 
                 roleAuthModel.RoleID = roleResult.Id;
 
@@ -282,7 +286,7 @@ namespace Stack.ServiceLayer.Modules.Auth
 
         }
 
-        public async Task<ApiResponse<AuthorizationsModel>> UpdateUserAuthorizationsModel(UpdateUserAuthModel model)
+        public async Task<ApiResponse<AuthorizationsModel>> UpdateUserAuthorizations(UpdateUserAuthModel model)
         {
             ApiResponse<AuthorizationsModel> result = new ApiResponse<AuthorizationsModel>();
             try
@@ -323,6 +327,87 @@ namespace Stack.ServiceLayer.Modules.Auth
                     return result;
                 }
 
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<AuthorizationsModel>> GetSystemAuthModel()
+        {
+            ApiResponse<AuthorizationsModel> result = new ApiResponse<AuthorizationsModel>();
+            try
+            {
+
+                var SystemAuthorizationsResult = await unitOfWork.AuthorizationSectionsManager.GetAsync(includeProperties: "SectionAuthorizations");
+
+                List<Entities.Models.Modules.Auth.AuthorizationSection> AuthorizationSections = SystemAuthorizationsResult.ToList();
+
+                AuthorizationsModel SystemAuthModel = new AuthorizationsModel();
+
+                List<AuthorizationSectionModel> SystemSectionAuthorizations = new List<AuthorizationSectionModel>();
+
+                for (int i = 0; i < AuthorizationSections.Count; i++)
+                {
+
+                    AuthorizationSectionModel authSectionModel = new AuthorizationSectionModel();
+
+                    authSectionModel.ID = AuthorizationSections[i].ID;
+
+                    authSectionModel.NameAR = AuthorizationSections[i].NameAR;
+
+                    authSectionModel.NameEN = AuthorizationSections[i].NameEN;
+
+                    authSectionModel.Code = AuthorizationSections[i].Code;
+
+                    authSectionModel.IsAuthorized = false;
+
+                    authSectionModel.SectionAuthorizations = new List<SectionAuthorizationModel>();
+
+                    for (int j = 0; j < AuthorizationSections[i].SectionAuthorizations.Count; j++)
+                    {
+
+                        SectionAuthorizationModel sectionAuthModel = new SectionAuthorizationModel();
+
+                        sectionAuthModel.ID = AuthorizationSections[i].SectionAuthorizations[j].ID;
+
+                        sectionAuthModel.NameAR = AuthorizationSections[i].SectionAuthorizations[j].NameAR;
+
+                        sectionAuthModel.NameEN = AuthorizationSections[i].SectionAuthorizations[j].NameEN;
+
+                        sectionAuthModel.Code = AuthorizationSections[i].SectionAuthorizations[j].Code;
+
+                        sectionAuthModel.AuthorizationSectionID = AuthorizationSections[i].ID;
+
+                        sectionAuthModel.IsAuthorized = false;
+
+                        authSectionModel.SectionAuthorizations.Add(sectionAuthModel);
+
+                    }
+
+                    SystemSectionAuthorizations.Add(authSectionModel);
+
+                }
+
+                SystemAuthModel.RoleID = "";
+
+                SystemAuthModel.RoleNameEN = "";
+
+                SystemAuthModel.RoleNameAR = "";
+
+                SystemAuthModel.AuthorizationSections = SystemSectionAuthorizations;
+
+                result.Data = SystemAuthModel;
+
+                result.Succeeded = true;
+
+                return result;
 
             }
             catch (Exception ex)

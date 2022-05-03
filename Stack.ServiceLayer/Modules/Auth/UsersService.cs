@@ -20,6 +20,7 @@ using Stack.DTOs.Requests.Modules.Auth;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.DTOs.Models.Modules.Auth;
 using Stack.Entities.Enums.Modules.Auth;
+using Newtonsoft.Json;
 
 namespace Stack.ServiceLayer.Modules.Auth
 {
@@ -180,7 +181,6 @@ namespace Stack.ServiceLayer.Modules.Auth
 
         }
 
-
         public async Task<ApiResponse<bool>> CreateNewUser(UserCreationModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -198,16 +198,25 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                 };
 
-                var roleResult = await unitOfWork.RoleManager.FindByIdAsync(model.RoleID);
-
-                user.SystemAuthorizations = roleResult.SystemAuthorizations;
+    
+                user.SystemAuthorizations = JsonConvert.SerializeObject(model.AuthModel);
 
                 var createUserResult = await unitOfWork.UserManager.CreateAsync(user, model.Password);
 
                 await unitOfWork.SaveChangesAsync();
 
+ 
+
                 if (createUserResult.Succeeded)
                 {
+
+                    //Add the user to the selected role .
+
+                    var roleResult = await unitOfWork.RoleManager.FindByIdAsync(model.AuthModel.RoleID);
+
+                    var roleAssignmentRes = await unitOfWork.UserManager.AddToRoleAsync(user, roleResult.Name);
+
+                    await unitOfWork.SaveChangesAsync();
 
                     result.Data = true;
                     result.Succeeded = true;
@@ -216,6 +225,7 @@ namespace Stack.ServiceLayer.Modules.Auth
                 }
                 else
                 {
+
                     result.Succeeded = false;
                     foreach (var error in createUserResult.Errors)
                     {
@@ -223,6 +233,7 @@ namespace Stack.ServiceLayer.Modules.Auth
                     }
                     result.ErrorType = ErrorType.LogicalError;
                     return result;
+
                 }
             }
             catch (Exception ex)
@@ -235,7 +246,39 @@ namespace Stack.ServiceLayer.Modules.Auth
 
         }
 
+        /// <summary>
+        /// Fetch the list of system users . 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ApiResponse<List<ApplicationUserDTO>>> GetAllSystemUsers()
+        {
+            ApiResponse<List<ApplicationUserDTO>> result = new ApiResponse<List<ApplicationUserDTO>>();
+            try
+            {
 
+                List<ApplicationUser> usersList = await unitOfWork.UserManager.GetAllSystemUsers();
+
+
+                 var  usersToReturn = mapper.Map<List<ApplicationUserDTO>>(usersList);
+
+                usersToReturn = usersToReturn.FindAll(a => a.AuthModel.RoleNameEN != "Administrator");
+
+
+                result.Data = usersToReturn;
+
+                result.Succeeded = true;
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                return result;
+            }
+
+        }
 
 
         //Get user details via http context accessor
