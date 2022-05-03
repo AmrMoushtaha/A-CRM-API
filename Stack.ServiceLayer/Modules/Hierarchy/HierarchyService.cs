@@ -7,6 +7,7 @@ using Stack.DTOs;
 using Stack.DTOs.Enums;
 using Stack.DTOs.Requests.Modules.Hierarchy;
 using Stack.DTOs.Requests.Modules.Interest;
+using Stack.Entities.Enums.Modules.AreaInterest;
 using Stack.Entities.Models.Modules.Hierarchy;
 using System;
 using System.Collections.Generic;
@@ -33,16 +34,66 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             this.mapper = mapper;
 
         }
-        
-        
+
+
         #region  Level
+
+        public async Task<ApiResponse<bool>> InitializeHierarchy()
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                string[] names = Enum.GetNames(typeof(LevelEnum));
+
+                for (int i = 0; i < names.Length; i++)
+                {
+                    LevelToAdd LevelToAdd = new LevelToAdd
+                    {
+                        LabelAR = names[i],
+                        LabelEN = names[i],
+                        Type = i
+                    };
+                    await Create_Level(LevelToAdd);
+                }
+                var LevelResult = await unitOfWork.LevelManager.GetAsync(a => !a.IsDeleted);
+                List<Level> LevelsList = LevelResult.ToList();
+                for (int i = 0; i < LevelsList.Count; i++)
+                {
+                    SectionToAdd SectionToAdd = new SectionToAdd
+                    {
+                        LabelAR="عام",
+                        LabelEN="General",
+                        LevelID= LevelsList[i].ID
+                    };
+                    await Create_Section(SectionToAdd);
+                }
+
+                result.Succeeded = true;
+                    result.Data = true;
+                    return result;
+                
+
+                //result.Errors.Add("Failed to Initialize !");
+                //result.Succeeded = false;
+                //return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
 
         public async Task<ApiResponse<List<Level>>> Get_Levels()
         {
             ApiResponse<List<Level>> result = new ApiResponse<List<Level>>();
             try
             {
-                var LevelResult = await unitOfWork.LevelManager.GetAsync();
+                var LevelResult = await unitOfWork.LevelManager.GetAsync(a=>!a.IsDeleted);
                 List<Level> LevelsList = LevelResult.ToList();
                 if (LevelsList != null && LevelsList.Count != 0)
                 {
@@ -708,6 +759,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                     InputResult.LabelEN = InputToEdit.LabelEN;
                     InputResult.Type = InputToEdit.Type;
                     InputResult.IsRequired = InputToEdit.IsRequired;
+                    InputResult.PredefinedInputType = InputToEdit.PredefinedInputType;
 
                     InputResult.AttributeID = InputToEdit.AttributeID;
 

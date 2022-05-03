@@ -18,6 +18,11 @@ namespace Stack.API.Controllers.Modules.Auth
 
         }
 
+        [HttpGet]
+        public async Task<IActionResult> InitializeHierarchy()
+        {
+            return await GetResponseHandler(async () => await service.InitializeHierarchy());
+        }  
         #region Level
 
         [HttpGet]
@@ -43,7 +48,8 @@ namespace Stack.API.Controllers.Modules.Auth
         #region Section
 
         [HttpGet]
-        public async Task<IActionResult> GetSections()
+        public async Task<IActionResult> 
+            s()
         {
             return await GetResponseHandler(async () => await service.Get_Sections());
         }

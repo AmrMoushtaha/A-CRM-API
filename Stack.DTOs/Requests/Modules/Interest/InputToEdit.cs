@@ -10,9 +10,8 @@ namespace Stack.DTOs.Requests.Modules.Interest
         public string LabelEN { get; set; }
         public int Type { get; set; } 
         public bool IsRequired { get; set; }
-        public bool IsLevelDependent { get; set; }
-        public int MaxValue { get; set; }
-        public int MinValue { get; set; }
+        public int? PredefinedInputType { get; set; } //Enum 
+
 
         public long SectionID { get; set; }
 

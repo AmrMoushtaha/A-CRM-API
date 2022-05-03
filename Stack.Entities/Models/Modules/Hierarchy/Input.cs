@@ -9,6 +9,8 @@ namespace Stack.Entities.Models.Modules.Hierarchy
         public string LabelAR { get; set; }
         public string LabelEN { get; set; }
         public int Type { get; set; } //Enum 
+        public int? PredefinedInputType { get; set; } //Enum 
+
         public bool IsRequired { get; set; } 
         //public bool IsLevelDependent { get; set; } 
         //public int MaxValue { get; set; } 
