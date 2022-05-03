@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220503180305_contact-capacity-check")]
+    partial class contactcapacitycheck
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -673,28 +675,13 @@ namespace Stack.DAL.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("DescriptionAR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DescriptionEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("HasParent")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
-                    b.Property<string>("NameAR")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("NormalizedName")
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
-
-                    b.Property<string>("ParentRoleID")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SystemAuthorizations")
                         .HasColumnType("nvarchar(max)");

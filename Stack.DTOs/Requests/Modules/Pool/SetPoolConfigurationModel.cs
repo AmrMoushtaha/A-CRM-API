@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Stack.DTOs.Requests.Modules.Pool
 {
-    public class PoolConfigurationModel
+    public class SetPoolConfigurationModel
     {
         public long PoolID { get; set; }
         public int ConfigurationType { get; set; }

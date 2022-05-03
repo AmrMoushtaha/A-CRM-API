@@ -28,10 +28,40 @@ namespace Stack.API.Controllers.Modules.Pool
         }
 
         [AllowAnonymous]
+        [HttpGet("GetUserAssignedPoolsByUserID/{userID}")]
+        public async Task<IActionResult> GetUserAssignedPoolsByUserID(string userID)
+        {
+            return await GetResponseHandler(async () => await service.GetUserAssignedPoolsByUserID(userID));
+        }
+
+        [AllowAnonymous]
         [HttpGet("GetPoolAssignedUsers/{poolID}")]
         public async Task<IActionResult> GetPoolAssignedUsers(long poolID)
         {
             return await GetResponseHandler(async () => await service.GetPoolAssignedUsers(poolID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetPoolAssignedUsers_ExcludeAdmins/{poolID}")]
+        public async Task<IActionResult> GetPoolAssignedUsers_ExcludeAdmins(long poolID)
+        {
+            return await GetResponseHandler(async () => await service.GetPoolAssignedUsers_ExcludeAdmins(poolID));
+        }
+
+
+        [AllowAnonymous]
+        [HttpGet("GetPoolAssignedAdmins/{poolID}")]
+        public async Task<IActionResult> GetPoolAssignedAdmins(long poolID)
+        {
+            return await GetResponseHandler(async () => await service.GetPoolAssignedAdmins(poolID));
+        }
+
+
+        [AllowAnonymous]
+        [HttpGet("GetPoolConfiguration/{poolID}")]
+        public async Task<IActionResult> GetPoolConfiguration(long poolID)
+        {
+            return await GetResponseHandler(async () => await service.GetPoolConfiguration(poolID));
         }
 
         [AllowAnonymous]

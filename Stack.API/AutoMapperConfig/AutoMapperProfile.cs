@@ -40,6 +40,9 @@ namespace Stack.API.AutoMapperConfig
             .ForMember(dist => dist.Capacity, opt => opt.MapFrom(t => t.Capacity))
             .ReverseMap();
 
+            CreateMap<Pool, PoolConfigurationModel>()
+            .ForMember(dist => dist.PoolID, opt => opt.MapFrom(t => t.ID))
+            .ReverseMap();
 
             //Contact
             CreateMap<Contact, ContactViewModel>()

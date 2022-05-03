@@ -37,6 +37,8 @@ namespace Stack.Entities.Models.Modules.CustomerStage
 
         public bool IsFinalized { get; set; }
 
+        public bool CapacityCalculated { get; set; }
+
         public bool IsFresh { get; set; }
 
         public bool IsLocked { get; set; }

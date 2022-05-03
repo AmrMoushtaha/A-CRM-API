@@ -237,6 +237,20 @@ namespace Stack.Core
             }
         }
 
+
+        private DoneDealManager doneDealManager;
+        public DoneDealManager DoneDealManager
+        {
+            get
+            {
+                if (doneDealManager == null)
+                {
+                    doneDealManager = new DoneDealManager(context);
+                }
+                return doneDealManager;
+            }
+        }
+
         private ProcessFlowsManager processFlowManager;
         public ProcessFlowsManager ProcessFlowsManager
         {

@@ -79,6 +79,9 @@ namespace Stack.DAL
             modelBuilder.Entity<Prospect>()
            .Property<bool>("IsDeleted");
 
+            modelBuilder.Entity<DoneDeal>()
+           .Property<bool>("IsDeleted");
+
             modelBuilder.Entity<LeadStatus>()
            .Property<bool>("IsDeleted");
 
@@ -127,6 +130,12 @@ namespace Stack.DAL
             modelBuilder.Entity<Tag>()
             .Property<bool>("IsDeleted");
 
+            modelBuilder.Entity<LeadSourceName>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<LeadSourceType>()
+            .Property<bool>("IsDeleted");
+
             //Soft delete query filters . 
 
             modelBuilder.Entity<InterestAttribute>()
@@ -158,6 +167,9 @@ namespace Stack.DAL
 
             modelBuilder.Entity<Prospect>()
                .HasQueryFilter(Prospect => EF.Property<bool>(Prospect, "IsDeleted") == false);
+
+            modelBuilder.Entity<DoneDeal>()
+               .HasQueryFilter(DoneDeal => EF.Property<bool>(DoneDeal, "IsDeleted") == false);
 
             modelBuilder.Entity<Opportunity>()
                .HasQueryFilter(Opportunity => EF.Property<bool>(Opportunity, "IsDeleted") == false);
@@ -223,7 +235,11 @@ namespace Stack.DAL
             modelBuilder.Entity<Tag>()
              .HasQueryFilter(Tag => EF.Property<bool>(Tag, "IsDeleted") == false);
 
+            modelBuilder.Entity<LeadSourceName>()
+             .HasQueryFilter(LeadSourceName => EF.Property<bool>(LeadSourceName, "IsDeleted") == false);
 
+            modelBuilder.Entity<LeadSourceType>()
+             .HasQueryFilter(LeadSourceType => EF.Property<bool>(LeadSourceType, "IsDeleted") == false);
 
 
             modelBuilder.Entity<LInterest_InterestAttribute>().HasKey(x => new { x.LInterestID, x.InterestAttributeID });
@@ -338,6 +354,7 @@ namespace Stack.DAL
         public virtual DbSet<Opportunity> Opportunities { get; set; }
         public virtual DbSet<OpportunityStatus> OpportunityStatuses { get; set; }
         public virtual DbSet<Prospect> Prospects { get; set; }
+        public virtual DbSet<DoneDeal> DoneDeals { get; set; }
         public virtual DbSet<ProspectStatus> ProspectStatuses { get; set; }
         public virtual DbSet<Deal> Deals { get; set; }
         public virtual DbSet<Pool> Pools { get; set; }
@@ -374,6 +391,8 @@ namespace Stack.DAL
         public virtual DbSet<SystemConfiguration> SystemConfiguration { get; set; }
         public virtual DbSet<AuthorizationSection> AuthorizationSections { get; set; }
         public virtual DbSet<SectionAuthorization> SectionAuthorizations { get; set; }
+        public virtual DbSet<LeadSourceName> LeadSourceNames { get; set; }
+        public virtual DbSet<LeadSourceType> LeadSourceTypes { get; set; }
 
 
 

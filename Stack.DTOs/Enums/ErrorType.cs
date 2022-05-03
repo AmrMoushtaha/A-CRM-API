@@ -14,5 +14,7 @@ namespace Stack.DTOs.Enums
         IncreaseCapacity,
         ReselectUser,
         CapacityReached,
+        Record_DifferentPool,
+        Record_DifferentPool_Admin
     }
 }

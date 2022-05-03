@@ -39,6 +39,13 @@ namespace Stack.API.Hubs
                 ID = Context.ConnectionId,
                 UserID = user.Id
             };
+            //Verify existing pool connection
+            var existingConnectionQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(t => t.UserID == user.Id);
+            var existingConnection = existingConnectionQuery.FirstOrDefault();
+            if (existingConnection != null)
+            {
+                await unitOfWork.PoolConnectionIDsManager.RemoveAsync(existingConnection);
+            }
             await unitOfWork.PoolConnectionIDsManager.CreateAsync(conId);
             await unitOfWork.SaveChangesAsync();
         }

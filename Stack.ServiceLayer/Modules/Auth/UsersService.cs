@@ -66,7 +66,7 @@ namespace Stack.ServiceLayer.Modules.Auth
                         {
                                 new Claim(ClaimTypes.Name, user.UserName),
                                 new Claim(ClaimTypes.NameIdentifier, user.Id)
-                       
+
 
                         });
 
@@ -196,7 +196,7 @@ namespace Stack.ServiceLayer.Modules.Auth
                     LastName = model.LastName,
                     PhoneNumber = model.PhoneNumber,
                     Status = (int)UserStatus.Activated
-                    
+
                 };
 
 
