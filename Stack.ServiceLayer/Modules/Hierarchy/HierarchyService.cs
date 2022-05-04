@@ -715,11 +715,11 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var LInterestInputResult = await unitOfWork.LInputManager.GetAsync(a => a.LabelEN == InputToAdd.LabelEN || a.LabelAR == InputToAdd.LabelAR);
-                Input DuplicateLInterestResult = LInterestInputResult.FirstOrDefault();
+                //var LInterestInputResult = await unitOfWork.LInputManager.GetAsync(a => a.LabelEN == InputToAdd.LabelEN || a.LabelAR == InputToAdd.LabelAR);
+                //Input DuplicateLInterestResult = LInterestInputResult.FirstOrDefault();
 
-                if (DuplicateLInterestResult == null)
-                {
+                //if (DuplicateLInterestResult == null)
+                //{
                     Input InputToCreate = mapper.Map<Input>(InputToAdd); ;
                     var createInputResult = await unitOfWork.LInputManager.CreateAsync(InputToCreate);
                     await unitOfWork.SaveChangesAsync();
@@ -759,11 +759,11 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                     }
 
 
-                }
+                //}
 
-                result.Errors.Add("Failed to create Input!, Try another label");
-                result.Succeeded = false;
-                return result;
+                //result.Errors.Add("Failed to create Input!, Try another label");
+                //result.Succeeded = false;
+                //return result;
 
             }
             catch (Exception ex)
@@ -781,11 +781,11 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var LInterestInputResult = await unitOfWork.LInputManager.GetAsync(a => (a.LabelEN == InputToEdit.LabelEN || a.LabelAR == InputToEdit.LabelAR) && a.ID != InputToEdit.ID);
-                Input DuplicateLInterestResult = LInterestInputResult.FirstOrDefault();
+                //var LInterestInputResult = await unitOfWork.LInputManager.GetAsync(a => (a.LabelEN == InputToEdit.LabelEN || a.LabelAR == InputToEdit.LabelAR) && a.ID != InputToEdit.ID);
+                //Input DuplicateLInterestResult = LInterestInputResult.FirstOrDefault();
                 var InputResult = await unitOfWork.LInputManager.GetByIdAsync(InputToEdit.ID);
 
-                if (DuplicateLInterestResult == null && InputResult != null)
+                if ( InputResult != null)
                 {
                     InputResult.LabelAR = InputToEdit.LabelAR;
                     InputResult.LabelEN = InputToEdit.LabelEN;
@@ -814,7 +814,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
 
                 }
 
-                result.Errors.Add("Failed to update Input!, Try another label");
+                result.Errors.Add("Failed to update Input!");
                 result.Succeeded = false;
                 return result;
 
