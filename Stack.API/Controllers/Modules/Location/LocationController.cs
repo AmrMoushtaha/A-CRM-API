@@ -19,35 +19,42 @@ namespace Stack.API.Controllers.Modules.Location
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Create_Location(LocationToAdd LocationToAdd)
+        public async Task<IActionResult> CreateLocation(LocationToAdd LocationToAdd)
         {
             return await AddItemResponseHandler(async () => await service.Create_Location(LocationToAdd));
         }
 
         [AllowAnonymous]
-        [HttpGet("/{type}")]
-        public async Task<IActionResult> Get_LocationByType(int type)
+        [HttpGet("{type}")]
+        public async Task<IActionResult> GetLocationByType(int type)
         {
             return await AddItemResponseHandler(async () => await service.Get_LocationByType(type));
         }
-        
+
         [AllowAnonymous]
-        [HttpGet("/{ParentID}")]
-        public async Task<IActionResult> Get_LocationByParentID(long ParentID)
+        [HttpGet]
+        public async Task<IActionResult> GetLocations()
+        {
+            return await AddItemResponseHandler(async () => await service.Get_Locations());
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{ParentID}")]
+        public async Task<IActionResult> GetLocationByParentID(long ParentID)
         {
             return await AddItemResponseHandler(async () => await service.Get_LocationByParentID(ParentID));
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Edit_Location(LocationToEdit LocationToEdit)
+        public async Task<IActionResult> EditLocation(LocationToEdit LocationToEdit)
         {
             return await AddItemResponseHandler(async () => await service.Edit_Location(LocationToEdit));
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Delete_Location(long ID)
+        public async Task<IActionResult> DeleteLocation(long ID)
         {
             return await AddItemResponseHandler(async () => await service.Delete_Location(ID));
         }

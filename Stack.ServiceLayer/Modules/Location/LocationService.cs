@@ -1,27 +1,17 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Stack.Core;
 using Stack.DTOs;
 using Stack.DTOs.Enums;
-using Stack.DTOs.Models;
+using Stack.DTOs.Requests.Modules.AreaInterest;
+using Stack.Entities.Models.Modules.Areas;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using System.Collections.Generic;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Stack.Repository.Common;
-using System.IdentityModel.Tokens.Jwt;
-using Stack.DTOs.Requests.Modules.Auth;
-using Stack.Entities.Models.Modules.Auth;
-using Stack.DTOs.Models.Modules.Auth;
-using Stack.DTOs.Requests.Modules.AreaInterest;
-using Stack.Entities.Models.Modules.AreaInterest;
-using Stack.Entities.Models.Modules.Areas;
 
 namespace Stack.ServiceLayer.Modules.Interest
 {
@@ -48,9 +38,37 @@ namespace Stack.ServiceLayer.Modules.Interest
             ApiResponse<List<Location>> result = new ApiResponse<List<Location>>();
             try
             {
-                var LocationResult = await unitOfWork.LocationManager.GetAsync(a => a.LocationType == Type);
+                var LocationResult = await unitOfWork.LocationManager.GetAsync(a => a.LocationType == Type && !a.IsDeleted);
                 List<Location> LocationList = LocationResult.ToList();
                 if (LocationList != null && LocationList.Count!=0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<Location>>(LocationList);
+                    return result;
+                }
+
+                result.Errors.Add("Failed to find locations!");
+                result.Succeeded = false;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<Location>>> Get_Locations()
+        {
+            ApiResponse<List<Location>> result = new ApiResponse<List<Location>>();
+            try
+            {
+                var LocationResult = await unitOfWork.LocationManager.GetAsync(a =>  !a.IsDeleted);
+                List<Location> LocationList = LocationResult.ToList();
+                if (LocationList != null && LocationList.Count != 0)
                 {
                     result.Succeeded = true;
                     result.Data = mapper.Map<List<Location>>(LocationList);
@@ -76,7 +94,7 @@ namespace Stack.ServiceLayer.Modules.Interest
             ApiResponse<List<Location>> result = new ApiResponse<List<Location>>();
             try
             {
-                var LocationResult = await unitOfWork.LocationManager.GetAsync(a => a.ParentLocationID == ParentID);
+                var LocationResult = await unitOfWork.LocationManager.GetAsync(a => a.ParentLocationID == ParentID && !a.IsDeleted);
                 List<Location> LocationList = LocationResult.ToList();
                 if (LocationList != null && LocationList.Count != 0)
                 {

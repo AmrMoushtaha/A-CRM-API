@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Stack.DTOs.Requests.Modules.Interest
+namespace Stack.DTOs.Requests.Modules.Hierarchy
 {
-    public class AttributeToEdit
+    public class LevelToEdit
     {
         public long ID { get; set; }
         public string LabelAR { get; set; }
         public string LabelEN { get; set; }
-        public long? ParentAttributeID { get; set; }
-        public long? ParentInputID { get; set; }
+        public int Type { get; set; }
 
     }
 
