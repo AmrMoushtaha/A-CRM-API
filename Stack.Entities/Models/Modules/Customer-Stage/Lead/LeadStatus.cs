@@ -10,8 +10,6 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string EN { get; set; }
         public string AR { get; set; }
         public string Status { get; set; }
-        public long LeadID { get; set; }
-
 
         public virtual List<Lead> Leads { get; set; }
 

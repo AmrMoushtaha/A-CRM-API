@@ -12,15 +12,15 @@ using System.Threading.Tasks;
 
 namespace Stack.Core.Managers.Modules.Pools
 {
-    public class PoolUserManager : Repository<Pool_Users, ApplicationDbContext>
+    public class PoolUserManager : Repository<Pool_User, ApplicationDbContext>
     {
 
 
-        public DbSet<Pool_Users> dbSet;
+        public DbSet<Pool_User> dbSet;
         public ApplicationDbContext context;
         public PoolUserManager(ApplicationDbContext _context) : base(_context)
         {
-            dbSet = _context.Set<Pool_Users>();
+            dbSet = _context.Set<Pool_User>();
             context = _context;
 
         }
@@ -38,7 +38,6 @@ namespace Stack.Core.Managers.Modules.Pools
                            ID = p.ID,
                            NameEN = p.NameEN,
                            NameAR = p.NameAR,
-                           ContactCount = p.Contacts.Where(t => t.State == (int)CustomerStageState.Unassigned).Count()
                        }).ToList();
             });
         }
@@ -59,7 +58,8 @@ namespace Stack.Core.Managers.Modules.Pools
                                 ID = p.ID,
                                 FullNameAR = p.FullNameAR,
                                 FullNameEN = p.FullNameEN,
-                                PrimaryPhoneNumber = p.PrimaryPhoneNumber
+                                PrimaryPhoneNumber = p.PrimaryPhoneNumber,
+                                IsLocked = p.IsLocked
                             })).ToList();
 
                 List<ContactListViewModel> asList = new List<ContactListViewModel>();

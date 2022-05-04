@@ -18,24 +18,49 @@ namespace Stack.API.Controllers.Modules.Auth
 
         }
 
+        [AllowAnonymous]
+        [HttpPost("CreateAdministratorAccount")]
+        public async Task<IActionResult> CreateAdministratorAccount(UserCreationModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.CreateAdministratorAccount(model));
+        }
 
         [AllowAnonymous]
-        [HttpGet("InitializeSystem/{Password}")]
-        public async Task<IActionResult> InitializeSystem(string Password)
+        [HttpPost("UpdateRoleAuthorizations")]
+        public async Task<IActionResult> UpdateRoleAuthorizations(AuthorizationsModel model)
         {
-            return await GetResponseHandler(async () => await service.InitializeSystem(Password));
+            return await EditItemResponseHandler(async () => await service.UpdateRoleAuthorizations(model));
         }
 
 
         [AllowAnonymous]
-        [HttpPost("CreateAdministrator")]
-        public async Task<IActionResult> CreateAdministrator(CreateDummyUserModel model)
+        [HttpPost("UpdateUserAuthorizations")]
+        public async Task<IActionResult> UpdateUserAuthorizations(UpdateUserAuthModel model)
         {
-            return await AddItemResponseHandler(async () => await service.CreateAdministrator(model));
+            return await EditItemResponseHandler(async () => await service.UpdateUserAuthorizations(model));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetAuthModelByRoleID")]
+        public async Task<IActionResult> GetAuthModelByRoleID(string RoleID)
+        {
+            return await GetResponseHandler(async () => await service.GetAuthModelByRoleID(RoleID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetAuthModelByUserID")]
+        public async Task<IActionResult> GetAuthModelByUserID(string UserID)
+        {
+            return await GetResponseHandler(async () => await service.GetAuthModelByUserID(UserID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetSystemAuthModel")]
+        public async Task<IActionResult> GetSystemAuthModel()
+        {
+            return await GetResponseHandler(async () => await service.GetSystemAuthModel());
         }
 
     }
-
-
 
 }

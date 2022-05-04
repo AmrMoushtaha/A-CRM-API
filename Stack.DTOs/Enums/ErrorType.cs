@@ -11,5 +11,10 @@ namespace Stack.DTOs.Enums
         Request,
         Warning,
         NotFound,
+        IncreaseCapacity,
+        ReselectUser,
+        CapacityReached,
+        Record_DifferentPool,
+        Record_DifferentPool_Admin
     }
 }

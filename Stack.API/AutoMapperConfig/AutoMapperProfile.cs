@@ -23,17 +23,28 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<ApplicationUser, ApplicationUserDTO>()
             .ReverseMap();
 
-            CreateMap<Pool_Users, PoolSidebarViewModel>()
+            CreateMap<ApplicationRole, ApplicationRoleDTO>()
+            .ReverseMap();
+
+            CreateMap<Pool_User, PoolSidebarViewModel>()
             .ForMember(dist => dist.NameEN, opt => opt.MapFrom(t => t.Pool.NameEN))
             .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.Pool.NameAR))
             .ReverseMap();
 
-            CreateMap<Pool_Admin, PoolSidebarViewModel>()
-           .ForMember(dist => dist.NameEN, opt => opt.MapFrom(t => t.Pool.NameEN))
-           .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.Pool.NameAR))
-           .ReverseMap();
+            CreateMap<Pool_User, PoolAssignedUsersModel>()
+            .ForMember(dist => dist.UserID, opt => opt.MapFrom(t => t.UserID))
+            .ForMember(dist => dist.NameEN, opt => opt.MapFrom(t => t.User.FirstName + " " + t.User.LastName))
+            .ForMember(dist => dist.NameAR, opt => opt.MapFrom(t => t.User.FirstName + " " + t.User.LastName))
+            .ReverseMap();
 
+            CreateMap<Pool_User, PoolAssignedUserCapacityModel>()
+            .ForMember(dist => dist.FullName, opt => opt.MapFrom(t => t.User.FirstName + " " + t.User.LastName))
+            .ForMember(dist => dist.Capacity, opt => opt.MapFrom(t => t.Capacity))
+            .ReverseMap();
 
+            CreateMap<Pool, PoolConfigurationModel>()
+            .ForMember(dist => dist.PoolID, opt => opt.MapFrom(t => t.ID))
+            .ReverseMap();
 
             //Contact
             CreateMap<Contact, ContactViewModel>()
@@ -42,6 +53,7 @@ namespace Stack.API.AutoMapperConfig
            .ForMember(dist => dist.Comments, opt => opt.MapFrom(t => t.Comments))
            .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.EN))
            .ForMember(dist => dist.StatusAR, opt => opt.MapFrom(t => t.Status.AR))
+           .ForMember(dist => dist.StatusID, opt => opt.MapFrom(t => t.Status.ID))
            .ForMember(dist => dist.Tags, opt => opt.MapFrom(t => t.Tags))
            .ReverseMap();
 

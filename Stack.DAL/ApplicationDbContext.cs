@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Stack.Entities.Models.Modules.Activities;
 using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
+using Stack.Entities.Models.Modules.Common;
 using Stack.Entities.Models.Modules.CustomerRequest;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Hierarchy;
@@ -75,6 +76,9 @@ namespace Stack.DAL
             modelBuilder.Entity<Prospect>()
            .Property<bool>("IsDeleted");
 
+            modelBuilder.Entity<DoneDeal>()
+           .Property<bool>("IsDeleted");
+
             modelBuilder.Entity<LeadStatus>()
            .Property<bool>("IsDeleted");
 
@@ -123,6 +127,12 @@ namespace Stack.DAL
             modelBuilder.Entity<Tag>()
             .Property<bool>("IsDeleted");
 
+            modelBuilder.Entity<LeadSourceName>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<LeadSourceType>()
+            .Property<bool>("IsDeleted");
+
             //Soft delete query filters . 
 
 
@@ -152,6 +162,9 @@ namespace Stack.DAL
 
             modelBuilder.Entity<Prospect>()
                .HasQueryFilter(Prospect => EF.Property<bool>(Prospect, "IsDeleted") == false);
+
+            modelBuilder.Entity<DoneDeal>()
+               .HasQueryFilter(DoneDeal => EF.Property<bool>(DoneDeal, "IsDeleted") == false);
 
             modelBuilder.Entity<Opportunity>()
                .HasQueryFilter(Opportunity => EF.Property<bool>(Opportunity, "IsDeleted") == false);
@@ -217,6 +230,12 @@ namespace Stack.DAL
             modelBuilder.Entity<Tag>()
              .HasQueryFilter(Tag => EF.Property<bool>(Tag, "IsDeleted") == false);
 
+            modelBuilder.Entity<LeadSourceName>()
+             .HasQueryFilter(LeadSourceName => EF.Property<bool>(LeadSourceName, "IsDeleted") == false);
+
+            modelBuilder.Entity<LeadSourceType>()
+             .HasQueryFilter(LeadSourceType => EF.Property<bool>(LeadSourceType, "IsDeleted") == false);
+
 
 
             modelBuilder.Entity<Location_Pool>().HasKey(x => new { x.LocationID, x.PoolID });
@@ -230,26 +249,16 @@ namespace Stack.DAL
             .HasForeignKey(pr => pr.PoolID).OnDelete(DeleteBehavior.NoAction);
 
 
-            modelBuilder.Entity<Pool_Users>().HasKey(x => new { x.PoolID, x.UserID });
-            modelBuilder.Entity<Pool_Users>()
+            modelBuilder.Entity<Pool_User>().HasKey(x => new { x.PoolID, x.UserID });
+            modelBuilder.Entity<Pool_User>()
             .HasOne(pr => pr.Pool)
             .WithMany(p => p.Pool_Users)
             .HasForeignKey(pr => pr.PoolID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Pool_Users>()
+            modelBuilder.Entity<Pool_User>()
             .HasOne(pr => pr.User)
             .WithMany(p => p.Pools)
             .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
 
-
-            modelBuilder.Entity<Pool_Admin>().HasKey(x => new { x.PoolID, x.UserID });
-            modelBuilder.Entity<Pool_Admin>()
-            .HasOne(pr => pr.Pool)
-            .WithMany(p => p.Pool_Admins)
-            .HasForeignKey(pr => pr.PoolID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Pool_Admin>()
-            .HasOne(pr => pr.User)
-            .WithMany(p => p.Pool_Admins)
-            .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
 
 
             modelBuilder.Entity<Contact_Tag>().HasKey(x => new { x.ContactID, x.TagID });
@@ -319,11 +328,11 @@ namespace Stack.DAL
         public virtual DbSet<Opportunity> Opportunities { get; set; }
         public virtual DbSet<OpportunityStatus> OpportunityStatuses { get; set; }
         public virtual DbSet<Prospect> Prospects { get; set; }
+        public virtual DbSet<DoneDeal> DoneDeals { get; set; }
         public virtual DbSet<ProspectStatus> ProspectStatuses { get; set; }
         public virtual DbSet<Deal> Deals { get; set; }
         public virtual DbSet<Pool> Pools { get; set; }
-        public virtual DbSet<Pool_Users> Pool_Users { get; set; }
-        public virtual DbSet<Pool_Admin> Pool_Admins { get; set; }
+        public virtual DbSet<Pool_User> Pool_Users { get; set; }
         public virtual DbSet<Activity> Activities { get; set; }
         public virtual DbSet<ActivitySection> ActivitySections { get; set; }
         public virtual DbSet<SubmissionDetails> SubmissionDetails { get; set; }
@@ -352,6 +361,19 @@ namespace Stack.DAL
         public virtual DbSet<Input> Inputs { get; set; }
         public virtual DbSet<LInterestInput> LInterestInputs { get; set; }
         public virtual DbSet<LInterest> LInterests { get; set; }
+        public virtual DbSet<LInterestInput> LInterestInputs { get; set; }
+        public virtual DbSet<LInterest_InterestAttribute> LInterest_InterestAttributes { get; set; }
+        public virtual DbSet<LInterest_LInterestInput> LInterest_LInterestInputs { get; set; }
+        public virtual DbSet<InterestAttribute> InterestAttributes { get; set; }
+        public virtual DbSet<PoolConnectionID> PoolConnectionIDs { get; set; }
+        public virtual DbSet<SystemConfiguration> SystemConfiguration { get; set; }
+        public virtual DbSet<AuthorizationSection> AuthorizationSections { get; set; }
+        public virtual DbSet<SectionAuthorization> SectionAuthorizations { get; set; }
+        public virtual DbSet<LeadSourceName> LeadSourceNames { get; set; }
+        public virtual DbSet<LeadSourceType> LeadSourceTypes { get; set; }
+
+
+
         public virtual DbSet<LAttribute> LAttributes { get; set; }
 
     }

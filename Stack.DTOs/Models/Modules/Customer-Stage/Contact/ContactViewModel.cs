@@ -21,7 +21,12 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
 
         public string StatusEN { get; set; }
         public string StatusAR { get; set; }
+
+        public long StatusID { get; set; }
+
         public string AssignedUserName { get; set; }
+
+        public bool IsLocked { get; set; }
 
         public List<ContactPhoneNumberDTO> ContactPhoneNumbers { get; set; }
         public List<ContactCommentDTO> Comments { get; set; }

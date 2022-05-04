@@ -10,6 +10,7 @@ namespace Stack.Entities.Enums.Modules.CustomerStage
         Initial,
         Junked,
         NotInterested,
+        Converted
     }
 
 }

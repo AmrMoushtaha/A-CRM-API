@@ -2,6 +2,7 @@
 using Stack.Core.Managers.Modules.Activities;
 using Stack.Core.Managers.Modules.area;
 using Stack.Core.Managers.Modules.Auth;
+using Stack.Core.Managers.Modules.Common;
 using Stack.Core.Managers.Modules.CR;
 using Stack.Core.Managers.Modules.Hierarchy;
 using Stack.Core.Managers.Modules.Interest;
@@ -237,6 +238,20 @@ namespace Stack.Core
             }
         }
 
+
+        private DoneDealManager doneDealManager;
+        public DoneDealManager DoneDealManager
+        {
+            get
+            {
+                if (doneDealManager == null)
+                {
+                    doneDealManager = new DoneDealManager(context);
+                }
+                return doneDealManager;
+            }
+        }
+
         private ProcessFlowsManager processFlowManager;
         public ProcessFlowsManager ProcessFlowsManager
         {
@@ -459,20 +474,6 @@ namespace Stack.Core
             }
         }
 
-
-        private PoolAdminManager poolAdminManager;
-        public PoolAdminManager PoolAdminManager
-        {
-            get
-            {
-                if (poolAdminManager == null)
-                {
-                    poolAdminManager = new PoolAdminManager(context);
-                }
-                return poolAdminManager;
-            }
-        }
-
         private TagManager tagManager;
         public TagManager TagManager
         {
@@ -603,6 +604,61 @@ namespace Stack.Core
                 return crSectionQuestionAnswersManager;
             }
         }
+
+        private PoolConnectionIDsManager poolConnectionIDsManager;
+        public PoolConnectionIDsManager PoolConnectionIDsManager
+        {
+            get
+            {
+                if (poolConnectionIDsManager == null)
+                {
+                    poolConnectionIDsManager = new PoolConnectionIDsManager(context);
+                }
+                return poolConnectionIDsManager;
+            }
+        }
+
+        private SystemConfigurationManager systemConfigurationManager;
+        public SystemConfigurationManager SystemConfigurationManager
+        {
+            get
+            {
+                if (systemConfigurationManager == null)
+                {
+                    systemConfigurationManager = new SystemConfigurationManager(context);
+                }
+                return systemConfigurationManager;
+            }
+        }
+
+        private AuthorizationSectionsManager authorizationSectionsManager;
+        public AuthorizationSectionsManager AuthorizationSectionsManager
+        {
+            get
+            {
+                if (authorizationSectionsManager == null)
+                {
+                    authorizationSectionsManager = new AuthorizationSectionsManager(context);
+                }
+                return authorizationSectionsManager;
+            }
+        }
+
+        private SectionAuthorizationsManager sectionAuthorizationsManager;
+        public SectionAuthorizationsManager SectionAuthorizationsManager
+        {
+            get
+            {
+                if (sectionAuthorizationsManager == null)
+                {
+                    sectionAuthorizationsManager = new SectionAuthorizationsManager(context);
+                }
+                return sectionAuthorizationsManager;
+            }
+        }
+
+
+
     }
 
 }

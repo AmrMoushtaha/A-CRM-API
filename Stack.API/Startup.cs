@@ -17,6 +17,9 @@ using Stack.Entities.Models.Modules.Auth;
 using Stack.Core.Managers.Modules.Auth;
 using Stack.DTOs.Models.Initialization.ActivityTypes;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Stack.API.Hubs;
+using Hangfire;
 
 namespace Stack.API
 {
@@ -38,11 +41,15 @@ namespace Stack.API
 
             services.Configure<List<ActivityTypeModel>>(Configuration.GetSection("DefaultActivityTypes"));
 
+            services.Configure<List<DTOs.Requests.Modules.System.AuthorizationSection>>(Configuration.GetSection("SystemAuthorizationSections"));
+
 
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             //Live server connection string
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=tcp:162.214.98.181,1433; Database = RFQDB; User Id = sa; Password = P@ssw0rd@./;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
+            //services.AddHangfire(x => x.UseSqlServerStorage("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
+
 
             //Local server connection string
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=BOLT-NADER\\SQLEXPRESS; Database=CRMDB;User ID=sa;Password=P@ssw0rd;"));
@@ -52,8 +59,11 @@ namespace Stack.API
 
 
             //Hangfire connection string
-            //services.AddHangfire(x => x.UseSqlServerStorage("Server=tcp:162.214.98.181,1433; Database = RFQDB; User Id = sa; Password = P@ssw0rd@./;"));
-            //services.AddHangfireServer();
+            //Local connection string
+            //services.AddHangfire(x => x.UseSqlServerStorage("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
+            services.AddHangfire(x => x.UseSqlServerStorage("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
+
+            services.AddHangfireServer();
 
             //Add Identity framework.
             services.AddIdentity<ApplicationUser, ApplicationRole>()
@@ -68,12 +78,24 @@ namespace Stack.API
                 options.AddPolicy(name: AllowSpecificOrigins,
                              builder =>
                              {
-                                 builder.WithOrigins("http://localhost:4200", "http://localhost:4201")
+                                 builder.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://localhost:4200")
                                     .AllowAnyMethod()
                                     .AllowAnyHeader()
                                     .AllowCredentials();
                              });
             });
+
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy(name: AllowSpecificOrigins,
+            //                 builder =>
+            //                 {
+            //                     builder.WithOrigins("https://crm.app-blender.com")
+            //                        .AllowAnyMethod()
+            //                        .AllowAnyHeader()
+            //                        .AllowCredentials();
+            //                 });
+            //});
 
             //Configure Auto Mapper .
             services.AddAutoMapper(typeof(AutoMapperProfile));
@@ -91,7 +113,7 @@ namespace Stack.API
             services.AddAuthentication(options => options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-               // options.SaveToken = true;
+                // options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
@@ -100,26 +122,25 @@ namespace Stack.API
                     ValidateAudience = false,
                 };
 
-                //options.Events = new JwtBearerEvents
-                //{
-                //    OnMessageReceived = context =>
-                //    {
-                //        var accessToken = context.Request.Query["access_token"];
+                //Record Lock Hub
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
 
-                //        //// If the request is for our hub...
-                //        //var path = context.HttpContext.Request.Path;
-                //        //if (!string.IsNullOrEmpty(accessToken) &&
-                //        //    (path.StartsWithSegments("/chatHub")))
-                //        //{
-                //        //    // Read the token out of the query string
-                //        //    context.Token = accessToken;
-                //        //}
+                        // If the request is for our hub...
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            (path.StartsWithSegments("/recordLockHub")))
+                        {
+                            // Read the token out of the query string
+                            context.Token = accessToken;
+                        }
 
-                //        return Task.CompletedTask;
-                //    }
-
-
-                //};
+                        return Task.CompletedTask;
+                    }
+                };
 
 
                 services.AddAuthentication(options =>
@@ -136,8 +157,7 @@ namespace Stack.API
 
             services.AddControllers();
 
-
-            //services.AddSignalR();
+            services.AddSignalR();
 
         }
 
@@ -179,10 +199,13 @@ namespace Stack.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+
+            app.UseDeveloperExceptionPage();
+
 
             app.UseHttpsRedirection();
 
@@ -208,8 +231,12 @@ namespace Stack.API
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();              
+                endpoints.MapControllers();
+                endpoints.MapHub<RecordLockHub>("/recordLockHub");
             });
+
+            app.UseHangfireDashboard("/mydashboard");
+
 
         }
 

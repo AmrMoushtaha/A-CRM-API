@@ -19,6 +19,11 @@ using System.IdentityModel.Tokens.Jwt;
 using Stack.DTOs.Requests.Modules.Auth;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.DTOs.Models.Modules.Auth;
+using Stack.DTOs.Requests.Modules.CustomerStage;
+using Stack.Entities.Enums.Modules.Pool;
+using Stack.Entities.Models.Modules.CustomerStage;
+using Stack.Entities.Enums.Modules.CustomerStage;
+using Stack.DTOs.Models.Modules.General;
 
 namespace Stack.ServiceLayer.Modules.CustomerStage
 {
@@ -42,7 +47,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
 
     }
-
 }
 
 

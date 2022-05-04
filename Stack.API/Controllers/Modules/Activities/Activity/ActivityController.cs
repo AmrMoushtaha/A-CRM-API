@@ -84,10 +84,10 @@ namespace Stack.API.Controllers.Modules.Activities
         }
 
         [AllowAnonymous]
-        [HttpGet("SubmitActivity")]
-        public async Task<IActionResult> SubmitActivity(ActivitySubmissionModel ID)
+        [HttpPost("SubmitActivity")]
+        public async Task<IActionResult> SubmitActivity(ActivitySubmissionModel model)
         {
-            return await AddItemResponseHandler(async () => await service.SubmitActivity(ID));
+            return await AddItemResponseHandler(async () => await service.SubmitActivity(model));
         }
 
         [AllowAnonymous]

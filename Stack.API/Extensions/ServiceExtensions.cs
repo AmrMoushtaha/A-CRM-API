@@ -34,6 +34,7 @@ namespace Stack.API.Extensions
             caller.AddScoped<LocationService>();
             caller.AddScoped<InterestService>();
             caller.AddScoped<HierarchyService>();
+            caller.AddScoped<GeneralCustomersService>();
         }
 
     }

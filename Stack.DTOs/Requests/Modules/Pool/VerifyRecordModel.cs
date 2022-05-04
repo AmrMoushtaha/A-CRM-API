@@ -4,11 +4,11 @@ using System.Text;
 
 namespace Stack.DTOs.Requests.Modules.Pool
 {
-    public class PoolConfigurationModel
+    public class VerifyRecordModel
     {
         public long PoolID { get; set; }
-        public string ConfigurationType { get; set; }
-        public int? Capacity { get; set; }
+        public long RecordID { get; set; }
+        public int CustomerStage { get; set; }
 
     }
 

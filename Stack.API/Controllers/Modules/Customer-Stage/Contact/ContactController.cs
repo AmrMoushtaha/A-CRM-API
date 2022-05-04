@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
 using Stack.DTOs.Requests.Modules.CustomerStage;
@@ -30,6 +31,20 @@ namespace Stack.API.Controllers.Modules.Auth
         public async Task<IActionResult> CreateContact(ContactCreationModel model)
         {
             return await AddItemResponseHandler(async () => await service.CreateContact(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("UploadContactExcelFile")]
+        public async Task<IActionResult> UploadContactExcelFile(UploadFileModel encodedFile)
+        {
+            return await AddItemResponseHandler(async () => await service.UploadContactExcelFile(encodedFile));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("BulkContactCreation")]
+        public async Task<IActionResult> BulkContactCreation(BulkContactCreationModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.BulkContactCreation(model));
         }
 
         [AllowAnonymous]
