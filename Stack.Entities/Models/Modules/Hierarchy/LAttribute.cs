@@ -14,6 +14,8 @@ namespace Stack.Entities.Models.Modules.Hierarchy
         [ForeignKey("ParentAttributeID")]
         public virtual LAttribute ParentAttribute { get; set; }
 
+        public long? ParentInputID { get; set; } //dropdown etc..
+
         public virtual List<Input> Inputs { get; set; }
 
 

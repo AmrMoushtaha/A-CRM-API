@@ -20,7 +20,7 @@ namespace Stack.Entities.Models.Modules.Hierarchy
         [ForeignKey("SectionID")]
         public virtual LSection Section { get; set; }
 
-        public long? AttributeID { get; set; }
+        public long? AttributeID { get; set; }//predefined parent dropdown 
         [ForeignKey("AttributeID")]
         public virtual LAttribute Attribute { get; set; }
 

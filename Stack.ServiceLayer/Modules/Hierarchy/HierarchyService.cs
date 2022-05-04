@@ -482,38 +482,39 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var InterestAttributeResult = await unitOfWork.AttributesManager.GetAsync(a => a.LabelEN == AttributeToAdd.LabelEN || a.LabelAR == AttributeToAdd.LabelAR);
-                LAttribute DuplicateInterestAttributeResult = InterestAttributeResult.FirstOrDefault();
+                //var InterestAttributeResult = await unitOfWork.AttributesManager.GetAsync(a =>
+                //a.LabelEN == AttributeToAdd.LabelEN || a.LabelAR == AttributeToAdd.LabelAR);
+                //LAttribute DuplicateInterestAttributeResult = InterestAttributeResult.FirstOrDefault();
 
-                if (DuplicateInterestAttributeResult == null)
+                //if (DuplicateInterestAttributeResult == null)
+                //{
+                //}
+                LAttribute InputToCreate = mapper.Map<LAttribute>(AttributeToAdd);
+                if (InputToCreate.ParentAttributeID == 0) InputToCreate.ParentAttributeID = null;
+
+                var createInputResult = await unitOfWork.AttributesManager.CreateAsync(InputToCreate);
+                var saveResult = await unitOfWork.SaveChangesAsync();
+
+                if (saveResult)
                 {
-                    LAttribute InputToCreate = mapper.Map<LAttribute>(AttributeToAdd);
-                   if(InputToCreate.ParentAttributeID==0) InputToCreate.ParentAttributeID = null;
-
-                    var createInputResult = await unitOfWork.AttributesManager.CreateAsync(InputToCreate);
-                    var saveResult =await unitOfWork.SaveChangesAsync();
-
-                    if (saveResult )
-                    {
-                        result.Succeeded = true;
-                        result.Data = true;
-                        return result;
-                    }
-                    else
-                    {
-                        result.Errors.Add("Failed to create Attribute");
-                        result.Succeeded = false;
-                        return result;
-                    }
-
-
+                    result.Succeeded = true;
+                    result.Data = true;
+                    return result;
+                }
+                else
+                {
+                    result.Errors.Add("Failed to create Attribute");
+                    result.Succeeded = false;
+                    return result;
                 }
 
-                result.Errors.Add("Failed to create Attribute!, Try another label");
-                result.Succeeded = false;
-                return result;
 
             }
+
+            //result.Errors.Add("Failed to create Attribute!, Try another label");
+            //result.Succeeded = false;
+            //return result;
+
             catch (Exception ex)
             {
                 result.Succeeded = false;
@@ -524,46 +525,47 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
 
         }
 
+
         public async Task<ApiResponse<bool>> Edit_Attribute(AttributeToEdit AttributeToEdit)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var AttributeResult = await unitOfWork.AttributesManager.GetAsync(a => 
-                (a.LabelEN == AttributeToEdit.LabelEN || a.LabelAR == AttributeToEdit.LabelAR) && a.ID != AttributeToEdit.ID && a.ParentAttributeID==AttributeToEdit.ParentAttributeID);
-                LAttribute DuplicateAttributeResult = AttributeResult.FirstOrDefault();
+                //var AttributeResult = await unitOfWork.AttributesManager.GetAsync(a => 
+                //(a.LabelEN == AttributeToEdit.LabelEN || a.LabelAR == AttributeToEdit.LabelAR) && a.ID != AttributeToEdit.ID && a.ParentAttributeID==AttributeToEdit.ParentAttributeID);
+                //LAttribute DuplicateAttributeResult = AttributeResult.FirstOrDefault();
                 var AttributeR = await unitOfWork.AttributesManager.GetByIdAsync(AttributeToEdit.ID);
 
-                if (DuplicateAttributeResult == null && AttributeR != null)
+                //if (DuplicateAttributeResult == null && AttributeR != null)
+                //{
+                AttributeR.LabelAR = AttributeToEdit.LabelAR;
+                AttributeR.LabelEN = AttributeToEdit.LabelEN;
+                AttributeR.ParentAttributeID = AttributeToEdit.ParentAttributeID;
+                if (AttributeR.ParentAttributeID == 0) AttributeR.ParentAttributeID = null;
+
+                var createInputResult = await unitOfWork.AttributesManager.UpdateAsync(AttributeR);
+
+                var SaveResult = await unitOfWork.SaveChangesAsync();
+
+                if (SaveResult)
                 {
-                    AttributeR.LabelAR = AttributeToEdit.LabelAR;
-                    AttributeR.LabelEN = AttributeToEdit.LabelEN;
-                    AttributeR.ParentAttributeID = AttributeToEdit.ParentAttributeID;
-                    if (AttributeR.ParentAttributeID == 0) AttributeR.ParentAttributeID = null;
-
-                    var createInputResult = await unitOfWork.AttributesManager.UpdateAsync(AttributeR);
-               
-                    var SaveResult = await unitOfWork.SaveChangesAsync();
-
-                    if (SaveResult)
-                    {
-                        result.Succeeded = true;
-                        result.Data = true;
-                        return result;
-                    }
-                    else
-                    {
-                        result.Errors.Add("Failed to update Attribute");
-                        result.Succeeded = false;
-                        return result;
-                    }
-
-
+                    result.Succeeded = true;
+                    result.Data = true;
+                    return result;
+                }
+                else
+                {
+                    result.Errors.Add("Failed to update Attribute");
+                    result.Succeeded = false;
+                    return result;
                 }
 
-                result.Errors.Add("Failed to update Attribute!, Try another label");
-                result.Succeeded = false;
-                return result;
+
+                //}
+
+                //result.Errors.Add("Failed to update Attribute!, Try another label");
+                //result.Succeeded = false;
+                //return result;
 
             }
             catch (Exception ex)
@@ -585,8 +587,16 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
 
                 if (AttributeResult != null)
                 {
+                    //if ( AttributeResult.ParentAttributeID == null)
+                    //{
+                    //    var removeResult = await unitOfWork.AttributesManager.RemoveAsync(AttributeResult);
+                    //}
+
                     AttributeResult.IsDeleted = true;
                     var UpdateResult = await unitOfWork.AttributesManager.UpdateAsync(AttributeResult);
+
+
+
                     var SaveResult = await unitOfWork.SaveChangesAsync();
                     if (SaveResult)
                     {
@@ -595,6 +605,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                     }
 
                 }
+
 
                 result.Errors.Add("Failed to delete Attribute!");
                 result.Succeeded = false;
@@ -648,7 +659,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<List<Input>> result = new ApiResponse<List<Input>>();
             try
             {
-                var InputsResult = await unitOfWork.LInputManager.GetAsync(a => a.Section.LevelID == LevelID);
+                var InputsResult = await unitOfWork.LInputManager.GetAsync(a => a.Section.LevelID == LevelID && !a.IsDeleted);
                 List<Input> InputsList = InputsResult.ToList();
                 if (InputsList != null && InputsList.Count != 0)
                 {
@@ -676,7 +687,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<List<Input>> result = new ApiResponse<List<Input>>();
             try
             {
-                var InputsResult = await unitOfWork.LInputManager.GetAsync(a=>a.SectionID==sectionID);
+                var InputsResult = await unitOfWork.LInputManager.GetAsync(a=>a.SectionID==sectionID && !a.IsDeleted);
                 List<Input> InputsList = InputsResult.ToList();
                 if (InputsList != null && InputsList.Count != 0)
                 {
@@ -715,8 +726,29 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
 
                     if (createInputResult != null)
                     {
-                        result.Succeeded = true;
-                        result.Data = true;
+                        var errors = 0;
+
+                        if (InputToAdd.Attributes != null && InputToAdd.Attributes.Count != 0 && 
+                            (InputToAdd.Type == 1 || InputToAdd.Type == 9 || InputToAdd.Type == 11|| InputToAdd.Type == 0))
+                            for (int i = 0; i < InputToAdd.Attributes.Count; i++)
+                            {
+                                var AttrToadd = InputToAdd.Attributes[i];
+                                AttrToadd.IsPredefined = false;
+                                AttrToadd.ParentInputID = InputToCreate.ID;
+                                var AttRes = await Create_Attribute(AttrToadd);
+                                if (!AttRes.Succeeded)
+                                {
+                                    errors++;
+                                    result.Errors.AddRange(AttRes.Errors);
+                                }
+                            }
+                        if (errors == 0)
+                        {
+                            result.Succeeded = true;
+                            result.Data = true;
+                            return result;
+                        }
+                        result.Succeeded = false;
                         return result;
                     }
                     else
