@@ -361,17 +361,12 @@ namespace Stack.DAL
         public virtual DbSet<Input> Inputs { get; set; }
         public virtual DbSet<LInterestInput> LInterestInputs { get; set; }
         public virtual DbSet<LInterest> LInterests { get; set; }
-        public virtual DbSet<LInterestInput> LInterestInputs { get; set; }
-        public virtual DbSet<LInterest_InterestAttribute> LInterest_InterestAttributes { get; set; }
-        public virtual DbSet<LInterest_LInterestInput> LInterest_LInterestInputs { get; set; }
-        public virtual DbSet<InterestAttribute> InterestAttributes { get; set; }
         public virtual DbSet<PoolConnectionID> PoolConnectionIDs { get; set; }
         public virtual DbSet<SystemConfiguration> SystemConfiguration { get; set; }
         public virtual DbSet<AuthorizationSection> AuthorizationSections { get; set; }
         public virtual DbSet<SectionAuthorization> SectionAuthorizations { get; set; }
         public virtual DbSet<LeadSourceName> LeadSourceNames { get; set; }
         public virtual DbSet<LeadSourceType> LeadSourceTypes { get; set; }
-
 
 
         public virtual DbSet<LAttribute> LAttributes { get; set; }
