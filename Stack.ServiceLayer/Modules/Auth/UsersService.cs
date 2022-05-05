@@ -186,11 +186,12 @@ namespace Stack.ServiceLayer.Modules.Auth
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
+
                 ApplicationUser user = new ApplicationUser
                 {
 
                     Email = model.Email,
-                    UserName = model.FirstName + model.LastName,
+                    UserName = model.Username,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     PhoneNumber = model.PhoneNumber,
@@ -198,43 +199,222 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                 };
 
-    
-                user.SystemAuthorizations = JsonConvert.SerializeObject(model.AuthModel);
 
-                var createUserResult = await unitOfWork.UserManager.CreateAsync(user, model.Password);
+                var userExists = await unitOfWork.UserManager.FindByNameAsync(model.Username);
 
-                await unitOfWork.SaveChangesAsync();
-
- 
-
-                if (createUserResult.Succeeded)
+                if(userExists == null)
                 {
 
-                    //Add the user to the selected role .
+                    user.SystemAuthorizations = JsonConvert.SerializeObject(model.AuthModel);
 
-                    var roleResult = await unitOfWork.RoleManager.FindByIdAsync(model.AuthModel.RoleID);
-
-                    var roleAssignmentRes = await unitOfWork.UserManager.AddToRoleAsync(user, roleResult.Name);
+                    var createUserResult = await unitOfWork.UserManager.CreateAsync(user, model.Password);
 
                     await unitOfWork.SaveChangesAsync();
 
-                    result.Data = true;
-                    result.Succeeded = true;
-                    return result;
+
+
+                    if (createUserResult.Succeeded)
+                    {
+
+                        //Add the user to the selected role .
+
+                        var roleResult = await unitOfWork.RoleManager.FindByIdAsync(model.AuthModel.RoleID);
+
+                        var roleAssignmentRes = await unitOfWork.UserManager.AddToRoleAsync(user, roleResult.Name);
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        result.Data = true;
+                        result.Succeeded = true;
+                        return result;
+
+                    }
+                    else
+                    {
+
+                        result.Succeeded = false;
+                        foreach (var error in createUserResult.Errors)
+                        {
+                            result.Errors.Add(error.Description);
+                        }
+                        result.ErrorType = ErrorType.LogicalError;
+                        return result;
+
+                    }
 
                 }
                 else
                 {
 
                     result.Succeeded = false;
-                    foreach (var error in createUserResult.Errors)
-                    {
-                        result.Errors.Add(error.Description);
-                    }
-                    result.ErrorType = ErrorType.LogicalError;
+                    result.Data = false;
+                    result.Errors.Add("Failed to create the new user, A user with similar username already exists !");
+                    result.Errors.Add("فشل إنشاء المستخدم الجديد ، يوجد بالفعل مستخدم باسم مستخدم مشابه!");
                     return result;
 
                 }
+
+              
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
+        public async Task<ApiResponse<bool>> UpdateUserDetails(UpdateUserModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+
+               var userResult = await unitOfWork.UserManager.FindByIdAsync(model.UserID);
+
+               if(userResult != null)
+               {
+
+                    if(model.Username != userResult.UserName)
+                    {
+
+                        var duplicateUsernameResult = await unitOfWork.UserManager.FindDuplicateUsername(model.UserID, model.Username);
+
+                        if(duplicateUsernameResult == null)
+                        {
+
+                            userResult.UserName = model.Username;
+
+
+                        }
+                        else
+                        {
+
+                            result.Succeeded = false;
+                            result.Data = false;
+                            result.Errors.Add("Failed to update user details, a user with a similar username arleady exists !");
+                            result.Errors.Add("فشل تحديث تفاصيل المستخدم ، يوجد مستخدم باسم مستخدم مشابه جاهز!");
+                            return result;
+
+                        }
+
+                    }
+
+                    var oldAuthModel = JsonConvert.DeserializeObject<AuthorizationsModel>(userResult.SystemAuthorizations);    
+                    userResult.FirstName = model.FirstName;
+                    userResult.LastName = model.LastName;
+                    userResult.Email = model.Email;
+                    userResult.PhoneNumber = model.PhoneNumber;
+                    userResult.SystemAuthorizations = JsonConvert.SerializeObject(model.AuthModel);
+
+
+                    //if the user role has been updated . 
+                    if (oldAuthModel.RoleID != model.AuthModel.RoleID)
+                    {
+
+                        //Unassign the user from his old role . 
+
+                        var removeFromRoleResult = await unitOfWork.UserManager.RemoveFromRoleAsync(userResult, model.AuthModel.RoleNameEN);
+
+                        //Add the user to the selected role .
+
+                        var roleResult = await unitOfWork.RoleManager.FindByIdAsync(model.AuthModel.RoleID);
+
+                        var roleAssignmentRes = await unitOfWork.UserManager.AddToRoleAsync(userResult, roleResult.Name);
+
+                    }
+
+                    var updateUserResult = await unitOfWork.UserManager.UpdateAsync(userResult);
+
+                    await unitOfWork.SaveChangesAsync();
+
+                    if(updateUserResult.Succeeded == true)
+                    {
+
+                        result.Succeeded = true;
+                        result.Data = true;
+                        return result;
+
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Data = false;
+                        result.Errors.Add("Failed to update user details, Please try again !");
+                        result.Errors.Add("فشل تحديث تفاصيل المستخدم ، يرجى المحاولة مرة أخرى!");
+                        return result;
+                    }
+
+
+               }
+               else
+               {
+                    result.Succeeded = false;
+                    result.Data = false;
+                    result.Errors.Add("Failed to update user details, Please try again !");
+                    result.Errors.Add("فشل تحديث تفاصيل المستخدم ، يرجى المحاولة مرة أخرى!");
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
+        public async Task<ApiResponse<bool>> UpdateUserPassword(UpdatePasswordModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+
+                var userResult = await unitOfWork.UserManager.FindByIdAsync(model.UserID);
+
+                if (userResult != null)
+                {
+
+                    userResult.PasswordHash = unitOfWork.UserManager.PasswordHasher.HashPassword(userResult, model.Password);
+
+                    var updateResult = await unitOfWork.UserManager.UpdateAsync(userResult);
+
+                    if(updateResult.Succeeded == true)
+                    {
+
+                        result.Succeeded = true;
+                        result.Data = true;
+                        return result;
+
+                    }
+                    else
+                    {
+
+                        result.Succeeded = false;
+                        result.Data = false;
+                        result.Errors.Add("Failed to update user password, Please try again !");
+                        result.Errors.Add("فشل تحديث كلمة مرور المستخدم ، يرجى المحاولة مرة أخرى!");
+                        return result;
+
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Data = false;
+                    result.Errors.Add("Failed to update user password, Please try again !");
+                    result.Errors.Add("فشل تحديث كلمة مرور المستخدم ، يرجى المحاولة مرة أخرى!");
+                    return result;
+                }
+
             }
             catch (Exception ex)
             {
@@ -256,6 +436,8 @@ namespace Stack.ServiceLayer.Modules.Auth
             try
             {
 
+                
+                
                 List<ApplicationUser> usersList = await unitOfWork.UserManager.GetAllSystemUsers();
 
 

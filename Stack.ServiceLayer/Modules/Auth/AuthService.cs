@@ -46,7 +46,7 @@ namespace Stack.ServiceLayer.Modules.Auth
                 ApplicationUser user = new ApplicationUser
                 {
                     Email = model.Email,
-                    UserName = model.FirstName+model.LastName,
+                    UserName = model.Username,
                 };
 
 

@@ -33,6 +33,20 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
         [AllowAnonymous]
+        [HttpPost("UpdateUserDetails")]
+        public async Task<IActionResult> UpdateUserDetails(UpdateUserModel model)
+        {
+            return await EditItemResponseHandler(async () => await service.UpdateUserDetails(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("UpdateUserPassword")]
+        public async Task<IActionResult> UpdateUserPassword(UpdatePasswordModel model)
+        {
+            return await EditItemResponseHandler(async () => await service.UpdateUserPassword(model));
+        }
+
+        [AllowAnonymous]
         [HttpGet("GetUserDetails")]
         public async Task<IActionResult> GetUserDetails()
         {

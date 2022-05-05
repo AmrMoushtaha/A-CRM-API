@@ -57,7 +57,14 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                //var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+
+                var applicationUser = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+
+                //var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                var userID = applicationUser.Id;
 
                 if (userID != null)
                 {
@@ -390,7 +397,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<List<PoolSidebarViewModel>> result = new ApiResponse<List<PoolSidebarViewModel>>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (userID != null)
                 {
