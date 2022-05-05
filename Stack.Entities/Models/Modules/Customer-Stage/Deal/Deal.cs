@@ -9,9 +9,9 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public long ID { get; set; }
         public long CustomerID { get; set; }
 
-        public long activeStageID { get; set; }
+        public long ActiveStageID { get; set; }
 
-        public int activeStageType { get; set; }
+        public int ActiveStageType { get; set; }
 
 
         public virtual List<Prospect> Prospects { get; set; }

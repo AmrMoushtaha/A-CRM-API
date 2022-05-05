@@ -38,6 +38,11 @@ namespace Stack.ServiceLayer.Modules.Activities
             _httpContextAccessor = httpContextAccessor;
         }
 
+
+        /// <summary>
+        /// Fetch all activity types that are active .
+        /// </summary>
+        /// <returns></returns>
         public async Task<ApiResponse<List<ActivityTypeMainViewDTO>>> GetAllActiveActivityTypes()
         {
             ApiResponse<List<ActivityTypeMainViewDTO>> result = new ApiResponse<List<ActivityTypeMainViewDTO>>();
@@ -85,6 +90,12 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+
+        /// <summary>
+        /// Get the activity history for a deal . 
+        /// </summary>
+        /// <param name="ContactID"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<List<ActivityHistoryViewDTO>>> GetActivityHistoryByDealID(long DealID)
         {
             ApiResponse<List<ActivityHistoryViewDTO>> result = new ApiResponse<List<ActivityHistoryViewDTO>>();
@@ -142,29 +153,37 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+        /// <summary>
+        /// Get the activity history for a contact . 
+        /// </summary>
+        /// <param name="ContactID"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<List<ActivityHistoryViewDTO>>> GetActivityHistoryByContactID(long ContactID)
         {
             ApiResponse<List<ActivityHistoryViewDTO>> result = new ApiResponse<List<ActivityHistoryViewDTO>>();
             try
             {
 
-                var processFlowResult = await unitOfWork.ProcessFlowsManager.GetAsync(a => a.DealID == ContactID);
+                var processFlowResult = await unitOfWork.ProcessFlowsManager.GetAsync(a => a.ContactID == ContactID);
 
                 ProcessFlow referenceProcessFlow = processFlowResult.FirstOrDefault();
 
                 if (referenceProcessFlow != null)
                 {
 
-                    var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.ContactID == ContactID && a.IsSubmitted == true, includeProperties: "ActivityType");
+                    var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.ContactID == ContactID && a.IsSubmitted == true, includeProperties: "ActivityType,ApplicationUser");
 
                     List<Activity> activitiesList = activitiesResult.ToList();
 
-                    if (activitiesList.Count == 0 || activitiesList == null)
+                    if (activitiesList.Count != 0 || activitiesList != null)
                     {
 
                         activitiesList = activitiesList.OrderBy(a => a.CreationDate).ToList();
+
                         result.Data = mapper.Map<List<ActivityHistoryViewDTO>>(activitiesList);
+
                         result.Succeeded = true;
+
                         return result;
 
                     }
@@ -200,6 +219,12 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+
+        /// <summary>
+        /// Create a new activity type . 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<bool>> CreateActivityType(CreateActivityTypeModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -275,6 +300,11 @@ namespace Stack.ServiceLayer.Modules.Activities
         }
 
 
+        /// <summary>
+        /// Delete an activity . 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<bool>> DeleteActivity(DeletionModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -337,9 +367,15 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
-        public async Task<ApiResponse<bool>> SubmitActivity(ActivitySubmissionModel model)
+
+        /// <summary>
+        /// Submit an activity . 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<ApiResponse<ActivitySubmissionDTO>> SubmitActivity(ActivitySubmissionModel model)
         {
-            ApiResponse<bool> result = new ApiResponse<bool>();
+            ApiResponse<ActivitySubmissionDTO> result = new ApiResponse<ActivitySubmissionDTO>();
             try
             {
 
@@ -357,7 +393,8 @@ namespace Stack.ServiceLayer.Modules.Activities
                 if (referenceActivity != null && referenceProcessFlow != null && referenceUser != null)
                 {
 
-                    
+                    long referenceDealID = 0;
+
                     //If the stage is being updated . 
                     if (model.CurrentStage != model.NewStage)
                     {
@@ -391,6 +428,8 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 newCustomer.FullNameAR = referenceContact.FullNameAR;
 
+                                newCustomer.ContactID = referenceContact.ID;
+
                                 // Assign the user to this customer .
                                 newCustomer.AssignedUserID = referenceUser.Id;
 
@@ -399,6 +438,10 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 await unitOfWork.SaveChangesAsync();
 
                                 newDeal.CustomerID = createCustomerResult.ID;
+
+                                newDeal.ActiveStageID = 0;
+
+                                newDeal.ActiveStageType = 0;
 
                                 var createDealResult = await unitOfWork.DealManager.CreateAsync(newDeal);
 
@@ -412,8 +455,12 @@ namespace Stack.ServiceLayer.Modules.Activities
                             }
                             else
                             {
-                                // link the existing customer record to this deal . 
+                                // link the existing customer record to this deal .
                                 newDeal.CustomerID = (long)referenceContact.CustomerID;
+
+                                newDeal.ActiveStageID = 0;
+
+                                newDeal.ActiveStageType = 0;
 
                                 var createDealResult = await unitOfWork.DealManager.CreateAsync(newDeal);
 
@@ -442,6 +489,13 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 var createNewStageRecordResult = await unitOfWork.ProspectManager.CreateAsync(newStageRecord);
 
+                                await unitOfWork.SaveChangesAsync();
+
+                                newDeal.ActiveStageID = newStageRecord.ID;
+
+                                newDeal.ActiveStageType = (int)CustomerStageIndicator.Prospect;
+
+
                             }
 
                             if (model.NewStage == "Lead")
@@ -458,6 +512,13 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 newStageRecord.DealID = newDeal.ID;
 
                                 var createNewStageRecordResult = await unitOfWork.LeadManager.CreateAsync(newStageRecord);
+
+                                await unitOfWork.SaveChangesAsync();
+
+                                newDeal.ActiveStageID = newStageRecord.ID;
+
+                                newDeal.ActiveStageType = (int)CustomerStageIndicator.Lead;
+
 
                             }
 
@@ -476,7 +537,16 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 var createNewStageRecordResult = await unitOfWork.OpportunityManager.CreateAsync(newStageRecord);
 
+                                await unitOfWork.SaveChangesAsync();
+
+                                newDeal.ActiveStageID = newStageRecord.ID;
+
+                                newDeal.ActiveStageType = (int)CustomerStageIndicator.Lead;
+
                             }
+
+
+                            var updateDealResult = await unitOfWork.DealManager.UpdateAsync(newDeal);
 
                             await unitOfWork.SaveChangesAsync();
 
@@ -484,7 +554,6 @@ namespace Stack.ServiceLayer.Modules.Activities
                         else
                         {
 
-                            long referenceDealID = 0;
 
                             if (model.CurrentStage == "Prospect")
                             {
@@ -552,6 +621,16 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 var createNewStageRecordResult = await unitOfWork.ProspectManager.CreateAsync(newStageRecord);
 
+                                await unitOfWork.SaveChangesAsync();
+
+                                referenceDeal.ActiveStageID = createNewStageRecordResult.ID;
+
+                                referenceDeal.ActiveStageType = (int)CustomerStageIndicator.Prospect;
+
+                                var updateReferenceDealResult = await unitOfWork.DealManager.UpdateAsync(referenceDeal);
+
+                                await unitOfWork.SaveChangesAsync();
+
                             }
 
                             if (model.NewStage == "Lead")
@@ -568,6 +647,18 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 newStageRecord.DealID = referenceDealID;
 
                                 var createNewStageRecordResult = await unitOfWork.LeadManager.CreateAsync(newStageRecord);
+
+                                await unitOfWork.SaveChangesAsync();
+
+                                referenceDeal.ActiveStageID = createNewStageRecordResult.ID;
+
+                                referenceDeal.ActiveStageType = (int)CustomerStageIndicator.Lead;
+
+                                var updateReferenceDealResult = await unitOfWork.DealManager.UpdateAsync(referenceDeal);
+
+                                await unitOfWork.SaveChangesAsync();
+
+
 
                             }
 
@@ -586,6 +677,16 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 var createNewStageRecordResult = await unitOfWork.OpportunityManager.CreateAsync(newStageRecord);
 
+                                await unitOfWork.SaveChangesAsync();
+
+                                referenceDeal.ActiveStageID = createNewStageRecordResult.ID;
+
+                                referenceDeal.ActiveStageType = (int)CustomerStageIndicator.Opportunity;
+
+                                var updateReferenceDealResult = await unitOfWork.DealManager.UpdateAsync(referenceDeal);
+
+                                await unitOfWork.SaveChangesAsync();
+
                             }
 
 
@@ -594,6 +695,14 @@ namespace Stack.ServiceLayer.Modules.Activities
                             {
 
                                 referenceProcessFlow.IsComplete = true;
+
+                                referenceDeal.ActiveStageID = 0;
+
+                                referenceDeal.ActiveStageType = (int)CustomerStageIndicator.DoneDeal;
+
+                                var updateReferenceDealResult = await unitOfWork.DealManager.UpdateAsync(referenceDeal);
+
+                                await unitOfWork.SaveChangesAsync();
 
                                 var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == referenceProcessFlow.ContactID);
 
@@ -608,9 +717,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
 
                             }
-
-                            await unitOfWork.SaveChangesAsync();
-
+       
                         }
 
                     }
@@ -618,7 +725,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                     //Update the activities submitted flag and submission date . 
                     referenceActivity.IsSubmitted = true;
 
-                    referenceActivity.SubtmissionDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+                    referenceActivity.SubmissionDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
 
                     var updateActivityResult = await unitOfWork.ActivitiesManager.UpdateAsync(referenceActivity);
 
@@ -633,13 +740,13 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     activitySubmissionDetails.ActivityID = referenceActivity.ID;
 
-                    activitySubmissionDetails.SubmissionDate = referenceActivity.SubtmissionDate;
+                    activitySubmissionDetails.SubmissionDate = referenceActivity.SubmissionDate;
 
                     activitySubmissionDetails.Comment = model.Comment;
 
 
                     //If the stage has been changed . 
-                    if (model.CurrentStage != model.NewStage)
+                    if (model.CurrentStage != model.NewStage && model.NewStage != null)
                     {
                         activitySubmissionDetails.IsStageChanged = true;
 
@@ -737,19 +844,95 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     await unitOfWork.SaveChangesAsync();
 
+
+                    //Return the current stage and stage record ID . 
+                    ActivitySubmissionDTO modelToReturn = new ActivitySubmissionDTO();
+
+
+                    if (activitySubmissionDetails.IsStageChanged == true)
+                    {
+
+                        if(activitySubmissionDetails.NewStage == "Prospect")
+                        {
+                            modelToReturn.RecordType = (int)CustomerStageIndicator.Prospect;
+                        }
+
+                        if (activitySubmissionDetails.NewStage == "Opportunity")
+                        {
+                            modelToReturn.RecordType = (int)CustomerStageIndicator.Opportunity;
+                        }
+
+                        if (activitySubmissionDetails.NewStage == "Lead")
+                        {
+                            modelToReturn.RecordType = (int)CustomerStageIndicator.Lead;
+                        }
+
+                        if (activitySubmissionDetails.NewStage == "Done-Deal")
+                        {
+                            modelToReturn.RecordType = (int)CustomerStageIndicator.DoneDeal;
+
+                        }
+   
+                        modelToReturn.RecordID = (long)referenceProcessFlow.DealID;
+
+                    }
+                    else
+                    {
+
+                        if (activitySubmissionDetails.CurrentStage == "Contact")
+                        {
+                            modelToReturn.RecordType = (int)CustomerStageIndicator.Contact;
+                        }
+
+                        if (activitySubmissionDetails.CurrentStage == "Prospect")
+                        {
+                            modelToReturn.RecordType = (int)CustomerStageIndicator.Prospect;
+                        }
+
+                        if (activitySubmissionDetails.CurrentStage == "Opportunity")
+                        {
+                            modelToReturn.RecordType = (int)CustomerStageIndicator.Opportunity;
+                        }
+
+                        if (activitySubmissionDetails.CurrentStage == "Lead")
+                        {
+                            modelToReturn.RecordType = (int)CustomerStageIndicator.Lead;
+                        }
+
+                        if (activitySubmissionDetails.CurrentStage == "Done-Deal")
+                        {
+                            modelToReturn.RecordType = (int)CustomerStageIndicator.DoneDeal;
+
+                        }
+
+                        if (modelToReturn.RecordType == 0)// Type Conact .
+                        {
+                            modelToReturn.RecordID = referenceProcessFlow.ContactID;
+                        }
+                        else
+                        {
+                            modelToReturn.RecordID = (long)referenceProcessFlow.DealID;
+                        }
+
+
+                    }
+
+
                     result.Succeeded = true;
 
-                    result.Data = true;
+                    result.Data = modelToReturn;
 
                     return result;
 
                 }
                 else
                 {
+
                     result.Succeeded = false;
                     result.Errors.Add("Failed to submit activity, Please try again !");
                     result.Errors.Add("Failed to submit activity, Please try again !");
                     return result;
+
                 }
 
             }
@@ -764,7 +947,11 @@ namespace Stack.ServiceLayer.Modules.Activities
         }
 
 
-        //Section navigation.
+        /// <summary>
+        /// Get the next activity section . 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<SectionToAnswer>> GetNextActivitySection(SectionToAnswer model)
     {
         ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
@@ -850,7 +1037,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
 
             // Return SectionToAnswer with IsFinal section = true .
-            if ((currentSectionIndex + 1) == activityTypeSections.Count)
+            if ((currentSectionIndex + 1) == activityTypeSections.Count || currentSectionIndex == -1)
             {
 
                 sectionToReturn.IsFinalSection = true;
@@ -1036,11 +1223,38 @@ namespace Stack.ServiceLayer.Modules.Activities
 
     }
 
+
+        /// <summary>
+        /// Create a new activity for this contact .
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<SectionToAnswer>> CreateNewContactActivity(CreateContactActivityModel model)
         {
             ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
             try
-            {
+            { 
+            
+                //Check if there is an activity that hasn't been submitted and delete it . 
+
+                var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.ContactID == model.ContactID && a.IsSubmitted == false);
+
+                Activity unsubmittedActivity = activitiesResult.FirstOrDefault();
+
+                if (unsubmittedActivity != null)
+                {
+                    //Delete the unsubmitted activity.
+                    var deleteCurrentActivityResult = await unitOfWork.ActivitiesManager.RemoveAsync(unsubmittedActivity);
+                    await unitOfWork.SaveChangesAsync();
+                }
+
+
+                //Get the current user and contact record . 
+                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+
+                var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == model.ContactID);
+
+                Contact referenceContact = contactsResult.FirstOrDefault();
 
 
                 Activity newActivity = new Activity();
@@ -1053,7 +1267,6 @@ namespace Stack.ServiceLayer.Modules.Activities
                 //Check if a process flow already exists for this contact . if not create one .
                 if (referenceProcessFlow != null)
                 {
-
                     newActivity.ProcessFlowID = referenceProcessFlow.ID;
                 }
                 else
@@ -1093,6 +1306,8 @@ namespace Stack.ServiceLayer.Modules.Activities
                 newActivity.IsSubmitted = false;
 
                 newActivity.CreationDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                newActivity.CreatedBy = userResult.Id;
 
                 var createNewActivityResult = await unitOfWork.ActivitiesManager.CreateAsync(newActivity);
 
@@ -1209,6 +1424,15 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     }
 
+
+                    //Assign the user creating the activity to this contact . 
+                    referenceContact.AssignedUserID = userResult.Id;
+
+                    var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
+
+                    await unitOfWork.SaveChangesAsync();
+
+
                     //Re-arrange section questions . 
                     sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
 
@@ -1241,11 +1465,38 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+
+        /// <summary>
+        /// Create a new activity for this deal . 
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<SectionToAnswer>> CreateNewDealActivity(CreateDealActivityModel model)
         {
             ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
             try
             {
+
+                //Check if there is an activity that hasn't been submitted and delete it . 
+
+                var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.DealID == model.DealID && a.IsSubmitted == false);
+
+                Activity unsubmittedActivity = activitiesResult.FirstOrDefault();
+
+                if (unsubmittedActivity != null)
+                {
+                    //Delete the unsubmitted activity.
+                    var deleteCurrentActivityResult = await unitOfWork.ActivitiesManager.RemoveAsync(unsubmittedActivity);
+                    await unitOfWork.SaveChangesAsync();
+                }
+
+
+                //Get the current user and deal record . 
+                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+
+                var dealsResult = await unitOfWork.DealManager.GetAsync(a => a.ID == model.DealID, includeProperties: "Customer");
+
+                Deal referenceDeal = dealsResult.FirstOrDefault();
 
 
                 Activity newActivity = new Activity();
@@ -1296,6 +1547,8 @@ namespace Stack.ServiceLayer.Modules.Activities
                 newActivity.ActivityTypeID = model.ActivityTypeID;
 
                 newActivity.IsSubmitted = false;
+
+                newActivity.CreatedBy = userResult.Id;
 
                 newActivity.CreationDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
 
@@ -1412,6 +1665,17 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     }
 
+
+                    //Assign the user creating the activity to the customer .
+
+                    referenceDeal.Customer.AssignedUserID = userResult.Id;
+
+                    var updateCustomerResult = await unitOfWork.CustomerManager.UpdateAsync(referenceDeal.Customer);
+
+                    await unitOfWork.SaveChangesAsync();
+
+
+
                     //Re-arrange section questions . 
                     sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
 
@@ -1444,11 +1708,30 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+        /// <summary>
+        /// Checks if an unsubmitted activity already exists for this deal . 
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<SectionToAnswer>> GetCurrentActivitySectionByDealID(long ID)
         {
             ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
             try
             {
+
+                //Get the current user and contact record . 
+                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+
+                var dealsResult = await unitOfWork.DealManager.GetAsync(a => a.ID == ID, includeProperties: "Customer");
+
+                Deal referenceDeal = dealsResult.FirstOrDefault();
+
+
+                //Get the number of previously submitted activities for this deal by the current user . 
+                var userSubmittedActivitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.DealID == ID && a.IsSubmitted == true && a.CreatedBy == userResult.Id);
+
+                int PreviouslySubmittedActivitiesCount = userSubmittedActivitiesResult.ToList().Count();
+
 
                 var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.DealID == ID && a.IsSubmitted == false);
 
@@ -1456,6 +1739,20 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 if (unsubmittedActivity != null)
                 {
+
+                    //Delete the unsubmitted activity if it was created by a different user . 
+                    if (referenceDeal.Customer.AssignedUserID != userResult.Id || PreviouslySubmittedActivitiesCount < 1)
+                    {
+
+                        var deleteCurrentActivityResult = await unitOfWork.ActivitiesManager.RemoveAsync(unsubmittedActivity);
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        result.Succeeded = false;
+                        result.Errors.Add("No unsubmitted activities were found !");
+                        return result;
+
+                    }
 
 
                     //Get an update the end date of the current activity section .  
@@ -1609,18 +1906,50 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+
+        /// <summary>
+        /// Checks if an unsubmitted activity already exists for this contact . 
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<SectionToAnswer>> GetCurrentActivitySectionByContactID(long ID)
         {
             ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
             try
             {
+                //Get the current user and contact record . 
+                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
 
+                var contactsResult = await unitOfWork.ContactManager.GetAsync( a => a.ID == ID);
+
+                Contact referenceContact = contactsResult.FirstOrDefault();
+
+                //Get the number of previously submitted activities for this deal by the current user . 
+                var userSubmittedActivitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.ContactID == ID && a.IsSubmitted == true && a.CreatedBy == userResult.Id);
+
+                int PreviouslySubmittedActivitiesCount = userSubmittedActivitiesResult.ToList().Count();
+
+                //Get the pending activity . 
                 var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.ContactID == ID && a.IsSubmitted == false);
 
                 Activity unsubmittedActivity = activitiesResult.FirstOrDefault();
 
                 if (unsubmittedActivity != null)
                 {
+
+                    //Delete the unsubmitted activity if it was created by a different user . 
+                    if (referenceContact.AssignedUserID != userResult.Id || PreviouslySubmittedActivitiesCount < 1)
+                    {
+
+                        var deleteCurrentActivityResult = await unitOfWork.ActivitiesManager.RemoveAsync(unsubmittedActivity);
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        result.Succeeded = false;
+                        result.Errors.Add("No unsubmitted activities were found !");
+                        return result;
+
+                    }
 
                     //Get an update the end date of the current activity section .  
                     var activitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.ActivityID == unsubmittedActivity.ID && a.IsSubmitted == false, includeProperties: "Section,Activity,Section.Questions,Section.Questions.QuestionOptions");
@@ -1775,6 +2104,12 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+
+        /// <summary>
+        /// Get the previous activity section and delete the current section recrod . 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public async Task<ApiResponse<SectionToAnswer>> GetPreviousActivitySection(SectionToAnswer model)
         {
             ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
@@ -2159,6 +2494,7 @@ namespace Stack.ServiceLayer.Modules.Activities
             }
 
         }
+
 
 
     }

@@ -17,8 +17,7 @@ namespace Stack.Entities.Models.Modules.Activities
 
         public string CreatedBy { get; set; }
 
-        public DateTime? SubtmissionDate { get; set; }
-
+        public DateTime? SubmissionDate { get; set; }
 
         public bool IsSubmitted { get; set; }
 
@@ -32,6 +31,9 @@ namespace Stack.Entities.Models.Modules.Activities
 
         [ForeignKey("ActivityTypeID")]
         public virtual ActivityType ActivityType { get; set; }
+
+        [ForeignKey("CreatedBy")]
+        public virtual ApplicationUser ApplicationUser { get; set; }
 
     }
 

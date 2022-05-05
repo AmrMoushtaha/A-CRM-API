@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using Stack.DTOs.Models.Modules.Auth;
+using Stack.Entities.Models.Modules.Activities;
 using Stack.Entities.Models.Modules.Common;
 using Stack.Entities.Models.Modules.CustomerStage;
 using System;
@@ -31,6 +32,8 @@ namespace Stack.Entities.Models.Modules.Auth
         public virtual List<Contact> Contacts { get; set; }
         public virtual List<Customer> Customers { get; set; }
         public virtual List<Prospect> Prospects { get; set; }
+
+        public virtual List<Activity> Activities { get; set; }
         public virtual List<Lead> Leads { get; set; }
         public virtual List<Opportunity> Opportunities { get; set; }
         public virtual List<Pool_User> Pools { get; set; }

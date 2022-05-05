@@ -12,14 +12,16 @@ namespace Stack.DTOs.Models.Modules.Activities
 
         public long ActivityTypeID { get; set; }
 
-        public long ActivityTypeNameAR { get; set; }
-        public long ActivityTypeNameEN { get; set; }
+        public string ActivityTypeNameAR { get; set; }
+        public string ActivityTypeNameEN { get; set; }
+
+        public string ColorCode { get; set; }
 
         public DateTime? CreationDate { get; set; }
 
         public string CreatedBy { get; set; }
 
-        public DateTime? SubtmissionDate { get; set; }
+        public DateTime? SubmissionDate { get; set; }
 
     }
 

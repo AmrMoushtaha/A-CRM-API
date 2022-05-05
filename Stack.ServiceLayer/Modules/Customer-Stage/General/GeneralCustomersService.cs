@@ -742,9 +742,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 var currentDeal = recordDuplicationCheck.Customer.Deals[i];
 
                                                 //get active stage for deal
-                                                if (currentDeal.activeStageType == (int)CustomerStageIndicator.Prospect)
+                                                if (currentDeal.ActiveStageType == (int)CustomerStageIndicator.Prospect)
                                                 {
-                                                    var activeStageQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                                                    var activeStageQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == currentDeal.ActiveStageID);
                                                     var activeStage = activeStageQ.FirstOrDefault();
 
                                                     if (activeStage != null)
@@ -754,9 +754,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         await unitOfWork.ProspectManager.UpdateAsync(activeStage);
                                                     }
                                                 }
-                                                else if (currentDeal.activeStageType == (int)CustomerStageIndicator.Lead)
+                                                else if (currentDeal.ActiveStageType == (int)CustomerStageIndicator.Lead)
                                                 {
-                                                    var activeStageQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                                                    var activeStageQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == currentDeal.ActiveStageID);
                                                     var activeStage = activeStageQ.FirstOrDefault();
 
                                                     if (activeStage != null)
@@ -766,9 +766,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         await unitOfWork.LeadManager.UpdateAsync(activeStage);
                                                     }
                                                 }
-                                                else if (currentDeal.activeStageType == (int)CustomerStageIndicator.Opportunity)
+                                                else if (currentDeal.ActiveStageType == (int)CustomerStageIndicator.Opportunity)
                                                 {
-                                                    var activeStageQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                                                    var activeStageQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == currentDeal.ActiveStageID);
                                                     var activeStage = activeStageQ.FirstOrDefault();
 
                                                     if (activeStage != null)

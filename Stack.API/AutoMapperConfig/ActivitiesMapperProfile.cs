@@ -15,6 +15,9 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<Activity, ActivityHistoryViewDTO>()
             .ForMember(dest => dest.ActivityTypeNameAR, m => m.MapFrom(d => d.ActivityType.NameAR))
             .ForMember(dest => dest.ActivityTypeNameEN, m => m.MapFrom(d => d.ActivityType.NameEN))
+            .ForMember(dest => dest.SubmissionDate, m => m.MapFrom(d => d.SubmissionDate))
+            .ForMember(dest => dest.ColorCode, m => m.MapFrom(d => d.ActivityType.ColorCode))
+            .ForMember(dest => dest.CreatedBy, m => m.MapFrom(d => d.ApplicationUser.FirstName + " " + d.ApplicationUser.LastName))
             .ReverseMap();
 
         }
