@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220503225155_pool-requests")]
+    partial class poolrequests
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1684,38 +1686,14 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("AppliedActionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DescriptionAR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DescriptionEN")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<long>("PoolID")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("RecordID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("RecordStatusID")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("RecordType")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("RequestDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("ReferenceID")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RequestType")
                         .HasColumnType("int");
-
-                    b.Property<string>("RequesteeID")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("Requestee_PoolID")
-                        .HasColumnType("bigint");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

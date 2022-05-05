@@ -393,6 +393,7 @@ namespace Stack.DAL
         public virtual DbSet<SectionAuthorization> SectionAuthorizations { get; set; }
         public virtual DbSet<LeadSourceName> LeadSourceNames { get; set; }
         public virtual DbSet<LeadSourceType> LeadSourceTypes { get; set; }
+        public virtual DbSet<PoolRequest> PoolRequests { get; set; }
 
 
 

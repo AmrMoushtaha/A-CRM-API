@@ -124,7 +124,43 @@ namespace Stack.API.Controllers.Modules.Pool
         [HttpPost("LockRecord")]
         public async Task<IActionResult> LockRecord(LockRecordModel model)
         {
-            return await GetResponseHandler(async () => await service.LockRecord(model));
+            return await AddItemResponseHandler(async () => await service.LockRecord(model));
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("RequestTransfer")]
+        public async Task<IActionResult> RequestTransfer(RequestTransferModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.RequestTransfer(model));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetPoolPendingRequests/{poolID}")]
+        public async Task<IActionResult> GetPoolPendingRequests(long poolID)
+        {
+            return await GetResponseHandler(async () => await service.GetPoolPendingRequests(poolID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetUserPoolsPendingRequests")]
+        public async Task<IActionResult> GetUserPoolsPendingRequests()
+        {
+            return await GetResponseHandler(async () => await service.GetUserPoolsPendingRequests());
+        }
+
+        [AllowAnonymous]
+        [HttpGet("ApproveRequest/{requestID}")]
+        public async Task<IActionResult> ApproveRequest(long requestID)
+        {
+            return await GetResponseHandler(async () => await service.ApproveRequest(requestID));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("RejectRequest/{requestID}")]
+        public async Task<IActionResult> RejectRequest(long requestID)
+        {
+            return await GetResponseHandler(async () => await service.RejectRequest(requestID));
         }
 
     }

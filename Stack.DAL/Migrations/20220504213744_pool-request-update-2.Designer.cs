@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220504213744_pool-request-update-2")]
+    partial class poolrequestupdate2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1699,12 +1701,6 @@ namespace Stack.DAL.Migrations
                     b.Property<long?>("RecordID")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("RecordStatusID")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("RecordType")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("RequestDate")
                         .HasColumnType("datetime2");
 
@@ -1713,9 +1709,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<string>("RequesteeID")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("Requestee_PoolID")
-                        .HasColumnType("bigint");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

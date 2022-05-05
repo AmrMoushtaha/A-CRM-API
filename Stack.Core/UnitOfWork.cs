@@ -656,6 +656,19 @@ namespace Stack.Core
             }
         }
 
+        private PoolRequestManager poolRequestManager;
+        public PoolRequestManager PoolRequestManager
+        {
+            get
+            {
+                if (poolRequestManager == null)
+                {
+                    poolRequestManager = new PoolRequestManager(context);
+                }
+                return poolRequestManager;
+            }
+        }
+
 
 
     }

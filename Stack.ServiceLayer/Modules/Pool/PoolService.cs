@@ -1259,6 +1259,852 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
+
+
+        #region Pool Transfer Section
+
+        public async Task<ApiResponse<bool>> RequestTransfer(RequestTransferModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var assigneeName = await unitOfWork.UserManager.GetUserById(model.AssigneeID);
+
+                //Transfer contact from current pool
+                if (model.PrimaryPhoneNumber != null)
+                {
+                    //Get record's pool
+                    var contactQ = await unitOfWork.ContactManager.GetAsync(t => t.PrimaryPhoneNumber == model.PrimaryPhoneNumber);
+                    var contact = contactQ.FirstOrDefault();
+
+                    if (contact != null && model.RequestedPoolID == null)
+                    {
+                        //Get current pool 
+                        var currentPoolQ = await unitOfWork.PoolManager.GetAsync(t => t.ID == model.CurrentPoolID);
+                        var currentPool = currentPoolQ.FirstOrDefault();
+
+                        //Create transfer request
+                        PoolRequest newRequest = new PoolRequest
+                        {
+                            PoolID = contact.PoolID,
+                            RecordID = contact.ID,
+                            RequestType = (int)PoolRequestTypes.RecordFromPool,
+                            Status = (int)PoolRequestStatuses.Pending,
+                            Requestee_PoolID = currentPool.ID,
+                            RecordStatusID = model.RecordStatusID,
+                            DescriptionEN = assigneeName.FirstName + " " + assigneeName.LastName + " is requesting to transfer record " +
+                            contact.PrimaryPhoneNumber + " to space " + currentPool.NameEN,
+                            RequestDate = await HelperFunctions.GetEgyptsCurrentLocalTime()
+                        };
+
+                        var requestCreationResult = await unitOfWork.PoolRequestManager.CreateAsync(newRequest);
+                        if (requestCreationResult != null)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Unable to process request");
+                            result.Errors.Add("Unable to process request");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Unable to find record");
+                        result.Errors.Add("Unable to find record");
+                        return result;
+                    }
+                }
+                //Request to join pool
+                else if (model.PrimaryPhoneNumber == null && model.RequestedPoolID != null)
+                {
+                    PoolRequest newRequest = new PoolRequest
+                    {
+                        PoolID = model.RequestedPoolID.Value,
+                        RequesteeID = model.AssigneeID,
+                        RequestType = (int)PoolRequestTypes.AddUserToPool,
+                        Status = (int)PoolRequestStatuses.Pending,
+                        DescriptionEN = assigneeName.FirstName + " " + assigneeName.LastName + " is requesting to join",
+                    };
+
+                    var requestCreationResult = await unitOfWork.PoolRequestManager.CreateAsync(newRequest);
+                    if (requestCreationResult != null)
+                    {
+                        await unitOfWork.SaveChangesAsync();
+                        result.Succeeded = true;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Unable to process request");
+                        result.Errors.Add("Unable to process request");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unable to process request");
+                    result.Errors.Add("Unable to process request");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<PoolRequestModel>>> GetPoolPendingRequests(long poolID)
+        {
+            ApiResponse<List<PoolRequestModel>> result = new ApiResponse<List<PoolRequestModel>>();
+
+            try
+            {
+                var pendingRequestsQ = await unitOfWork.PoolRequestManager.GetAsync(t => t.PoolID == poolID &&
+                t.Status == (int)PoolRequestStatuses.Pending);
+                var pendingRequests = pendingRequestsQ.ToList();
+
+                if (pendingRequests != null && pendingRequests.Count > 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<PoolRequestModel>>(pendingRequests);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No pending requests");
+                    result.Errors.Add("No pending requests");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
+        public async Task<ApiResponse<List<PoolRequestModel>>> GetUserPoolsPendingRequests()
+        {
+            ApiResponse<List<PoolRequestModel>> result = new ApiResponse<List<PoolRequestModel>>();
+
+            try
+            {
+                //Get user pools
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    var userPoolsQ = await unitOfWork.PoolUserManager.GetAsync(t => t.UserID == userID && t.IsAdmin == true);
+                    var userPools = userPoolsQ.ToList();
+                    if (userPools != null && userPools.Count > 0)
+                    {
+                        List<PoolRequestModel> poolRequests = new List<PoolRequestModel>();
+
+                        for (int i = 0; i < userPools.Count; i++)
+                        {
+                            var userPool = userPools[i];
+
+                            var pendingRequestsQ = await unitOfWork.PoolRequestManager.GetAsync(t => t.PoolID == userPool.PoolID &&
+                               t.Status == (int)PoolRequestStatuses.Pending, includeProperties: "Pool");
+                            var pendingRequests = pendingRequestsQ.ToList();
+
+                            if (pendingRequests != null && pendingRequests.Count > 0)
+                            {
+                                poolRequests.AddRange(mapper.Map<List<PoolRequestModel>>(pendingRequests));
+                            }
+                        }
+
+                        //Filter requests via date
+                        if (poolRequests.Count > 0)
+                        {
+                            poolRequests.OrderBy(t => t.RequestDate);
+                            result.Succeeded = true;
+                            result.Data = poolRequests;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No requests found");
+                            result.Errors.Add("No requests found");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("No pools for such user");
+                        result.Errors.Add("No pools for such user");
+                        return result;
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    return result;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<bool>> ApproveRequest(long requestID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    var requestQ = await unitOfWork.PoolRequestManager.GetAsync(t => t.ID == requestID && t.Status == (int)PoolRequestStatuses.Pending);
+                    var request = requestQ.FirstOrDefault();
+
+                    if (request != null)
+                    {
+                        request.Status = (int)PoolRequestStatuses.Accepted;
+                        request.AppliedActionDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                        var updateRes = await unitOfWork.PoolRequestManager.UpdateAsync(request);
+
+                        if (updateRes)
+                        {
+                            //Set Request action
+                            var actionResult = await ApplyRequestAction(request, request.RequestType);
+                            return actionResult;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Unable to update request");
+                            result.Errors.Add("Unable to update request");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Request does not exist");
+                        result.Errors.Add("Request does not exist");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthoried");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> RejectRequest(long requestID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    var requestQ = await unitOfWork.PoolRequestManager.GetAsync(t => t.ID == requestID && t.Status == (int)PoolRequestStatuses.Pending);
+                    var request = requestQ.FirstOrDefault();
+
+                    if (request != null)
+                    {
+                        request.Status = (int)PoolRequestStatuses.Rejected;
+                        request.AppliedActionDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                        var updateRes = await unitOfWork.PoolRequestManager.UpdateAsync(request);
+
+                        if (updateRes)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Unable to update request");
+                            result.Errors.Add("Unable to update request");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Request does not exist");
+                        result.Errors.Add("Request does not exist");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthoried");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+
+        public async Task<ApiResponse<bool>> ApplyRequestAction(PoolRequest request, int requestType)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                //Transfer record ownership to requestee and transfer from pool
+                if (requestType == (int)PoolRequestTypes.RecordFromPool)
+                {
+                    //Get record
+                    var recordQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == request.RecordID.Value, includeProperties: "Customer,Customer.Deals");
+                    var record = recordQ.FirstOrDefault();
+
+                    if (record != null)
+                    {
+                        //Update contact status
+                        var transferResult = await TransferRecordOwnership(request, record);
+                        return transferResult;
+
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Record not found");
+                        result.Errors.Add("Record not found");
+                        return result;
+                    }
+                }
+                //Transfer user to this pool and assign record to them
+                else if (requestType == (int)PoolRequestTypes.RecordToPool)
+                {
+                    //Get pool details
+                    var poolQ = await unitOfWork.PoolManager.GetAsync(t => t.ID == request.PoolID);
+                    var pool = poolQ.FirstOrDefault();
+
+
+                    //Add user to pool
+                    Pool_User assignmentModel = new Pool_User
+                    {
+                        Capacity = pool.Capacity.HasValue ? pool.Capacity.Value : 0,
+                        PoolID = request.PoolID,
+                        UserID = request.RequesteeID,
+                        IsAdmin = false
+                    };
+
+                    var assignmentResult = await unitOfWork.PoolUserManager.CreateAsync(assignmentModel);
+
+                    if (assignmentResult != null)
+                    {
+                        await unitOfWork.SaveChangesAsync();
+
+                        //Get record
+                        var recordQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == request.RecordID.Value, includeProperties: "Customer,Customer.Deals");
+                        var record = recordQ.FirstOrDefault();
+
+                        if (record != null)
+                        {
+                            //Update contact status
+                            var transferResult = await TransferRecordOwnership(request, record);
+                            return transferResult;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Record not found");
+                            result.Errors.Add("Record not found");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Unable to add user to space");
+                        result.Errors.Add("Unable to add user to space");
+                        return result;
+                    }
+
+                }
+                //Add user to pool
+                else if (requestType == (int)PoolRequestTypes.AddUserToPool)
+                {
+                    //Get pool details
+                    var poolQ = await unitOfWork.PoolManager.GetAsync(t => t.ID == request.PoolID);
+                    var pool = poolQ.FirstOrDefault();
+
+
+                    //Add user to pool
+                    Pool_User assignmentModel = new Pool_User
+                    {
+                        Capacity = pool.Capacity.HasValue ? pool.Capacity.Value : 0,
+                        PoolID = request.PoolID,
+                        UserID = request.RequesteeID,
+                        IsAdmin = false
+                    };
+
+                    var assignmentResult = await unitOfWork.PoolUserManager.CreateAsync(assignmentModel);
+
+                    if (assignmentResult != null)
+                    {
+                        await unitOfWork.SaveChangesAsync();
+                        result.Succeeded = true;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Unable to add user to space");
+                        result.Errors.Add("Unable to add user to space");
+                        return result;
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+        #endregion
+
+        public async Task<ApiResponse<bool>> TransferRecordOwnership(PoolRequest request, Contact contact)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                contact.PoolID = request.Requestee_PoolID.Value;
+                contact.AssignedUserID = request.RequesteeID;
+
+                //record has flows
+                if (contact.CustomerID != null)
+                {
+                    //Iterate all customer deals and overtake their assignee ID with requestee ID
+                    for (int i = 0; i < contact.Customer.Deals.Count; i++)
+                    {
+                        var currentDeal = contact.Customer.Deals[i];
+
+                        //get active stage for deal
+                        if (currentDeal.activeStageType == (int)CustomerStageIndicator.Prospect)
+                        {
+                            var activeStageQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                            var activeStage = activeStageQ.FirstOrDefault();
+
+                            if (activeStage != null)
+                            {
+                                activeStage.AssignedUserID = request.RequesteeID;
+
+                                await unitOfWork.ProspectManager.UpdateAsync(activeStage);
+                            }
+                        }
+                        else if (currentDeal.activeStageType == (int)CustomerStageIndicator.Lead)
+                        {
+                            var activeStageQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                            var activeStage = activeStageQ.FirstOrDefault();
+
+                            if (activeStage != null)
+                            {
+                                activeStage.AssignedUserID = request.RequesteeID;
+
+                                await unitOfWork.LeadManager.UpdateAsync(activeStage);
+                            }
+                        }
+                        else if (currentDeal.activeStageType == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            var activeStageQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                            var activeStage = activeStageQ.FirstOrDefault();
+
+                            if (activeStage != null)
+                            {
+                                activeStage.AssignedUserID = request.RequesteeID;
+
+                                await unitOfWork.OpportunityManager.UpdateAsync(activeStage);
+                            }
+                        }
+                        else if (currentDeal.activeStageType == (int)CustomerStageIndicator.DoneDeal)
+                        {
+                            var activeStageQ = await unitOfWork.DoneDealManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                            var activeStage = activeStageQ.FirstOrDefault();
+
+                            if (activeStage != null)
+                            {
+                                activeStage.AssignedUserID = request.RequesteeID;
+
+                                await unitOfWork.DoneDealManager.UpdateAsync(activeStage);
+                            }
+                        }
+                    }
+
+                    //Create new deal with requested flow type
+
+                    Deal deal = new Deal
+                    {
+                        CustomerID = contact.CustomerID.Value
+                    };
+
+                    var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
+
+                    //Create requested type for deal
+                    if (dealCreationRes != null)
+                    {
+                        await unitOfWork.SaveChangesAsync();
+
+                        //Create related record
+                        if (request.RecordType == (int)CustomerStageIndicator.Lead)
+                        {
+                            Lead record = new Lead
+                            {
+                                AssignedUserID = request.RequesteeID,
+                                DealID = dealCreationRes.ID,
+                                IsFresh = true,
+                                State = (int)CustomerStageState.Initial,
+                                StatusID = request.RecordStatusID,
+                            };
+
+                            var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
+                            if (recordCreationRes != null)
+                            {
+                                //Finalize
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error creating record, please try again");
+                                result.Errors.Add("Error creating record, please try again");
+                                return result;
+                            }
+                        }
+                        else if (request.RecordType == (int)CustomerStageIndicator.Prospect)
+                        {
+                            Prospect record = new Prospect
+                            {
+                                AssignedUserID = request.RequesteeID,
+                                DealID = dealCreationRes.ID,
+                                IsFresh = true,
+                                State = (int)CustomerStageState.Initial,
+                                StatusID = request.RecordStatusID,
+                            };
+                            var recordCreationRes = await unitOfWork.ProspectManager.CreateAsync(record);
+                            if (recordCreationRes != null)
+                            {
+                                //Finalize
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error creating record, please try again");
+                                result.Errors.Add("Error creating record, please try again");
+                                return result;
+                            }
+                        }
+                        else if (request.RecordType == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            Opportunity record = new Opportunity
+                            {
+                                AssignedUserID = request.RequesteeID,
+                                DealID = dealCreationRes.ID,
+                                IsFresh = true,
+                                State = (int)CustomerStageState.Initial,
+                                StatusID = request.RecordStatusID,
+                            };
+                            var recordCreationRes = await unitOfWork.OpportunityManager.CreateAsync(record);
+                            if (recordCreationRes != null)
+                            {
+                                //Finalize
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error creating record, please try again");
+                                result.Errors.Add("Error creating record, please try again");
+                                return result;
+                            }
+                        }
+                        else if (request.RecordType == (int)CustomerStageIndicator.DoneDeal)
+                        {
+                            DoneDeal record = new DoneDeal
+                            {
+                                AssignedUserID = request.RequesteeID,
+                                DealID = dealCreationRes.ID,
+                                State = (int)CustomerStageState.Initial,
+
+                            };
+                            var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
+                            if (recordCreationRes != null)
+                            {
+                                contact.IsFinalized = true;
+                                var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(contact);
+
+                                //Finalize
+                                await unitOfWork.SaveChangesAsync();
+                                result.Succeeded = true;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error creating record, please try again");
+                                result.Errors.Add("Error creating record, please try again");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Invalid Customer Stage");
+                            result.Errors.Add("Invalid Customer Stage");
+                            return result;
+                        }
+                    }
+                    //Deal creation error
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Error creating record, please try again");
+                        result.Errors.Add("Error creating record, please try again");
+                        return result;
+                    }
+
+                }
+                //record has no flows, Create flow with desired record type
+                else
+                {
+                    //Create customer
+                    Customer customer = new Customer
+                    {
+                        FullNameEN = contact.FullNameEN,
+                        FullNameAR = contact.FullNameAR,
+                        Address = contact.Address,
+                        AssignedUserID = request.RequesteeID,
+                        Email = contact.Email,
+                        PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                        Occupation = contact.Occupation,
+                        ContactID = contact.ID,
+                        LeadSourceName = contact.LeadSourceName,
+                        LeadSourceType = contact.LeadSourceType,
+                    };
+
+                    var customerCreationRes = await unitOfWork.CustomerManager.CreateAsync(customer);
+
+                    if (customerCreationRes != null)
+                    {
+                        await unitOfWork.SaveChangesAsync();
+
+                        //Create deal
+
+                        Deal deal = new Deal
+                        {
+                            CustomerID = customerCreationRes.ID
+                        };
+
+                        var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
+
+                        if (dealCreationRes != null)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+
+                            //Create related record
+                            if (request.RecordType == (int)CustomerStageIndicator.Lead)
+                            {
+                                Lead record = new Lead
+                                {
+                                    AssignedUserID = request.RequesteeID,
+                                    DealID = dealCreationRes.ID,
+                                    IsFresh = true,
+                                    State = (int)CustomerStageState.Initial,
+                                    StatusID = request.RecordStatusID,
+                                };
+
+                                var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
+                                if (recordCreationRes != null)
+                                {
+                                    //Finalize
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Error creating record, please try again");
+                                    result.Errors.Add("Error creating record, please try again");
+                                    return result;
+                                }
+                            }
+                            else if (request.RecordType == (int)CustomerStageIndicator.Prospect)
+                            {
+                                Prospect record = new Prospect
+                                {
+                                    AssignedUserID = request.RequesteeID,
+                                    DealID = dealCreationRes.ID,
+                                    IsFresh = true,
+                                    State = (int)CustomerStageState.Initial,
+                                    StatusID = request.RecordStatusID,
+                                };
+                                var recordCreationRes = await unitOfWork.ProspectManager.CreateAsync(record);
+                                if (recordCreationRes != null)
+                                {
+                                    //Finalize
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Error creating record, please try again");
+                                    result.Errors.Add("Error creating record, please try again");
+                                    return result;
+                                }
+                            }
+                            else if (request.RecordType == (int)CustomerStageIndicator.Opportunity)
+                            {
+                                Opportunity record = new Opportunity
+                                {
+                                    AssignedUserID = request.RequesteeID,
+                                    DealID = dealCreationRes.ID,
+                                    IsFresh = true,
+                                    State = (int)CustomerStageState.Initial,
+                                    StatusID = request.RecordStatusID,
+                                };
+                                var recordCreationRes = await unitOfWork.OpportunityManager.CreateAsync(record);
+                                if (recordCreationRes != null)
+                                {
+                                    //Finalize
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Error creating record, please try again");
+                                    result.Errors.Add("Error creating record, please try again");
+                                    return result;
+                                }
+                            }
+                            else if (request.RecordType == (int)CustomerStageIndicator.DoneDeal)
+                            {
+                                DoneDeal record = new DoneDeal
+                                {
+                                    AssignedUserID = request.RequesteeID,
+                                    DealID = dealCreationRes.ID,
+                                    State = (int)CustomerStageState.Initial,
+
+                                };
+                                var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
+                                if (recordCreationRes != null)
+                                {
+                                    contact.IsFinalized = true;
+                                    var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(contact);
+
+                                    //Finalize
+                                    await unitOfWork.SaveChangesAsync();
+                                    result.Succeeded = true;
+                                    return result;
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Error creating record, please try again");
+                                    result.Errors.Add("Error creating record, please try again");
+                                    return result;
+                                }
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Invalid Customer Stage");
+                                result.Errors.Add("Invalid Customer Stage");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Error creating record, please try again");
+                            result.Errors.Add("Error creating record, please try again");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Error creating record, please try again");
+                        result.Errors.Add("Error creating record, please try again");
+                        return result;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+
     }
 
 }
