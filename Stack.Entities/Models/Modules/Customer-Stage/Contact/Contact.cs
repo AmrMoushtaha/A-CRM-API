@@ -29,8 +29,6 @@ namespace Stack.Entities.Models.Modules.CustomerStage
 
         public long PoolID { get; set; }
 
-        public long? CustomerID { get; set; }
-
         public long? StatusID { get; set; }
 
         public string AssignedUserID { get; set; }
@@ -51,7 +49,6 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         [ForeignKey("AssignedUserID")]
         public virtual ApplicationUser AssignedUser { get; set; }
 
-        [ForeignKey("CustomerID")]
         public virtual Customer Customer { get; set; }
 
         [ForeignKey("PoolID")]

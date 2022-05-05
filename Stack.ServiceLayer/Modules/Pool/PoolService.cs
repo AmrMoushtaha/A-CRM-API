@@ -1741,9 +1741,9 @@ namespace Stack.ServiceLayer.Modules.pool
                         var currentDeal = contact.Customer.Deals[i];
 
                         //get active stage for deal
-                        if (currentDeal.activeStageType == (int)CustomerStageIndicator.Prospect)
+                        if (currentDeal.ActiveStageType == (int)CustomerStageIndicator.Prospect)
                         {
-                            var activeStageQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                            var activeStageQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == currentDeal.ActiveStageID);
                             var activeStage = activeStageQ.FirstOrDefault();
 
                             if (activeStage != null)
@@ -1753,9 +1753,9 @@ namespace Stack.ServiceLayer.Modules.pool
                                 await unitOfWork.ProspectManager.UpdateAsync(activeStage);
                             }
                         }
-                        else if (currentDeal.activeStageType == (int)CustomerStageIndicator.Lead)
+                        else if (currentDeal.ActiveStageType == (int)CustomerStageIndicator.Lead)
                         {
-                            var activeStageQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                            var activeStageQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == currentDeal.ActiveStageID);
                             var activeStage = activeStageQ.FirstOrDefault();
 
                             if (activeStage != null)
@@ -1765,9 +1765,9 @@ namespace Stack.ServiceLayer.Modules.pool
                                 await unitOfWork.LeadManager.UpdateAsync(activeStage);
                             }
                         }
-                        else if (currentDeal.activeStageType == (int)CustomerStageIndicator.Opportunity)
+                        else if (currentDeal.ActiveStageType == (int)CustomerStageIndicator.Opportunity)
                         {
-                            var activeStageQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                            var activeStageQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == currentDeal.ActiveStageID);
                             var activeStage = activeStageQ.FirstOrDefault();
 
                             if (activeStage != null)
@@ -1777,9 +1777,9 @@ namespace Stack.ServiceLayer.Modules.pool
                                 await unitOfWork.OpportunityManager.UpdateAsync(activeStage);
                             }
                         }
-                        else if (currentDeal.activeStageType == (int)CustomerStageIndicator.DoneDeal)
+                        else if (currentDeal.ActiveStageType == (int)CustomerStageIndicator.DoneDeal)
                         {
-                            var activeStageQ = await unitOfWork.DoneDealManager.GetAsync(t => t.ID == currentDeal.activeStageID);
+                            var activeStageQ = await unitOfWork.DoneDealManager.GetAsync(t => t.ID == currentDeal.ActiveStageID);
                             var activeStage = activeStageQ.FirstOrDefault();
 
                             if (activeStage != null)

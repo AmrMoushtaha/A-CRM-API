@@ -52,15 +52,15 @@ namespace Stack.API
 
 
             //Local server connection string
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= B-YASMIN-GHAZY\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
 
 
             //Hangfire connection string
             //Local connection string
-            services.AddHangfire(x => x.UseSqlServerStorage("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
-            //services.AddHangfire(x => x.UseSqlServerStorage("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
+            //services.AddHangfire(x => x.UseSqlServerStorage("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
+            services.AddHangfire(x => x.UseSqlServerStorage("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
 
             services.AddHangfireServer();
 
