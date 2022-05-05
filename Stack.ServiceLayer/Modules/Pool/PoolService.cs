@@ -1944,7 +1944,6 @@ namespace Stack.ServiceLayer.Modules.pool
                         Email = contact.Email,
                         PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
                         Occupation = contact.Occupation,
-                        ContactID = contact.ID,
                         LeadSourceName = contact.LeadSourceName,
                         LeadSourceType = contact.LeadSourceType,
                     };

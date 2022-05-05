@@ -428,7 +428,6 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 newCustomer.FullNameAR = referenceContact.FullNameAR;
 
-                                newCustomer.ContactID = referenceContact.ID;
 
                                 // Assign the user to this customer .
                                 newCustomer.AssignedUserID = referenceUser.Id;
@@ -436,6 +435,10 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 var createCustomerResult = await unitOfWork.CustomerManager.CreateAsync(newCustomer);
 
                                 await unitOfWork.SaveChangesAsync();
+
+                                referenceContact.CustomerID = newCustomer.ID;
+
+                                var updateReferenceContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
 
                                 newDeal.CustomerID = createCustomerResult.ID;
 

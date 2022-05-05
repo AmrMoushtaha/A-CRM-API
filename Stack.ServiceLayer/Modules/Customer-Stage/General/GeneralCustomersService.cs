@@ -534,7 +534,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                             Email = creationModel.Email,
                                                             PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                                             Occupation = creationModel.Occupation,
-                                                            ContactID = recordDuplicationCheck.ID,
                                                             LeadSourceName = recordDuplicationCheck.LeadSourceName,
                                                             LeadSourceType = recordDuplicationCheck.LeadSourceType,
                                                         };
@@ -962,7 +961,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 Email = creationModel.Email,
                                                 PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                                 Occupation = creationModel.Occupation,
-                                                ContactID = recordDuplicationCheck.ID,
                                                 LeadSourceName = recordDuplicationCheck.LeadSourceName,
                                                 LeadSourceType = recordDuplicationCheck.LeadSourceType,
                                             };
@@ -1269,7 +1267,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                         Email = creationModel.Email,
                         PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                         Occupation = creationModel.Occupation,
-                        ContactID = contactCreationRes.ID,
                         LeadSourceName = contactCreationRes.LeadSourceName,
                         LeadSourceType = contactCreationRes.LeadSourceType,
                     };

@@ -49,6 +49,9 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         [ForeignKey("AssignedUserID")]
         public virtual ApplicationUser AssignedUser { get; set; }
 
+        public long? CustomerID { get; set; }
+
+        [ForeignKey("CustomerID")]
         public virtual Customer Customer { get; set; }
 
         [ForeignKey("PoolID")]

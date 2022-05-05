@@ -10,7 +10,6 @@ namespace Stack.Entities.Models.Modules.CustomerStage
     {
         public long ID { get; set; }
         public string AssignedUserID { get; set; }
-        public long ContactID { get; set; }
 
         public string FullNameEN { get; set; }
         public string FullNameAR { get; set; }
@@ -28,8 +27,11 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public virtual List<ProcessFlow> ProcessFlows { get; set; }
         public virtual List<Customer_Tag> Tags { get; set; }
 
-        [ForeignKey("ContactID")]
+
+
+
         public virtual Contact Contact { get; set; }
+
 
         [ForeignKey("AssignedUserID")]
         public virtual ApplicationUser AssignedUser { get; set; }
