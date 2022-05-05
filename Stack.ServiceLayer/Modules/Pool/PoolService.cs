@@ -447,7 +447,6 @@ namespace Stack.ServiceLayer.Modules.pool
         }
 
         //Get user assigned pools via user ID
-
         public async Task<ApiResponse<List<PoolSidebarViewModel>>> GetUserAssignedPoolsByUserID(string userID)
         {
             ApiResponse<List<PoolSidebarViewModel>> result = new ApiResponse<List<PoolSidebarViewModel>>();
@@ -490,6 +489,7 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
+
         //Pool view - Get main pool details
         public async Task<ApiResponse<PoolSidebarViewModel>> GetPoolDetails(long poolID)
         {
@@ -603,7 +603,6 @@ namespace Stack.ServiceLayer.Modules.pool
         }
 
         //Get pool admins
-
         public async Task<ApiResponse<List<PoolAssignedUsersModel>>> GetPoolAssignedAdmins(long poolID)
         {
             ApiResponse<List<PoolAssignedUsersModel>> result = new ApiResponse<List<PoolAssignedUsersModel>>();
@@ -667,7 +666,6 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
-
 
         //Get pool specified pool users / all pool users with their capacity
         public async Task<ApiResponse<List<PoolAssignedUserCapacityModel>>> GetPoolAssignedUsersCapacity(GetPoolAssignedUsersCapacityModel model)
@@ -763,6 +761,265 @@ namespace Stack.ServiceLayer.Modules.pool
                             result.Errors.Add("No contacts found");
                             result.Errors.Add("No contacts found");
                             return result;
+                        }
+                    }
+                    else
+                    {
+
+                        result.Succeeded = false;
+                        result.Errors.Add("Unauthorized");
+                        result.Errors.Add("غير مصرح");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetPoolRecords(GetPoolRecordsModel model)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    //Verify user pool permissions
+                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == model.PoolID && t.UserID == userID, includeProperties: "Pool");
+                    var userPool = userPoolQuery.FirstOrDefault();
+
+                    if (userPool != null)
+                    {
+                        //var poolRecords = await unitOfWork.PoolUserManager.GetPoolRecords(poolID, userID);
+
+                        if (model.RecordType == (int)CustomerStageIndicator.Prospect)
+                        {
+                            var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID
+                            && t.State == (int)CustomerStageState.Unassigned, includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.RecordType == (int)CustomerStageIndicator.Lead)
+                        {
+                            var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID
+                            && t.State == (int)CustomerStageState.Unassigned, includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.RecordType == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID
+                            && t.State == (int)CustomerStageState.Unassigned, includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.RecordType == (int)CustomerStageIndicator.DoneDeal)
+                        {
+                            var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID
+                            && t.State == (int)CustomerStageState.Unassigned, includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
+                        }
+                    }
+                    else
+                    {
+
+                        result.Succeeded = false;
+                        result.Errors.Add("Unauthorized");
+                        result.Errors.Add("غير مصرح");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        //Get User Assigned Pool Records
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetUserAssignedRecords(GetPoolRecordsModel model)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    //Verify user pool permissions
+                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == model.PoolID && t.UserID == userID, includeProperties: "Pool");
+                    var userPool = userPoolQuery.FirstOrDefault();
+
+                    if (userPool != null)
+                    {
+                        //var poolRecords = await unitOfWork.PoolUserManager.GetPoolRecords(poolID, userID);
+
+                        if (model.RecordType == (int)CustomerStageIndicator.Prospect)
+                        {
+                            var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.AssignedUserID == userID &&
+                            (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.RecordType == (int)CustomerStageIndicator.Lead)
+                        {
+                            var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.AssignedUserID == userID &&
+                            (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.RecordType == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.AssignedUserID == userID &&
+                            (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.RecordType == (int)CustomerStageIndicator.DoneDeal)
+                        {
+                            var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.AssignedUserID == userID &&
+                            (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
                         }
                     }
                     else
@@ -1295,6 +1552,7 @@ namespace Stack.ServiceLayer.Modules.pool
                         {
                             PoolID = contact.PoolID,
                             RecordID = contact.ID,
+                            RecordType = model.RecordType,
                             RequestType = (int)PoolRequestTypes.RecordFromPool,
                             Status = (int)PoolRequestStatuses.Pending,
                             Requestee_PoolID = currentPool.ID,
@@ -1405,7 +1663,6 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
-
 
         public async Task<ApiResponse<List<PoolRequestModel>>> GetUserPoolsPendingRequests()
         {
@@ -1598,7 +1855,6 @@ namespace Stack.ServiceLayer.Modules.pool
             }
         }
 
-
         public async Task<ApiResponse<bool>> ApplyRequestAction(PoolRequest request, int requestType)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -1608,13 +1864,18 @@ namespace Stack.ServiceLayer.Modules.pool
                 if (requestType == (int)PoolRequestTypes.RecordFromPool)
                 {
                     //Get record
-                    var recordQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == request.RecordID.Value, includeProperties: "Customer,Customer.Deals");
-                    var record = recordQ.FirstOrDefault();
+                    var contactQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == request.RecordID.Value, includeProperties: "Customer");
+                    var contact = contactQ.FirstOrDefault();
 
-                    if (record != null)
+                    if (contact != null)
                     {
+                        if (contact.CustomerID != null)
+                        {
+                            var customerDealsQ = await unitOfWork.DealManager.GetAsync(t => t.CustomerID == contact.CustomerID);
+                            contact.Customer.Deals = customerDealsQ.ToList();
+                        }
                         //Update contact status
-                        var transferResult = await TransferRecordOwnership(request, record);
+                        var transferResult = await TransferRecordOwnership(request, contact);
                         return transferResult;
 
                     }
@@ -1650,14 +1911,20 @@ namespace Stack.ServiceLayer.Modules.pool
                         await unitOfWork.SaveChangesAsync();
 
                         //Get record
-                        var recordQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == request.RecordID.Value, includeProperties: "Customer,Customer.Deals");
-                        var record = recordQ.FirstOrDefault();
+                        var contactQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == request.RecordID.Value, includeProperties: "Customer");
+                        var contact = contactQ.FirstOrDefault();
 
-                        if (record != null)
+                        if (contact != null)
                         {
+                            if (contact.CustomerID != null)
+                            {
+                                var customerDealsQ = await unitOfWork.DealManager.GetAsync(t => t.CustomerID == contact.CustomerID);
+                                contact.Customer.Deals = customerDealsQ.ToList();
+                            }
                             //Update contact status
-                            var transferResult = await TransferRecordOwnership(request, record);
+                            var transferResult = await TransferRecordOwnership(request, contact);
                             return transferResult;
+
                         }
                         else
                         {
@@ -1722,7 +1989,6 @@ namespace Stack.ServiceLayer.Modules.pool
                 return result;
             }
         }
-        #endregion
 
         public async Task<ApiResponse<bool>> TransferRecordOwnership(PoolRequest request, Contact contact)
         {
@@ -1739,6 +2005,8 @@ namespace Stack.ServiceLayer.Modules.pool
                     for (int i = 0; i < contact.Customer.Deals.Count; i++)
                     {
                         var currentDeal = contact.Customer.Deals[i];
+
+                        currentDeal.PoolID = request.Requestee_PoolID.Value;
 
                         //get active stage for deal
                         if (currentDeal.ActiveStageType == (int)CustomerStageIndicator.Prospect)
@@ -1795,7 +2063,8 @@ namespace Stack.ServiceLayer.Modules.pool
 
                     Deal deal = new Deal
                     {
-                        CustomerID = contact.CustomerID.Value
+                        CustomerID = contact.CustomerID.Value,
+                        PoolID = request.Requestee_PoolID.Value,
                     };
 
                     var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -1958,7 +2227,8 @@ namespace Stack.ServiceLayer.Modules.pool
 
                         Deal deal = new Deal
                         {
-                            CustomerID = customerCreationRes.ID
+                            CustomerID = customerCreationRes.ID,
+                            PoolID = request.Requestee_PoolID.Value,
                         };
 
                         var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -2109,6 +2379,9 @@ namespace Stack.ServiceLayer.Modules.pool
                 return result;
             }
         }
+
+        #endregion
+
 
 
     }

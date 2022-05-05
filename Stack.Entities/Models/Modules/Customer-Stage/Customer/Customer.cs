@@ -20,7 +20,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string LeadSourceType { get; set; }
         public string LeadSourceName { get; set; }
         public string PrimaryPhoneNumber { get; set; }
-
+        public long PoolID { get; set; }
 
         public virtual List<CustomerPhoneNumber> PhoneNumbers { get; set; }
         public virtual List<Deal> Deals { get; set; }

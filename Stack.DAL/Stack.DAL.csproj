@@ -13,6 +13,8 @@
   <ItemGroup>
     <Compile Remove="Migrations\20220402225707_model-builder-updates.cs" />
     <Compile Remove="Migrations\20220402225707_model-builder-updates.Designer.cs" />
+    <Compile Remove="Migrations\20220505052107_deal-adjusted.cs" />
+    <Compile Remove="Migrations\20220505052107_deal-adjusted.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

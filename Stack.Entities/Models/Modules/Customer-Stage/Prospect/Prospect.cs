@@ -9,10 +9,9 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public long ID { get; set; }
         public string AssignedUserID { get; set; }
         public long DealID { get; set; }
-
         public int State { get; set; }
         public long? StatusID { get; set; }
-
+        public long PoolID { get; set; }
         public bool IsFresh { get; set; }
 
         [ForeignKey("StatusID")]

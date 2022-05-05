@@ -25,6 +25,9 @@ using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Enums.Modules.CustomerStage;
 using Stack.DTOs.Requests.Modules.CustomerStage;
 using Stack.Entities.Enums.Modules.Pool;
+using Stack.DTOs.Models.Modules.Pool;
+using Stack.DTOs.Models.Modules.CustomerStage;
+using Stack.DTOs.Requests.Modules.Pool;
 
 namespace Stack.ServiceLayer.Modules.CustomerStage
 {
@@ -107,10 +110,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
 
 
-                if (leadStatuses != null && leadStatuses.Count > 0 )
+                if (leadStatuses != null && leadStatuses.Count > 0)
                 {
 
-                    for(int i = 0; i < leadStatuses.Count; i++)
+                    for (int i = 0; i < leadStatuses.Count; i++)
                     {
 
                         StatusModel statusToAdd = new StatusModel();
@@ -194,7 +197,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 result.Data.Stages.Add(leadStage);
 
                 result.Data.Stages.Add(prospectStage);
-         
+
                 result.Data.Stages.Add(opportunityStage);
 
                 result.Data.Stages.Add(contactStage);
@@ -548,7 +551,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                                                             Deal deal = new Deal
                                                             {
-                                                                CustomerID = customerCreationRes.ID
+                                                                CustomerID = customerCreationRes.ID,
+                                                                PoolID = recordDuplicationCheck.PoolID
                                                             };
 
                                                             var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -795,7 +799,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                                             Deal deal = new Deal
                                             {
-                                                CustomerID = recordDuplicationCheck.CustomerID.Value
+                                                CustomerID = recordDuplicationCheck.CustomerID.Value,
+                                                PoolID = recordDuplicationCheck.PoolID
                                             };
 
                                             var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -975,7 +980,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                                                 Deal deal = new Deal
                                                 {
-                                                    CustomerID = customerCreationRes.ID
+                                                    CustomerID = customerCreationRes.ID,
+                                                    PoolID = recordDuplicationCheck.PoolID
                                                 };
 
                                                 var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -1280,7 +1286,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                         Deal deal = new Deal
                         {
-                            CustomerID = customerCreationRes.ID
+                            CustomerID = customerCreationRes.ID,
+                            PoolID = creationModel.PoolID
                         };
 
                         var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -1456,6 +1463,114 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
         }
 
         #endregion
+
+        public async Task<ApiResponse<ContactViewModel>> GetCurrentStageRecord(GetPoolRecordsModel model)
+        {
+            ApiResponse<ContactViewModel> result = new ApiResponse<ContactViewModel>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    if (model.RecordType == (int)CustomerStageIndicator.Prospect)
+                    {
+                        var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var records = recordsQ.FirstOrDefault();
+
+                        if (records != null)
+                        {
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<ContactViewModel>(records);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.Lead)
+                    {
+                        var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var records = recordsQ.FirstOrDefault();
+
+                        if (records != null)
+                        {
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<ContactViewModel>(records);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.Opportunity)
+                    {
+                        var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var records = recordsQ.FirstOrDefault();
+
+                        if (records != null)
+                        {
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<ContactViewModel>(records);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.DoneDeal)
+                    {
+                        var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var records = recordsQ.FirstOrDefault();
+
+                        if (records != null)
+                        {
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<ContactViewModel>(records);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
 
     }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
 using Stack.DTOs.Requests.Modules.Auth;
 using Stack.DTOs.Requests.Modules.CustomerStage;
+using Stack.DTOs.Requests.Modules.Pool;
 using Stack.ServiceLayer.Modules.Auth;
 using Stack.ServiceLayer.Modules.CustomerStage;
 using System.Threading.Tasks;
@@ -25,6 +26,13 @@ namespace Stack.API.Controllers.Modules.Auth
         public async Task<IActionResult> GetContactPossibleStages()
         {
             return await GetResponseHandler(async () => await service.GetContactPossibleStages());
+        }
+
+        [AllowAnonymous]
+        [HttpPost("GetCurrentStageRecord")]
+        public async Task<IActionResult> GetCurrentStageRecord(GetPoolRecordsModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetCurrentStageRecord(model));
         }
 
         [AllowAnonymous]
