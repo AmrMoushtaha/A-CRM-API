@@ -404,7 +404,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                     if (assignedContacts == poolUser.Capacity)
                                     {
                                         //Verify whether creator is a pool admin
-
                                         var poolAdminQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == creationModel.PoolID && t.UserID == userID && t.IsAdmin == true);
                                         var poolAdmin = poolAdminQuery.FirstOrDefault();
                                         if (poolAdmin != null || poolAdmin == null && poolUser.IsAdmin == false) //Creator is pool admin

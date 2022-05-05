@@ -443,7 +443,7 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                  var  usersToReturn = mapper.Map<List<ApplicationUserDTO>>(usersList);
 
-                usersToReturn = usersToReturn.FindAll(a => a.AuthModel.RoleNameEN != "Administrator");
+                //usersToReturn = usersToReturn.FindAll(a => a.AuthModel.RoleNameEN != "Administrator");
 
 
                 result.Data = usersToReturn;

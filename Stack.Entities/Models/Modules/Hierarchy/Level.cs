@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Stack.Entities.Models.Modules.AreaInterest
+namespace Stack.Entities.Models.Modules.Hierarchy
 {
-    public class InterestAttribute:BaseEntity
+    public class Level : BaseEntity
     {
         public string LabelAR { get; set; }
         public string LabelEN { get; set; }
-        public virtual List<LInterest_InterestAttribute> LInterest_InterestAttributes { get; set; }
+        public int Type { get; set; }
 
+        public virtual List<LSection> Sections { get; set; }
 
     }
 

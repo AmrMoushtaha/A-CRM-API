@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Stack.Entities.Enums.Modules.AreaInterest
 {
-    public enum Level
+    public enum LevelEnum
     {
-        Developer,
-        Project,
-        Building,
-        Unit
+        LevelOne,
+        LevelTwo,
+        LevelThree,
+        LevelFour
        
     }
 

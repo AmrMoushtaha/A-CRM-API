@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
-using Stack.DTOs.Requests.Modules.Auth;
-using Stack.ServiceLayer.Modules.Auth;
-using Stack.ServiceLayer.Modules.Region;
 using Stack.ServiceLayer.Modules.SystemInitialization;
 using System.Threading.Tasks;
 
