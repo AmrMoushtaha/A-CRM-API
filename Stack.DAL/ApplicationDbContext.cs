@@ -50,7 +50,6 @@ namespace Stack.DAL
 
             base.OnModelCreating(modelBuilder);
 
-
             modelBuilder.Entity<Contact>()
             .Property<bool>("IsDeleted");
 
@@ -64,6 +63,9 @@ namespace Stack.DAL
             .Property<bool>("IsDeleted");
 
             modelBuilder.Entity<Customer>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CustomerComment>()
             .Property<bool>("IsDeleted");
 
             modelBuilder.Entity<Deal>()
@@ -152,6 +154,10 @@ namespace Stack.DAL
 
             modelBuilder.Entity<Customer>()
                .HasQueryFilter(Customer => EF.Property<bool>(Customer, "IsDeleted") == false);
+
+
+            modelBuilder.Entity<CustomerComment>()
+               .HasQueryFilter(CustomerComment => EF.Property<bool>(CustomerComment, "IsDeleted") == false);
 
             modelBuilder.Entity<CustomerPhoneNumber>()
                .HasQueryFilter(CustomerPhoneNumber => EF.Property<bool>(CustomerPhoneNumber, "IsDeleted") == false);
@@ -340,6 +346,7 @@ namespace Stack.DAL
         public virtual DbSet<ContactStatus> ContactStatuses { get; set; }
         public virtual DbSet<ContactPhoneNumber> ContactPhoneNumbers { get; set; }
         public virtual DbSet<ContactComment> ContactComments { get; set; }
+        public virtual DbSet<CustomerComment> CustomerComments { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Deal> Deals { get; set; }
         public virtual DbSet<Prospect> Prospects { get; set; }
@@ -358,7 +365,6 @@ namespace Stack.DAL
         public virtual DbSet<SectionQuestionAnswer> SectionQuestionAnswers { get; set; }
         public virtual DbSet<SectionQuestionOption> SectionQuestionOptions { get; set; }
         public virtual DbSet<SelectedOption> SelectedOptions { get; set; }
-
         public virtual DbSet<CustomerRequest> CustomerRequests { get; set; }
         public virtual DbSet<CR_Section> CR_Sections { get; set; }
         public virtual DbSet<CRSubmissionDetails> CRSubmissionDetails { get; set; }
@@ -368,7 +374,6 @@ namespace Stack.DAL
         public virtual DbSet<CRSectionQuestionAnswer> CRSectionQuestionAnswers { get; set; }
         public virtual DbSet<CRSectionQuestionOption> CRSectionQuestionOptions { get; set; }
         public virtual DbSet<CRSelectedOption> CRSelectedOptions { get; set; }
-
         public virtual DbSet<ProcessFlow> ProcessFlows { get; set; }
         public virtual DbSet<Location_Pool> Location_Pools { get; set; }
         public virtual DbSet<Location> Locations { get; set; }
@@ -377,14 +382,11 @@ namespace Stack.DAL
         public virtual DbSet<Input> Inputs { get; set; }
         public virtual DbSet<LInterestInput> LInterestInputs { get; set; }
         public virtual DbSet<LInterest> LInterests { get; set; }
-
         public virtual DbSet<SystemConfiguration> SystemConfiguration { get; set; }
         public virtual DbSet<AuthorizationSection> AuthorizationSections { get; set; }
         public virtual DbSet<SectionAuthorization> SectionAuthorizations { get; set; }
-
         public virtual DbSet<LeadSourceName> LeadSourceNames { get; set; }
         public virtual DbSet<LeadSourceType> LeadSourceTypes { get; set; }
-
         public virtual DbSet<LAttribute> LAttributes { get; set; }
 
     }

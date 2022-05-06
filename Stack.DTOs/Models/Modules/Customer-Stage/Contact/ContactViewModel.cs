@@ -31,6 +31,8 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
         public List<ContactPhoneNumberDTO> ContactPhoneNumbers { get; set; }
         public List<ContactCommentDTO> Comments { get; set; }
         public List<ContactTagDTO> Tags { get; set; }
+
+        public List<RecordDeal> RecordDeals { get; set; }
     }
 
     public class ContactPhoneNumberDTO
@@ -50,6 +52,12 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
     {
         public long ID { get; set; }
         public string title { get; set; }
+    }
+
+    public class RecordDeal
+    {
+        public int RecordType { get; set; }
+        public long RecordID { get; set; }
     }
 
 }

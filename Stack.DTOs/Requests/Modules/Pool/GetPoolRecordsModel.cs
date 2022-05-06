@@ -6,7 +6,7 @@ namespace Stack.DTOs.Requests.Modules.Pool
 {
     public class GetPoolRecordsModel
     {
-        public long PoolID { get; set; }
+        public long? PoolID { get; set; }
         public int RecordType { get; set; }
     }
 

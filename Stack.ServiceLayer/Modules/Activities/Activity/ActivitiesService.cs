@@ -30,7 +30,7 @@ namespace Stack.ServiceLayer.Modules.Activities
         private readonly IMapper mapper;
         private static readonly HttpClient client = new HttpClient();
 
-        public ActivitiesService( UnitOfWork unitOfWork, IConfiguration config, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public ActivitiesService(UnitOfWork unitOfWork, IConfiguration config, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             this.unitOfWork = unitOfWork;
             this.config = config;
@@ -53,7 +53,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 List<ActivityType> activityTypesList = activityTypesResult.ToList();
 
-                if(activityTypesList != null && activityTypesList.Count > 0)
+                if (activityTypesList != null && activityTypesList.Count > 0)
                 {
 
                     result.Data = mapper.Map<List<ActivityTypeMainViewDTO>>(activityTypesList);
@@ -78,7 +78,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
 
                 }
-              
+
             }
             catch (Exception ex)
             {
@@ -109,7 +109,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                 if (referenceProcessFlow != null)
                 {
 
-                    var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.DealID == DealID && a.IsSubmitted == true, includeProperties:"ActivityType");
+                    var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.DealID == DealID && a.IsSubmitted == true, includeProperties: "ActivityType");
 
                     List<Activity> activitiesList = activitiesResult.ToList();
 
@@ -233,7 +233,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 //Check if an activity typr with a duplicate name already exists !
 
-                var duplicateTypeResult = await unitOfWork.ActivityTypesManager.GetAsync(a => a.NameEN == model.NameEN || a.NameAR == model.NameAR );
+                var duplicateTypeResult = await unitOfWork.ActivityTypesManager.GetAsync(a => a.NameEN == model.NameEN || a.NameAR == model.NameAR);
 
                 List<ActivityType> duplicateTypeList = duplicateTypeResult.ToList();
 
@@ -323,7 +323,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                     if (deleteActivityResult == true)
                     {
 
-                       var saveResult =  await unitOfWork.SaveChangesAsync();
+                        var saveResult = await unitOfWork.SaveChangesAsync();
 
                         result.Succeeded = true;
                         result.Data = true;
@@ -428,6 +428,15 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 newCustomer.FullNameAR = referenceContact.FullNameAR;
 
+                                newCustomer.PrimaryPhoneNumber = referenceContact.PrimaryPhoneNumber;
+
+                                newCustomer.LeadSourceType = referenceContact.LeadSourceType;
+
+                                newCustomer.LeadSourceName = referenceContact.LeadSourceName;
+
+                                newCustomer.Address = referenceContact.Address;
+
+                                newCustomer.PoolID = referenceContact.PoolID;
 
                                 // Assign the user to this customer .
                                 newCustomer.AssignedUserID = referenceUser.Id;
@@ -544,7 +553,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 newDeal.ActiveStageID = newStageRecord.ID;
 
-                                newDeal.ActiveStageType = (int)CustomerStageIndicator.Lead;
+                                newDeal.ActiveStageType = (int)CustomerStageIndicator.Opportunity;
 
                             }
 
@@ -720,7 +729,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
 
                             }
-       
+
                         }
 
                     }
@@ -775,7 +784,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                         }
 
-                            if (model.CurrentStage == "Prospect")
+                        if (model.CurrentStage == "Prospect")
                         {
                             //Update the current prospect record to converted .
                             var prospectsResult = await unitOfWork.ProspectManager.GetAsync(a => a.ID == model.RecordID);
@@ -785,7 +794,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                             referenceProspect.IsFresh = false;
 
                             var updateProspectResutlt = await unitOfWork.ProspectManager.UpdateAsync(referenceProspect);
-          
+
                         }
 
                         if (model.CurrentStage == "Lead")
@@ -834,7 +843,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                     }
 
                     // if there an an activity to be scheduled . 
-                    if( model.ScheduledActivityTypeID != null && activitySubmissionDetails.NewStage != "Done-Deal")
+                    if (model.ScheduledActivityTypeID != null && activitySubmissionDetails.NewStage != "Done-Deal")
                     {
 
                         activitySubmissionDetails.ScheduledActivityDate = model.ScheduledActivityDate;
@@ -855,7 +864,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                     if (activitySubmissionDetails.IsStageChanged == true)
                     {
 
-                        if(activitySubmissionDetails.NewStage == "Prospect")
+                        if (activitySubmissionDetails.NewStage == "Prospect")
                         {
                             modelToReturn.RecordType = (int)CustomerStageIndicator.Prospect;
                         }
@@ -875,7 +884,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                             modelToReturn.RecordType = (int)CustomerStageIndicator.DoneDeal;
 
                         }
-   
+
                         modelToReturn.RecordID = (long)referenceProcessFlow.DealID;
 
                     }
@@ -956,275 +965,275 @@ namespace Stack.ServiceLayer.Modules.Activities
         /// <param name="model"></param>
         /// <returns></returns>
         public async Task<ApiResponse<SectionToAnswer>> GetNextActivitySection(SectionToAnswer model)
-    {
-        ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
-        try
         {
-
-            //Get an update the end date of the current activity section . 
-            var activitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.ID == model.ID);
-
-            ActivitySection currentSection = activitySectionsResult.FirstOrDefault();
-
-            currentSection.EndDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
-
-            currentSection.IsSubmitted = true;
-
-            var updateCurrentSectionResult = await unitOfWork.ActivitySectionsManager.UpdateAsync(currentSection);
-
-            await unitOfWork.SaveChangesAsync();
-
-            string sectionToRouteTo = "";
-
-            SectionToAnswer sectionToReturn = new SectionToAnswer();
-
-            Section nextSectionReference = new Section();
-
-            //Save question answers for the current section  .
-            for (int i = 0; i < model.Questions.Count; i++)
+            ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
+            try
             {
 
-                SectionQuestionAnswer newSectionQuestionAnswer = new SectionQuestionAnswer();
+                //Get an update the end date of the current activity section . 
+                var activitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.ID == model.ID);
 
-                newSectionQuestionAnswer.QuestionID = model.Questions[i].ID;
+                ActivitySection currentSection = activitySectionsResult.FirstOrDefault();
 
-                newSectionQuestionAnswer.Value = model.Questions[i].Answer;
+                currentSection.EndDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
 
-                newSectionQuestionAnswer.DateValue = model.Questions[i].DateAnswer;
+                currentSection.IsSubmitted = true;
 
-                newSectionQuestionAnswer.ActivitySectionID = model.ID;
-
-                var createSectionQuestionAnswer = await unitOfWork.SectionQuestionAnswersManager.CreateAsync(newSectionQuestionAnswer);
+                var updateCurrentSectionResult = await unitOfWork.ActivitySectionsManager.UpdateAsync(currentSection);
 
                 await unitOfWork.SaveChangesAsync();
 
-                //If the question had options to choose from . save the selected answer . 
-                if (model.Questions[i].Options.Count > 0 && model.Questions[i].Options != null)
+                string sectionToRouteTo = "";
+
+                SectionToAnswer sectionToReturn = new SectionToAnswer();
+
+                Section nextSectionReference = new Section();
+
+                //Save question answers for the current section  .
+                for (int i = 0; i < model.Questions.Count; i++)
                 {
 
-                    QuestionOption SelectedOption = model.Questions[i].Options.Find(a => a.IsSelected == true);
+                    SectionQuestionAnswer newSectionQuestionAnswer = new SectionQuestionAnswer();
 
-                    //Get the id of the section to route to in case the question is a decisional question . 
-                    if (model.Questions[i].IsDecisional == true)
-                    {
-                        if(SelectedOption != null)
-                        {
-                            sectionToRouteTo = SelectedOption.RoutesTo;
-                        }        
-                    }
+                    newSectionQuestionAnswer.QuestionID = model.Questions[i].ID;
 
-                    SelectedOption newSelectedOption = new SelectedOption();
+                    newSectionQuestionAnswer.Value = model.Questions[i].Answer;
 
-                    newSelectedOption.SectionQuestionOptionID = SelectedOption.ID;
+                    newSectionQuestionAnswer.DateValue = model.Questions[i].DateAnswer;
 
-                    newSelectedOption.SectionQuestionAnswerID = newSectionQuestionAnswer.ID;
+                    newSectionQuestionAnswer.ActivitySectionID = model.ID;
 
-
-                    var createSelectedOptionResult = await unitOfWork.SelectedOptionsManager.CreateAsync(newSelectedOption);
+                    var createSectionQuestionAnswer = await unitOfWork.SectionQuestionAnswersManager.CreateAsync(newSectionQuestionAnswer);
 
                     await unitOfWork.SaveChangesAsync();
 
-
-                }
-
-            }
-
-            //Get the order of the next section .
-            var activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ActivityTypeID == model.ActivityTypeID);
-
-            List<Section> activityTypeSections = activityTypeSectionsResult.ToList();
-
-            activityTypeSections = activityTypeSections.OrderBy(a => a.Order).ToList();
-
-            int currentSectionIndex = activityTypeSections.FindIndex(a => a.Order == model.ActivityTypeSectionOrder+1);
-
-
-            // Return SectionToAnswer with IsFinal section = true .
-            if ((currentSectionIndex + 1) == activityTypeSections.Count || currentSectionIndex == -1)
-            {
-
-                sectionToReturn.IsFinalSection = true;
-
-                sectionToReturn.ActivityID = model.ActivityID;
-
-                sectionToReturn.ActivityTypeID = model.ActivityTypeID;
-
-                result.Succeeded = true;
-
-                result.Data = sectionToReturn;
-
-                return result;
-
-            }
-            else
-            {
-
-                int nextSectionOrder = activityTypeSections[currentSectionIndex + 1].Order;
-
-                // If the activity has no decisional questions get the next activity section by order . 
-                if (model.HasDecisionalQuestions == false)
-                {
-
-                    activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ActivityTypeID == model.ActivityTypeID && a.Order == nextSectionOrder, includeProperties: "Questions,Questions.QuestionOptions");
-
-                    nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
-
-                }
-                else // if the section has decisional questions find the section that the activity routes to . 
-                {
-
-                    if (sectionToRouteTo == "Submit")
+                    //If the question had options to choose from . save the selected answer . 
+                    if (model.Questions[i].Options.Count > 0 && model.Questions[i].Options != null)
                     {
-                        sectionToReturn.IsFinalSection = true;
 
-                        sectionToReturn.ActivityID = model.ActivityID;
+                        QuestionOption SelectedOption = model.Questions[i].Options.Find(a => a.IsSelected == true);
 
-                        sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+                        //Get the id of the section to route to in case the question is a decisional question . 
+                        if (model.Questions[i].IsDecisional == true)
+                        {
+                            if (SelectedOption != null)
+                            {
+                                sectionToRouteTo = SelectedOption.RoutesTo;
+                            }
+                        }
 
-                        result.Succeeded = true;
+                        SelectedOption newSelectedOption = new SelectedOption();
 
-                        result.Data = sectionToReturn;
+                        newSelectedOption.SectionQuestionOptionID = SelectedOption.ID;
 
-                        return result;
+                        newSelectedOption.SectionQuestionAnswerID = newSectionQuestionAnswer.ID;
+
+
+                        var createSelectedOptionResult = await unitOfWork.SelectedOptionsManager.CreateAsync(newSelectedOption);
+
+                        await unitOfWork.SaveChangesAsync();
+
+
                     }
-                    else
+
+                }
+
+                //Get the order of the next section .
+                var activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ActivityTypeID == model.ActivityTypeID);
+
+                List<Section> activityTypeSections = activityTypeSectionsResult.ToList();
+
+                activityTypeSections = activityTypeSections.OrderBy(a => a.Order).ToList();
+
+                int currentSectionIndex = activityTypeSections.FindIndex(a => a.Order == model.ActivityTypeSectionOrder + 1);
+
+
+                // Return SectionToAnswer with IsFinal section = true .
+                if ((currentSectionIndex + 1) == activityTypeSections.Count || currentSectionIndex == -1)
+                {
+
+                    sectionToReturn.IsFinalSection = true;
+
+                    sectionToReturn.ActivityID = model.ActivityID;
+
+                    sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+
+                    result.Succeeded = true;
+
+                    result.Data = sectionToReturn;
+
+                    return result;
+
+                }
+                else
+                {
+
+                    int nextSectionOrder = activityTypeSections[currentSectionIndex + 1].Order;
+
+                    // If the activity has no decisional questions get the next activity section by order . 
+                    if (model.HasDecisionalQuestions == false)
                     {
 
-                        activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.Order == long.Parse(sectionToRouteTo) && a.ActivityTypeID == model.ActivityTypeID, includeProperties: "Questions,Questions.QuestionOptions");
+                        activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.ActivityTypeID == model.ActivityTypeID && a.Order == nextSectionOrder, includeProperties: "Questions,Questions.QuestionOptions");
 
                         nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
 
                     }
-
-                }
-
-                //Create the new activity section .
-
-                ActivitySection nextSection = new ActivitySection();
-
-                nextSection.ActivityID = model.ActivityID;
-
-                nextSection.Order = model.Order + 1;
-
-                nextSection.SectionID = nextSectionReference.ID;
-
-                nextSection.StartDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
-
-                var createNextSectionResult = await unitOfWork.ActivitySectionsManager.CreateAsync(nextSection);
-
-                await unitOfWork.SaveChangesAsync();
-
-                //Create the upcoming section model and return it . 
-
-                sectionToReturn.ID = nextSection.ID;
-
-                sectionToReturn.NameAR = nextSectionReference.NameAR;
-
-                sectionToReturn.NameAR = nextSectionReference.NameAR;
-
-                sectionToReturn.IsFinalSection = false;
-
-                sectionToReturn.ActivityID = model.ActivityID;
-
-                sectionToReturn.ActivityTypeID = model.ActivityTypeID;
-
-                sectionToReturn.Order = nextSection.Order;
-
-                sectionToReturn.ActivityTypeSectionOrder = nextSectionReference.Order;
-
-                sectionToReturn.HasDecisionalQuestions = nextSectionReference.HasDecisionalQuestions;
-
-                sectionToReturn.HasCreateIntrest = nextSectionReference.HasCreateInterest;
-
-                sectionToReturn.HasCreateRequest = nextSectionReference.HasCreateRequest;
-
-                sectionToReturn.HasCreateResale = nextSectionReference.HasCreateResale;
-
-                sectionToReturn.Questions = new List<QuestionToAnswer>();
-
-                //Append section questions . 
-                for (int i = 0; i < nextSectionReference.Questions.Count; i++)
-                {
-
-                    QuestionToAnswer question = new QuestionToAnswer();
-
-                    question.ID = nextSectionReference.Questions[i].ID;
-
-                    question.DescriptionAR = nextSectionReference.Questions[i].DescriptionAR;
-
-                    question.DescriptionEN = nextSectionReference.Questions[i].DescriptionEN;
-
-                    question.isRequired = nextSectionReference.Questions[i].isRequired;
-
-                    question.IsDecisional = nextSectionReference.Questions[i].IsDecisional;
-
-                    question.Type = nextSectionReference.Questions[i].Type;
-
-                    question.Order = nextSectionReference.Questions[i].Order;
-
-                    question.Answer = "";
-
-                    if(question.Type == "Date")
+                    else // if the section has decisional questions find the section that the activity routes to . 
                     {
 
-                        question.DateAnswer = await HelperFunctions.GetEgyptsCurrentLocalTime();
+                        if (sectionToRouteTo == "Submit")
+                        {
+                            sectionToReturn.IsFinalSection = true;
 
-                    }
+                            sectionToReturn.ActivityID = model.ActivityID;
 
-                    //Append section question options . 
-                    if (nextSectionReference.Questions[i].QuestionOptions.Count > 0)
-                    {
+                            sectionToReturn.ActivityTypeID = model.ActivityTypeID;
 
-                        question.Options = new List<QuestionOption>();
+                            result.Succeeded = true;
 
-                        for (int k = 0; k < nextSectionReference.Questions[i].QuestionOptions.Count; k++)
+                            result.Data = sectionToReturn;
+
+                            return result;
+                        }
+                        else
                         {
 
-                            QuestionOption questionOption = new QuestionOption();
+                            activityTypeSectionsResult = await unitOfWork.SectionsManager.GetAsync(a => a.Order == long.Parse(sectionToRouteTo) && a.ActivityTypeID == model.ActivityTypeID, includeProperties: "Questions,Questions.QuestionOptions");
 
-                            questionOption.ValueEN = nextSectionReference.Questions[i].QuestionOptions[k].ValueEN;
-
-                            questionOption.ValueAR = nextSectionReference.Questions[i].QuestionOptions[k].ValueAR;
-
-                            questionOption.RoutesTo = nextSectionReference.Questions[i].QuestionOptions[k].RoutesTo;
-
-                            questionOption.ID = nextSectionReference.Questions[i].QuestionOptions[k].ID;
-
-                            questionOption.IsSelected = false;
-
-                            question.Options.Add(questionOption);
+                            nextSectionReference = activityTypeSectionsResult.FirstOrDefault();
 
                         }
 
                     }
 
-                    sectionToReturn.Questions.Add(question);
+                    //Create the new activity section .
+
+                    ActivitySection nextSection = new ActivitySection();
+
+                    nextSection.ActivityID = model.ActivityID;
+
+                    nextSection.Order = model.Order + 1;
+
+                    nextSection.SectionID = nextSectionReference.ID;
+
+                    nextSection.StartDate = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                    var createNextSectionResult = await unitOfWork.ActivitySectionsManager.CreateAsync(nextSection);
+
+                    await unitOfWork.SaveChangesAsync();
+
+                    //Create the upcoming section model and return it . 
+
+                    sectionToReturn.ID = nextSection.ID;
+
+                    sectionToReturn.NameAR = nextSectionReference.NameAR;
+
+                    sectionToReturn.NameAR = nextSectionReference.NameAR;
+
+                    sectionToReturn.IsFinalSection = false;
+
+                    sectionToReturn.ActivityID = model.ActivityID;
+
+                    sectionToReturn.ActivityTypeID = model.ActivityTypeID;
+
+                    sectionToReturn.Order = nextSection.Order;
+
+                    sectionToReturn.ActivityTypeSectionOrder = nextSectionReference.Order;
+
+                    sectionToReturn.HasDecisionalQuestions = nextSectionReference.HasDecisionalQuestions;
+
+                    sectionToReturn.HasCreateIntrest = nextSectionReference.HasCreateInterest;
+
+                    sectionToReturn.HasCreateRequest = nextSectionReference.HasCreateRequest;
+
+                    sectionToReturn.HasCreateResale = nextSectionReference.HasCreateResale;
+
+                    sectionToReturn.Questions = new List<QuestionToAnswer>();
+
+                    //Append section questions . 
+                    for (int i = 0; i < nextSectionReference.Questions.Count; i++)
+                    {
+
+                        QuestionToAnswer question = new QuestionToAnswer();
+
+                        question.ID = nextSectionReference.Questions[i].ID;
+
+                        question.DescriptionAR = nextSectionReference.Questions[i].DescriptionAR;
+
+                        question.DescriptionEN = nextSectionReference.Questions[i].DescriptionEN;
+
+                        question.isRequired = nextSectionReference.Questions[i].isRequired;
+
+                        question.IsDecisional = nextSectionReference.Questions[i].IsDecisional;
+
+                        question.Type = nextSectionReference.Questions[i].Type;
+
+                        question.Order = nextSectionReference.Questions[i].Order;
+
+                        question.Answer = "";
+
+                        if (question.Type == "Date")
+                        {
+
+                            question.DateAnswer = await HelperFunctions.GetEgyptsCurrentLocalTime();
+
+                        }
+
+                        //Append section question options . 
+                        if (nextSectionReference.Questions[i].QuestionOptions.Count > 0)
+                        {
+
+                            question.Options = new List<QuestionOption>();
+
+                            for (int k = 0; k < nextSectionReference.Questions[i].QuestionOptions.Count; k++)
+                            {
+
+                                QuestionOption questionOption = new QuestionOption();
+
+                                questionOption.ValueEN = nextSectionReference.Questions[i].QuestionOptions[k].ValueEN;
+
+                                questionOption.ValueAR = nextSectionReference.Questions[i].QuestionOptions[k].ValueAR;
+
+                                questionOption.RoutesTo = nextSectionReference.Questions[i].QuestionOptions[k].RoutesTo;
+
+                                questionOption.ID = nextSectionReference.Questions[i].QuestionOptions[k].ID;
+
+                                questionOption.IsSelected = false;
+
+                                question.Options.Add(questionOption);
+
+                            }
+
+                        }
+
+                        sectionToReturn.Questions.Add(question);
+
+                    }
+
+                    //Re-arrange section questions . 
+                    sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
+
+                    result.Data = sectionToReturn;
+
+                    result.Succeeded = true;
+
+                    return result;
+
+
 
                 }
 
-                //Re-arrange section questions . 
-                sectionToReturn.Questions = sectionToReturn.Questions.OrderBy(a => a.Order).ToList();
-
-                result.Data = sectionToReturn;
-
-                result.Succeeded = true;
-
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
                 return result;
-
-
-
             }
 
         }
-        catch (Exception ex)
-        {
-            result.Succeeded = false;
-            result.Errors.Add(ex.Message);
-            result.ErrorType = ErrorType.SystemError;
-            return result;
-        }
-
-    }
 
 
         /// <summary>
@@ -1236,8 +1245,8 @@ namespace Stack.ServiceLayer.Modules.Activities
         {
             ApiResponse<SectionToAnswer> result = new ApiResponse<SectionToAnswer>();
             try
-            { 
-            
+            {
+
                 //Check if there is an activity that hasn't been submitted and delete it . 
 
                 var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.ContactID == model.ContactID && a.IsSubmitted == false);
@@ -1923,7 +1932,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                 //Get the current user and contact record . 
                 var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
 
-                var contactsResult = await unitOfWork.ContactManager.GetAsync( a => a.ID == ID);
+                var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == ID);
 
                 Contact referenceContact = contactsResult.FirstOrDefault();
 
@@ -2119,7 +2128,7 @@ namespace Stack.ServiceLayer.Modules.Activities
             try
             {
 
-                if(model.IsFinalSection == false)
+                if (model.IsFinalSection == false)
                 {
                     var activitySectionsResult = await unitOfWork.ActivitySectionsManager.GetAsync(a => a.ID == model.ID, includeProperties: "Section,Section.Questions,Section.Questions.QuestionOptions");
 
@@ -2310,7 +2319,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     ActivitySection lastActivitySection = ActivitySectionsList.FirstOrDefault();
 
-                    if(lastActivitySection != null)
+                    if (lastActivitySection != null)
                     {
 
                         long sectionToReturnID = (long)lastActivitySection.SectionID;

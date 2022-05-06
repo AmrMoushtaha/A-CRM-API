@@ -52,6 +52,10 @@ namespace Stack.API.AutoMapperConfig
             .ForMember(dist => dist.PoolNameEN, opt => opt.MapFrom(t => t.Pool.NameEN))
             .ReverseMap();
 
+            CreateMap<Deal, RecordDeal>()
+            .ForMember(dist => dist.RecordID, opt => opt.MapFrom(t => t.ActiveStageID))
+            .ForMember(dist => dist.RecordType, opt => opt.MapFrom(t => t.ActiveStageType))
+            .ReverseMap();
             //Contact
             CreateMap<Contact, ContactViewModel>()
            .ForMember(dist => dist.ContactPhoneNumbers, opt => opt.MapFrom(t => t.PhoneNumbers))

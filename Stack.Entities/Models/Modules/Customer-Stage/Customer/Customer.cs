@@ -27,7 +27,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public virtual List<ProcessFlow> ProcessFlows { get; set; }
         public virtual List<Customer_Tag> Tags { get; set; }
 
-
+        public virtual List<CustomerComment> Comments { get; set; }
 
 
         public virtual Contact Contact { get; set; }

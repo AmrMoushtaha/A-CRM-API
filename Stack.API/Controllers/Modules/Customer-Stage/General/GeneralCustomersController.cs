@@ -51,6 +51,20 @@ namespace Stack.API.Controllers.Modules.Auth
 
 
 
+        [AllowAnonymous]
+        [HttpGet("GetAllJunkedRecords/{customerStage}")]
+        public async Task<IActionResult> GetAllJunkedRecords(int customerStage)
+        {
+            return await GetResponseHandler(async () => await service.GetAllJunkedRecords(customerStage));
+        }
+
+
+        [AllowAnonymous]
+        [HttpGet("GetAllNotInterestedRecords/{customerStage}")]
+        public async Task<IActionResult> GetAllNotInterestedRecords(int customerStage)
+        {
+            return await GetResponseHandler(async () => await service.GetAllNotInterestedRecords(customerStage));
+        }
 
     }
 

@@ -929,106 +929,91 @@ namespace Stack.ServiceLayer.Modules.pool
 
                 if (userID != null)
                 {
-                    //Verify user pool permissions
-                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == model.PoolID && t.UserID == userID, includeProperties: "Pool");
-                    var userPool = userPoolQuery.FirstOrDefault();
+                    //var poolRecords = await unitOfWork.PoolUserManager.GetPoolRecords(poolID, userID);
 
-                    if (userPool != null)
+                    if (model.RecordType == (int)CustomerStageIndicator.Prospect)
                     {
-                        //var poolRecords = await unitOfWork.PoolUserManager.GetPoolRecords(poolID, userID);
+                        var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.AssignedUserID == userID &&
+                        (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact");
+                        var records = recordsQ.ToList();
 
-                        if (model.RecordType == (int)CustomerStageIndicator.Prospect)
+                        if (records != null && records.Count > 0)
                         {
-                            var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.AssignedUserID == userID &&
-                            (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer");
-                            var records = recordsQ.ToList();
-
-                            if (records != null && records.Count > 0)
-                            {
-                                result.Succeeded = true;
-                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
-                                return result;
-                            }
-                            else
-                            {
-                                result.Succeeded = false;
-                                result.Errors.Add("No records found");
-                                result.Errors.Add("No records found");
-                                return result;
-                            }
-                        }
-                        else if (model.RecordType == (int)CustomerStageIndicator.Lead)
-                        {
-                            var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.AssignedUserID == userID &&
-                            (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer");
-                            var records = recordsQ.ToList();
-
-                            if (records != null && records.Count > 0)
-                            {
-                                result.Succeeded = true;
-                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
-                                return result;
-                            }
-                            else
-                            {
-                                result.Succeeded = false;
-                                result.Errors.Add("No records found");
-                                result.Errors.Add("No records found");
-                                return result;
-                            }
-                        }
-                        else if (model.RecordType == (int)CustomerStageIndicator.Opportunity)
-                        {
-                            var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.AssignedUserID == userID &&
-                            (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer");
-                            var records = recordsQ.ToList();
-
-                            if (records != null && records.Count > 0)
-                            {
-                                result.Succeeded = true;
-                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
-                                return result;
-                            }
-                            else
-                            {
-                                result.Succeeded = false;
-                                result.Errors.Add("No records found");
-                                result.Errors.Add("No records found");
-                                return result;
-                            }
-                        }
-                        else if (model.RecordType == (int)CustomerStageIndicator.DoneDeal)
-                        {
-                            var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.AssignedUserID == userID &&
-                            (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer");
-                            var records = recordsQ.ToList();
-
-                            if (records != null && records.Count > 0)
-                            {
-                                result.Succeeded = true;
-                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
-                                return result;
-                            }
-                            else
-                            {
-                                result.Succeeded = false;
-                                result.Errors.Add("No records found");
-                                result.Errors.Add("No records found");
-                                return result;
-                            }
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                            return result;
                         }
                         else
                         {
-                            throw new NotImplementedException();
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.Lead)
+                    {
+                        var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.AssignedUserID == userID &&
+                        (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact");
+                        var records = recordsQ.ToList();
+
+                        if (records != null && records.Count > 0)
+                        {
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.Opportunity)
+                    {
+                        var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.AssignedUserID == userID &&
+                        (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact");
+                        var records = recordsQ.ToList();
+
+                        if (records != null && records.Count > 0)
+                        {
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.DoneDeal)
+                    {
+                        var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.AssignedUserID == userID &&
+                        (t.State == (int)CustomerStageState.Initial), includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact");
+                        var records = recordsQ.ToList();
+
+                        if (records != null && records.Count > 0)
+                        {
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
                         }
                     }
                     else
                     {
-
-                        result.Succeeded = false;
-                        result.Errors.Add("Unauthorized");
-                        result.Errors.Add("غير مصرح");
-                        return result;
+                        throw new NotImplementedException();
                     }
                 }
                 else
@@ -1129,10 +1114,8 @@ namespace Stack.ServiceLayer.Modules.pool
 
                     if (poolUser != null)
                     {
-
                         //Existing locked record check
                         //Un-lock/schedule existing record if found
-
                         var currentPoolConnectionQuery = await unitOfWork.PoolConnectionIDsManager.GetAsync(t => t.UserID == userID &&
                         t.PoolID == model.PoolID);
                         var currentPoolConnection = currentPoolConnectionQuery.FirstOrDefault();
@@ -1148,13 +1131,11 @@ namespace Stack.ServiceLayer.Modules.pool
                                     //Remove scheduled unlock
                                     var jobDeletionRes = BackgroundJob.Delete(record.ForceUnlock_JobID);
                                     record.ForceUnlock_JobID = null;
-
                                     var updateRecordRes = await unitOfWork.ContactManager.UpdateAsync(record);
                                     if (jobDeletionRes && updateRecordRes)
                                     {
                                         await unitOfWork.SaveChangesAsync();
                                     }
-
                                 }
                                 else
                                 {
@@ -1175,7 +1156,7 @@ namespace Stack.ServiceLayer.Modules.pool
                             //Contacts
                             //Verify user capacity
                             var assignedPoolContactsQuery = await unitOfWork.ContactManager.GetAsync(t => t.PoolID == pool.ID && t.AssignedUserID == userID
-                                               && t.IsFinalized == false);
+                            && t.CapacityCalculated == true && t.IsFinalized == false);
                             var assignedPoolContactsCount = assignedPoolContactsQuery.Count();
 
                             if (assignedPoolContactsCount < poolUser.Capacity.Value)
@@ -1196,32 +1177,142 @@ namespace Stack.ServiceLayer.Modules.pool
                         else
                         {
                             //Contact
-                            //Verify Lock
-                            var recordQuery = await unitOfWork.ContactManager.GetAsync(t => t.ID == model.RecordID);
-                            var record = recordQuery.FirstOrDefault();
-                            if (record != null)
-                            {
-                                //Verify locked record's assignee
-                                if (record.IsLocked == true)
-                                {
-                                    result.Succeeded = false;
-                                    result.Errors.Add("Record is locked");
-                                    result.Errors.Add("Record is locked");
-                                    return result;
 
+                            if (model.CustomerStage == (int)CustomerStageIndicator.Contact)
+                            {
+                                //Verify Lock
+                                var recordQuery = await unitOfWork.ContactManager.GetAsync(t => t.ID == model.RecordID);
+                                var record = recordQuery.FirstOrDefault();
+                                if (record != null)
+                                {
+                                    //Verify locked record's assignee
+                                    if (record.IsLocked == true)
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Record is locked");
+                                        result.Errors.Add("Record is locked");
+                                        return result;
+
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = true;
+                                        result.Data = true;
+                                        return result;
+                                    }
                                 }
                                 else
                                 {
-                                    result.Succeeded = true;
-                                    result.Data = true;
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Record not found");
+                                    result.Errors.Add("Record not found");
                                     return result;
                                 }
+                            }
+                            else if (model.CustomerStage == (int)CustomerStageIndicator.Prospect)
+                            {
+                                //Verify Lock
+                                var recordQuery = await unitOfWork.ProspectManager.GetAsync(t => t.ID == model.RecordID);
+                                var record = recordQuery.FirstOrDefault();
+                                if (record != null)
+                                {
+                                    //Verify locked record's assignee
+                                    if (record.IsLocked == true)
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Record is locked");
+                                        result.Errors.Add("Record is locked");
+                                        return result;
+
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = true;
+                                        result.Data = true;
+                                        return result;
+                                    }
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Record not found");
+                                    result.Errors.Add("Record not found");
+                                    return result;
+                                }
+                            }
+                            else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
+                            {
+                                //Verify Lock
+                                var recordQuery = await unitOfWork.LeadManager.GetAsync(t => t.ID == model.RecordID);
+                                var record = recordQuery.FirstOrDefault();
+                                if (record != null)
+                                {
+                                    //Verify locked record's assignee
+                                    if (record.IsLocked == true)
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Record is locked");
+                                        result.Errors.Add("Record is locked");
+                                        return result;
+
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = true;
+                                        result.Data = true;
+                                        return result;
+                                    }
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Record not found");
+                                    result.Errors.Add("Record not found");
+                                    return result;
+                                }
+                            }
+                            else if (model.CustomerStage == (int)CustomerStageIndicator.Opportunity)
+                            {
+                                //Verify Lock
+                                var recordQuery = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == model.RecordID);
+                                var record = recordQuery.FirstOrDefault();
+                                if (record != null)
+                                {
+                                    //Verify locked record's assignee
+                                    if (record.IsLocked == true)
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Record is locked");
+                                        result.Errors.Add("Record is locked");
+                                        return result;
+
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = true;
+                                        result.Data = true;
+                                        return result;
+                                    }
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Record not found");
+                                    result.Errors.Add("Record not found");
+                                    return result;
+                                }
+                            }
+                            else if (model.CustomerStage == (int)CustomerStageIndicator.DoneDeal)
+                            {
+                                result.Succeeded = true;
+                                result.Data = true;
+                                return result;
                             }
                             else
                             {
                                 result.Succeeded = false;
-                                result.Errors.Add("Record not found");
-                                result.Errors.Add("Record not found");
+                                result.Errors.Add("Invalid Stage");
+                                result.Errors.Add("غير مصرح");
                                 return result;
                             }
 
@@ -1368,14 +1459,175 @@ namespace Stack.ServiceLayer.Modules.pool
                             return result;
                         }
                     }
+                    else if (model.CustomerStage == (int)CustomerStageIndicator.Prospect)
+                    {
+                        var recordQuery = await unitOfWork.ProspectManager.GetAsync(t => t.ID == model.RecordID);
+                        var record = recordQuery.FirstOrDefault();
+
+                        record.IsLocked = true;
+
+                        var updateRes = await unitOfWork.ProspectManager.UpdateAsync(record);
+                        if (updateRes)
+                        {
+                            //Schedule record unlock
+                            //Get system configuration's lock duration
+                            var systemConfigQuery = await unitOfWork.SystemConfigurationManager.GetAsync();
+                            var systemConfig = systemConfigQuery.FirstOrDefault();
+                            if (systemConfig != null && systemConfig.LockDuration > 0)
+                            {
+                                //Get current time and add lock duration
+                                var currentTime = await HelperFunctions.GetEgyptsCurrentLocalTime();
+                                var extendedTime = currentTime.AddMinutes(systemConfig.LockDuration);
+
+                                var scheduledTimespan = extendedTime - currentTime;
+
+                                //Schedule force unlock
+                                if (scheduledTimespan.TotalMinutes > 0)
+                                {
+                                    var jobID = BackgroundJob.Schedule(() => UnlockRecord(model), scheduledTimespan);
+
+                                    //Update contact with current schedule ID
+                                    record.ForceUnlock_JobID = jobID;
+
+                                    var recordScheduleUpdateResult = await unitOfWork.ProspectManager.UpdateAsync(record);
+                                    if (recordScheduleUpdateResult)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+                                        recordLockedSuccessfully = true;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Error locking record");
+                                        result.Errors.Add("Error locking record");
+                                        return result;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Error locking record");
+                            result.Errors.Add("Error locking record");
+                            return result;
+                        }
+
+                    }
                     else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
                     {
-                        throw new NotImplementedException();
+                        var recordQuery = await unitOfWork.LeadManager.GetAsync(t => t.ID == model.RecordID);
+                        var record = recordQuery.FirstOrDefault();
 
+                        record.IsLocked = true;
+
+                        var updateRes = await unitOfWork.LeadManager.UpdateAsync(record);
+                        if (updateRes)
+                        {
+                            //Schedule record unlock
+                            //Get system configuration's lock duration
+                            var systemConfigQuery = await unitOfWork.SystemConfigurationManager.GetAsync();
+                            var systemConfig = systemConfigQuery.FirstOrDefault();
+                            if (systemConfig != null && systemConfig.LockDuration > 0)
+                            {
+                                //Get current time and add lock duration
+                                var currentTime = await HelperFunctions.GetEgyptsCurrentLocalTime();
+                                var extendedTime = currentTime.AddMinutes(systemConfig.LockDuration);
+
+                                var scheduledTimespan = extendedTime - currentTime;
+
+                                //Schedule force unlock
+                                if (scheduledTimespan.TotalMinutes > 0)
+                                {
+                                    var jobID = BackgroundJob.Schedule(() => UnlockRecord(model), scheduledTimespan);
+
+                                    //Update contact with current schedule ID
+                                    record.ForceUnlock_JobID = jobID;
+
+                                    var recordScheduleUpdateResult = await unitOfWork.LeadManager.UpdateAsync(record);
+                                    if (recordScheduleUpdateResult)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+                                        recordLockedSuccessfully = true;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Error locking record");
+                                        result.Errors.Add("Error locking record");
+                                        return result;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Error locking record");
+                            result.Errors.Add("Error locking record");
+                            return result;
+                        }
+                    }
+                    else if (model.CustomerStage == (int)CustomerStageIndicator.Opportunity)
+                    {
+                        var recordQuery = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == model.RecordID);
+                        var record = recordQuery.FirstOrDefault();
+
+                        record.IsLocked = true;
+
+                        var updateRes = await unitOfWork.OpportunityManager.UpdateAsync(record);
+                        if (updateRes)
+                        {
+                            //Schedule record unlock
+                            //Get system configuration's lock duration
+                            var systemConfigQuery = await unitOfWork.SystemConfigurationManager.GetAsync();
+                            var systemConfig = systemConfigQuery.FirstOrDefault();
+                            if (systemConfig != null && systemConfig.LockDuration > 0)
+                            {
+                                //Get current time and add lock duration
+                                var currentTime = await HelperFunctions.GetEgyptsCurrentLocalTime();
+                                var extendedTime = currentTime.AddMinutes(systemConfig.LockDuration);
+
+                                var scheduledTimespan = extendedTime - currentTime;
+
+                                //Schedule force unlock
+                                if (scheduledTimespan.TotalMinutes > 0)
+                                {
+                                    var jobID = BackgroundJob.Schedule(() => UnlockRecord(model), scheduledTimespan);
+
+                                    //Update contact with current schedule ID
+                                    record.ForceUnlock_JobID = jobID;
+
+                                    var recordScheduleUpdateResult = await unitOfWork.OpportunityManager.UpdateAsync(record);
+                                    if (recordScheduleUpdateResult)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+                                        recordLockedSuccessfully = true;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Error locking record");
+                                        result.Errors.Add("Error locking record");
+                                        return result;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Error locking record");
+                            result.Errors.Add("Error locking record");
+                            return result;
+                        }
                     }
                     else
                     {
-                        throw new NotImplementedException();
+                        result.Succeeded = false;
+                        result.Errors.Add("Invalid Stage");
+                        result.Errors.Add("Invalid Stage");
+                        return result;
                     }
 
                     if (recordLockedSuccessfully)
@@ -1395,7 +1647,6 @@ namespace Stack.ServiceLayer.Modules.pool
                                 await unitOfWork.SaveChangesAsync();
                                 //Emit lock update response
                                 RecordLockHub recordLockHub = new RecordLockHub(unitOfWork, mapper, _recordLockContext);
-
                                 var lockResult = await recordLockHub.UpdatePool(model.PoolID);
 
                                 return lockResult;
@@ -1482,14 +1733,78 @@ namespace Stack.ServiceLayer.Modules.pool
                                 return result;
                             }
                         }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Prospect)
+                        {
+                            var recordQuery = await unitOfWork.ProspectManager.GetAsync(t => t.ID == model.RecordID);
+                            var record = recordQuery.FirstOrDefault();
+
+                            record.IsLocked = false;
+                            record.ForceUnlock_JobID = null;
+
+                            var updateRes = await unitOfWork.ProspectManager.UpdateAsync(record);
+                            if (updateRes)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error locking record");
+                                result.Errors.Add("Error locking record");
+                                return result;
+                            }
+
+                        }
                         else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
                         {
-                            throw new NotImplementedException();
+                            var recordQuery = await unitOfWork.LeadManager.GetAsync(t => t.ID == model.RecordID);
+                            var record = recordQuery.FirstOrDefault();
+
+                            record.IsLocked = false;
+                            record.ForceUnlock_JobID = null;
+
+                            var updateRes = await unitOfWork.LeadManager.UpdateAsync(record);
+                            if (updateRes)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error locking record");
+                                result.Errors.Add("Error locking record");
+                                return result;
+                            }
+
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            var recordQuery = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == model.RecordID);
+                            var record = recordQuery.FirstOrDefault();
+
+                            record.IsLocked = false;
+                            record.ForceUnlock_JobID = null;
+
+                            var updateRes = await unitOfWork.OpportunityManager.UpdateAsync(record);
+                            if (updateRes)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error locking record");
+                                result.Errors.Add("Error locking record");
+                                return result;
+                            }
 
                         }
                         else
                         {
-                            throw new NotImplementedException();
+                            result.Succeeded = false;
+                            result.Errors.Add("Invalid Stage");
+                            result.Errors.Add("Invalid Stage");
+                            return result;
                         }
 
                         //Emit lock update response
@@ -2215,6 +2530,7 @@ namespace Stack.ServiceLayer.Modules.pool
                         Occupation = contact.Occupation,
                         LeadSourceName = contact.LeadSourceName,
                         LeadSourceType = contact.LeadSourceType,
+                        PoolID = contact.PoolID
                     };
 
                     var customerCreationRes = await unitOfWork.CustomerManager.CreateAsync(customer);

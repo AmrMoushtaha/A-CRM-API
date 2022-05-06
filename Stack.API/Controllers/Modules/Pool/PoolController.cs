@@ -86,7 +86,7 @@ namespace Stack.API.Controllers.Modules.Pool
         }
 
         [AllowAnonymous]
-        [HttpGet("GetUserAssignedRecords")]
+        [HttpPost("GetUserAssignedRecords")]
         public async Task<IActionResult> GetUserAssignedRecords(GetPoolRecordsModel model)
         {
             return await AddItemResponseHandler(async () => await service.GetUserAssignedRecords(model));
