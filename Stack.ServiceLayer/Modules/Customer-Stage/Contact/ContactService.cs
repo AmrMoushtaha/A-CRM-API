@@ -290,7 +290,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 var poolAuthSectionQ = await unitOfWork.AuthorizationSectionsManager.GetAsync(t => t.Code == AuthorizationSectionCodes.Pool.ToString());
                                 var poolAuthSection = poolAuthSectionQ.FirstOrDefault();
 
-                                var sectionAuthorized = userAuthModel.AuthorizationSections.Where(t => t.Code == poolAuthSection.Code && t.IsAuthorized == true).FirstOrDefault();
+                                var sectionAuthorized = userAuthModel.AuthorizationSections.Where(t => t.Code == AuthorizationSectionCodes.Pool.ToString() && t.IsAuthorized == true).FirstOrDefault();
                                 //User authorized
                                 if (sectionAuthorized != null)
                                 {

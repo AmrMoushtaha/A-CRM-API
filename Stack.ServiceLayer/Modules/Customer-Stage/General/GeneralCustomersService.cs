@@ -546,10 +546,12 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                                                         if (customerCreationRes != null)
                                                         {
+                                                            await unitOfWork.SaveChangesAsync();
+
                                                             recordDuplicationCheck.CustomerID = customerCreationRes.ID;
+                                                            recordDuplicationCheck.State = (int)CustomerStageState.Converted;
                                                             var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(recordDuplicationCheck);
 
-                                                            await unitOfWork.SaveChangesAsync();
 
                                                             //Create deal
 
@@ -991,6 +993,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         //Contact only
                                         else
                                         {
+
                                             //create deal flow for such contact
                                             //Create customer
                                             Customer customer = new Customer
@@ -1010,11 +1013,12 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                                             if (customerCreationRes != null)
                                             {
+                                                await unitOfWork.SaveChangesAsync();
 
                                                 recordDuplicationCheck.CustomerID = customerCreationRes.ID;
+                                                recordDuplicationCheck.State = (int)CustomerStageState.Converted;
                                                 var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(recordDuplicationCheck);
 
-                                                await unitOfWork.SaveChangesAsync();
 
                                                 //Create deal
                                                 Deal deal = new Deal
@@ -1045,6 +1049,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
                                                         if (recordCreationRes != null)
                                                         {
+                                                            await unitOfWork.SaveChangesAsync();
+
                                                             //Update deal with active stage
                                                             deal.ActiveStageID = recordCreationRes.ID;
                                                             var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
@@ -1079,6 +1085,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         var recordCreationRes = await unitOfWork.ProspectManager.CreateAsync(record);
                                                         if (recordCreationRes != null)
                                                         {
+                                                            await unitOfWork.SaveChangesAsync();
+
                                                             //Update deal with active stage
                                                             deal.ActiveStageID = recordCreationRes.ID;
                                                             var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
@@ -1113,6 +1121,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         var recordCreationRes = await unitOfWork.OpportunityManager.CreateAsync(record);
                                                         if (recordCreationRes != null)
                                                         {
+                                                            await unitOfWork.SaveChangesAsync();
+
                                                             //Update deal with active stage
                                                             deal.ActiveStageID = recordCreationRes.ID;
                                                             var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
@@ -1146,6 +1156,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
                                                         if (recordCreationRes != null)
                                                         {
+                                                            await unitOfWork.SaveChangesAsync();
+
                                                             //Update deal with active stage
                                                             deal.ActiveStageID = recordCreationRes.ID;
                                                             var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
@@ -1304,7 +1316,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     IsFresh = false,
                     PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                     Occupation = creationModel.Occupation,
-                    State = (int)CustomerStageState.Initial,
+                    State = (int)CustomerStageState.Converted,
                 };
 
                 if (creationModel.RecordType == (int)CustomerStageIndicator.Lead || creationModel.RecordType == (int)CustomerStageIndicator.Opportunity)
@@ -1334,10 +1346,11 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     var customerCreationRes = await unitOfWork.CustomerManager.CreateAsync(customer);
                     if (customerCreationRes != null)
                     {
+                        await unitOfWork.SaveChangesAsync();
+
                         contactCreationRes.CustomerID = customerCreationRes.ID;
                         var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(contactCreationRes);
 
-                        await unitOfWork.SaveChangesAsync();
 
                         //Create deal
                         Deal deal = new Deal
@@ -1368,6 +1381,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
+                                    await unitOfWork.SaveChangesAsync();
+
                                     dealCreationRes.ActiveStageID = recordCreationRes.ID;
                                     var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
 
@@ -1401,6 +1416,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 var recordCreationRes = await unitOfWork.ProspectManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
+                                    await unitOfWork.SaveChangesAsync();
+
                                     dealCreationRes.ActiveStageID = recordCreationRes.ID;
                                     var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
 
@@ -1434,6 +1451,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 var recordCreationRes = await unitOfWork.OpportunityManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
+                                    await unitOfWork.SaveChangesAsync();
+
                                     dealCreationRes.ActiveStageID = recordCreationRes.ID;
                                     var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
 
@@ -1466,6 +1485,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
+                                    await unitOfWork.SaveChangesAsync();
+
                                     dealCreationRes.ActiveStageID = recordCreationRes.ID;
                                     var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
 

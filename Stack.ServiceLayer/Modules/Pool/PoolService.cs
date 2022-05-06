@@ -1870,6 +1870,7 @@ namespace Stack.ServiceLayer.Modules.pool
                             RecordType = model.RecordType,
                             RequestType = (int)PoolRequestTypes.RecordFromPool,
                             Status = (int)PoolRequestStatuses.Pending,
+                            RequesteeID = model.AssigneeID,
                             Requestee_PoolID = currentPool.ID,
                             RecordStatusID = model.RecordStatusID,
                             DescriptionEN = assigneeName.FirstName + " " + assigneeName.LastName + " is requesting to transfer record " +
@@ -2312,7 +2313,7 @@ namespace Stack.ServiceLayer.Modules.pool
             {
                 contact.PoolID = request.Requestee_PoolID.Value;
                 contact.AssignedUserID = request.RequesteeID;
-
+                contact.State = (int)CustomerStageState.Converted;
                 //record has flows
                 if (contact.CustomerID != null)
                 {
@@ -2380,6 +2381,7 @@ namespace Stack.ServiceLayer.Modules.pool
                     {
                         CustomerID = contact.CustomerID.Value,
                         PoolID = request.Requestee_PoolID.Value,
+                        ActiveStageType = request.RecordType.Value,
                     };
 
                     var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -2405,6 +2407,11 @@ namespace Stack.ServiceLayer.Modules.pool
                             if (recordCreationRes != null)
                             {
                                 //Finalize
+                                await unitOfWork.SaveChangesAsync();
+
+                                //Update Deal Record ID
+                                dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(deal);
                                 await unitOfWork.SaveChangesAsync();
                                 result.Succeeded = true;
                                 return result;
@@ -2432,7 +2439,11 @@ namespace Stack.ServiceLayer.Modules.pool
                             {
                                 //Finalize
                                 await unitOfWork.SaveChangesAsync();
+                                //Update Deal Record ID
+                                dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(deal);
                                 result.Succeeded = true;
+                                await unitOfWork.SaveChangesAsync();
                                 return result;
                             }
                             else
@@ -2458,6 +2469,10 @@ namespace Stack.ServiceLayer.Modules.pool
                             {
                                 //Finalize
                                 await unitOfWork.SaveChangesAsync();
+                                //Update Deal Record ID
+                                dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(deal);
+                                await unitOfWork.SaveChangesAsync();
                                 result.Succeeded = true;
                                 return result;
                             }
@@ -2481,10 +2496,15 @@ namespace Stack.ServiceLayer.Modules.pool
                             var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
                             if (recordCreationRes != null)
                             {
-                                contact.IsFinalized = true;
-                                var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(contact);
 
                                 //Finalize
+                                await unitOfWork.SaveChangesAsync();
+                                //Update Deal Record ID
+                                contact.IsFinalized = true;
+                                var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(contact);
+                                dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(deal);
+                                await unitOfWork.SaveChangesAsync();
                                 await unitOfWork.SaveChangesAsync();
                                 result.Succeeded = true;
                                 return result;
@@ -2537,6 +2557,9 @@ namespace Stack.ServiceLayer.Modules.pool
 
                     if (customerCreationRes != null)
                     {
+                        contact.CustomerID = customerCreationRes.ID;
+                        var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(contact);
+
                         await unitOfWork.SaveChangesAsync();
 
                         //Create deal
@@ -2545,6 +2568,7 @@ namespace Stack.ServiceLayer.Modules.pool
                         {
                             CustomerID = customerCreationRes.ID,
                             PoolID = request.Requestee_PoolID.Value,
+                            ActiveStageType = request.RecordType.Value
                         };
 
                         var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -2568,7 +2592,13 @@ namespace Stack.ServiceLayer.Modules.pool
                                 var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
+
                                     //Finalize
+                                    await unitOfWork.SaveChangesAsync();
+
+                                    deal.ActiveStageID = recordCreationRes.ID;
+                                    var dealUpdate = await unitOfWork.SaveChangesAsync();
+
                                     await unitOfWork.SaveChangesAsync();
                                     result.Succeeded = true;
                                     return result;
@@ -2596,6 +2626,11 @@ namespace Stack.ServiceLayer.Modules.pool
                                 {
                                     //Finalize
                                     await unitOfWork.SaveChangesAsync();
+
+                                    deal.ActiveStageID = recordCreationRes.ID;
+                                    var dealUpdate = await unitOfWork.SaveChangesAsync();
+
+                                    await unitOfWork.SaveChangesAsync();
                                     result.Succeeded = true;
                                     return result;
                                 }
@@ -2622,6 +2657,11 @@ namespace Stack.ServiceLayer.Modules.pool
                                 {
                                     //Finalize
                                     await unitOfWork.SaveChangesAsync();
+
+                                    deal.ActiveStageID = recordCreationRes.ID;
+                                    var dealUpdate = await unitOfWork.SaveChangesAsync();
+
+                                    await unitOfWork.SaveChangesAsync();
                                     result.Succeeded = true;
                                     return result;
                                 }
@@ -2645,10 +2685,16 @@ namespace Stack.ServiceLayer.Modules.pool
                                 var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
+
+                                    //Finalize
+                                    await unitOfWork.SaveChangesAsync();
+
                                     contact.IsFinalized = true;
                                     var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(contact);
 
-                                    //Finalize
+                                    deal.ActiveStageID = recordCreationRes.ID;
+                                    var dealUpdate = await unitOfWork.SaveChangesAsync();
+
                                     await unitOfWork.SaveChangesAsync();
                                     result.Succeeded = true;
                                     return result;
