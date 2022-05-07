@@ -98,12 +98,11 @@ namespace Stack.ServiceLayer.Modules.Interest
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var IntersetResult = await unitOfWork.LInterestManager.GetAsync(a => a.DescriptionAR == LInterestToAdd.DescriptionAR 
-                || a.DescriptionEN == LInterestToAdd.DescriptionEN);
-                LInterest DuplicateLInterest = IntersetResult.FirstOrDefault();
-
-                if (DuplicateLInterest == null)
-                {
+                //var IntersetResult = await unitOfWork.LInterestManager.GetAsync(a => a.DescriptionAR == LInterestToAdd.DescriptionAR 
+                //|| a.DescriptionEN == LInterestToAdd.DescriptionEN);
+                //LInterest DuplicateLInterest = IntersetResult.FirstOrDefault();
+                //if (DuplicateLInterest == null)
+                //{
                     if (LInterestToAdd.IsSeparate && LInterestToAdd.OwnerID != null)
                     {
                         var OwnerResult = await unitOfWork.CustomerManager.GetByIdAsync(LInterestToAdd.OwnerID);
@@ -127,11 +126,7 @@ namespace Stack.ServiceLayer.Modules.Interest
 
                     return await Save_Interest(LInterestToAdd);
 
-                }
 
-                result.Errors.Add("Failed to create Interest!, Try another description");
-                result.Succeeded = false;
-                return result;
 
             }
             catch (Exception ex)
@@ -159,9 +154,8 @@ namespace Stack.ServiceLayer.Modules.Interest
 
                 if (SaveResult)
                 {
-                    result.Succeeded = true;
-                    result.Data = true;
-                    return result;
+                    return await Create_LInterestInput(LInterestToAdd.LInterestInputs, createLevelResult.ID);
+
                 }
                 else
                 {
@@ -220,86 +214,54 @@ namespace Stack.ServiceLayer.Modules.Interest
 
 
         #region Interest-Input
-        //public async Task<ApiResponse<bool>> Create_LInterestInput(LInterestInputToAdd LInterestInputToAdd)
-        //{
-        //    ApiResponse<bool> result = new ApiResponse<bool>();
-        //    try
-        //    {
-        //        var LInterestInputResult = await unitOfWork.LInterestInputManager.GetAsync(a => a.LInterestID == LInterestInputToAdd.LInterestID && a.LInterestInputID == LInterestInputToAdd.LInterestInputID);
-        //        LInterest_LInterestInput DuplicateLInterestResult = LInterestInputResult.FirstOrDefault();
+        public async Task<ApiResponse<bool>> Create_LInterestInput(List<LInterestInputToAdd> LInterestInputs,long interestID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var errors = 0;
+                for (var i = 0; i < LInterestInputs.Count; i++)
+                {
+                    var LInterestInputToAdd = LInterestInputs[i];
+                    LInterestInput InputToCreate = mapper.Map<LInterestInput>(LInterestInputToAdd);
+                    InputToCreate.LInterestID = interestID;
+                    if (InputToCreate.Attachment != "" ||
+                        (InputToCreate.SelectedAttributeID != 0 && InputToCreate.SelectedAttributeID != null))
+                    {
+                        var createInputResult = await unitOfWork.LInterestInputManager.CreateAsync(InputToCreate);
+                        var saveResult = await unitOfWork.SaveChangesAsync();
+                        if (!saveResult)
+                        {
+                            result.Errors.Add("Failed to create Interest Input for input " + LInterestInputToAdd.InputID);
+                            errors++;
+                        }
+                    }
 
-        //        if (DuplicateLInterestResult == null)
-        //        {
-        //            LInterest_LInterestInput InputToCreate = mapper.Map<LInterest_LInterestInput>(LInterestInputToAdd); ;
-        //            var createInputResult = await unitOfWork.LInterest_LInterestInputManager.CreateAsync(InputToCreate);
-        //            await unitOfWork.SaveChangesAsync();
+                }
+                if (errors == 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = true;
+                    return result;
+                }
+                else
+                {
+                    result.Errors.Add("Failed to create Interest Input");
+                    result.Succeeded = false;
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
 
-        //            if (createInputResult != null)
-        //            {
-        //                result.Succeeded = true;
-        //                result.Data = true;
-        //                return result;
-        //            }
-        //            else
-        //            {
-        //                result.Errors.Add("Failed to create Interest Input");
-        //                result.Succeeded = false;
-        //                return result;
-        //            }
-
-
-        //        }
-
-        //        result.Errors.Add("Failed to create Interest Input!");
-        //        result.Succeeded = false;
-        //        return result;
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        result.Succeeded = false;
-        //        result.Errors.Add(ex.Message);
-        //        result.ErrorType = ErrorType.SystemError;
-        //        return result;
-        //    }
-
-        //}
-
-        //public async Task<ApiResponse<bool>> Delete_LInterestInput(long ID)
-        //{
-        //    ApiResponse<bool> result = new ApiResponse<bool>();
-        //    try
-        //    {
-        //        var InputResult = await unitOfWork.LInterest_LInterestInputManager.GetByIdAsync(ID);
-
-        //        if (InputResult != null)
-        //        {
-        //            InputResult.IsDeleted = true;
-        //            var UpdateResult = await unitOfWork.LInterest_LInterestInputManager.UpdateAsync(InputResult);
-        //            var SaveResult = await unitOfWork.SaveChangesAsync();
-        //            if (SaveResult)
-        //            {
-        //                result.Succeeded = true;
-        //                return result;
-        //            }
-
-        //        }
-
-        //        result.Errors.Add("Failed to delete Input!");
-        //        result.Succeeded = false;
-        //        return result;
+        }
 
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        result.Succeeded = false;
-        //        result.Errors.Add(ex.Message);
-        //        result.ErrorType = ErrorType.SystemError;
-        //        return result;
-        //    }
-
-        //}
 
         //public async Task<ApiResponse<List<LInterest>>> Get_LInterestByInputID(long InputID)
         //{

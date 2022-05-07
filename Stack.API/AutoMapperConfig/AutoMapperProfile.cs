@@ -183,10 +183,9 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<LInterestInput, LInterestInputModel>()
             .ReverseMap();
 
-            CreateMap<LInterestInput, InputToAdd>()
+            CreateMap<LInterestInput, LInterestInputToAdd>()
             .ReverseMap();
-            CreateMap<LInterestInput, InputToEdit>()
-            .ReverseMap();
+
 
             CreateMap<Level, LevelToAdd>()
             .ReverseMap();

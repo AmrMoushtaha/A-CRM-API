@@ -25,10 +25,9 @@ namespace Stack.Entities.Models.Modules.Interest
         public virtual Location Location { get; set; }
 
         public long? ParentLInterestID { get; set; }
-        [ForeignKey("ParentLInterestID")]
-        public virtual LInterest ParentLInterest { get; set; }
 
-        public virtual List<LInterestInput> Inputs { get; set; }
+
+        public virtual List<LInterestInput> LInterestInput { get; set; }
 
     }
 
