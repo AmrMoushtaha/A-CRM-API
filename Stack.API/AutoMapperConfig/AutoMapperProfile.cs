@@ -8,6 +8,7 @@ using Stack.DTOs.Requests.Modules.AreaInterest;
 using Stack.DTOs.Requests.Modules.CustomerStage;
 using Stack.DTOs.Requests.Modules.Hierarchy;
 using Stack.DTOs.Requests.Modules.Interest;
+using Stack.Entities.Enums.Modules.Pool;
 using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.CustomerStage;
@@ -47,6 +48,7 @@ namespace Stack.API.AutoMapperConfig
             .ForMember(dist => dist.PoolID, opt => opt.MapFrom(t => t.ID))
             .ForMember(dist => dist.UsersCount, opt => opt.MapFrom(t => t.Pool_Users.Where(a => a.IsAdmin == false).Count()))
             .ForMember(dist => dist.AdminsCount, opt => opt.MapFrom(t => t.Pool_Users.Where(a => a.IsAdmin == true).Count()))
+            .ForMember(dist => dist.RequestsCount, opt => opt.MapFrom(t => t.Requests.Where(a => a.Status == (int)PoolRequestStatuses.Pending).Count()))
             .ReverseMap();
 
             CreateMap<PoolRequest, PoolRequestModel>()
