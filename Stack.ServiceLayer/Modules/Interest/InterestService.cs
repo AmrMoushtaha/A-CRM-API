@@ -42,7 +42,7 @@ namespace Stack.ServiceLayer.Modules.Interest
             ApiResponse<List<LInterest>> result = new ApiResponse<List<LInterest>>();
             try
             {
-                var LevelResult = await unitOfWork.LInterestManager.GetAsync(a => a.LevelID == Level);
+                var LevelResult = await unitOfWork.LInterestManager.GetAsync(a => a.LevelID == Level,includeProperties: "LInterestInput");
                 List<LInterest> LevelList = LevelResult.ToList();
                 if (LevelList != null && LevelList.Count != 0)
                 {
