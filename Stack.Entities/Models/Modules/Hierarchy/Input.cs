@@ -1,4 +1,5 @@
 ﻿using Stack.Entities.Models.Modules.Auth;
+using Stack.Entities.Models.Modules.Interest;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
