@@ -1537,12 +1537,12 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     var createProcessFlowResult = await unitOfWork.ProcessFlowsManager.CreateAsync(newProcessFlow);
 
-                    await unitOfWork.SaveChangesAsync();
 
                     if (createProcessFlowResult != null)
                     {
+                        await unitOfWork.SaveChangesAsync();
 
-                        newActivity.ProcessFlowID = referenceProcessFlow.ID;
+                        newActivity.ProcessFlowID = createProcessFlowResult.ID;
 
                     }
                     else

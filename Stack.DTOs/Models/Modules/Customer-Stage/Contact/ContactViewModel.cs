@@ -56,6 +56,7 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
 
     public class RecordDeal
     {
+        public long ID { get; set; }
         public int RecordType { get; set; }
         public long RecordID { get; set; }
     }

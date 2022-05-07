@@ -84,6 +84,13 @@ namespace Stack.API.Controllers.Modules.Pool
         {
             return await AddItemResponseHandler(async () => await service.GetPoolRecords(model));
         }
+        
+        [AllowAnonymous]
+        [HttpGet("GetSystemPools")]
+        public async Task<IActionResult> GetSystemPools()
+        {
+            return await GetResponseHandler(async () => await service.GetSystemPools());
+        }
 
         [AllowAnonymous]
         [HttpPost("GetUserAssignedRecords")]

@@ -290,14 +290,14 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 var poolAuthSectionQ = await unitOfWork.AuthorizationSectionsManager.GetAsync(t => t.Code == AuthorizationSectionCodes.Pool.ToString());
                                 var poolAuthSection = poolAuthSectionQ.FirstOrDefault();
 
-                                var sectionAuthorized = userAuthModel.AuthorizationSections.Where(t => t.Code == AuthorizationSectionCodes.Pool.ToString() && t.IsAuthorized == true).FirstOrDefault();
+                                var sectionAuthorized = userAuthModel.AuthorizationSections.Where(t => t.Code == "1" && t.IsAuthorized == true).FirstOrDefault();
                                 //User authorized
                                 if (sectionAuthorized != null)
                                 {
                                     bool canAssignToSelf = false;
                                     bool canAssignToOther = false;
-                                    canAssignToSelf = sectionAuthorized.SectionAuthorizations.Where(t => t.Code == SectionAuthorizationCodes.AssignContactsToHimself.ToString()).FirstOrDefault().IsAuthorized;
-                                    canAssignToOther = sectionAuthorized.SectionAuthorizations.Where(t => t.Code == SectionAuthorizationCodes.AssignContactToAnyAgentInAnyteam.ToString()).FirstOrDefault().IsAuthorized;
+                                    canAssignToSelf = sectionAuthorized.SectionAuthorizations.Where(t => t.Code == "5").FirstOrDefault().IsAuthorized;
+                                    canAssignToOther = sectionAuthorized.SectionAuthorizations.Where(t => t.Code == "7").FirstOrDefault().IsAuthorized;
                                     //Identify pool configuration type
                                     if (pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignment || pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity) //Auto assignemnt config.
                                     {

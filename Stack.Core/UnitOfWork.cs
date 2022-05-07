@@ -671,6 +671,18 @@ namespace Stack.Core
         }
 
 
+        private CustomerCommentManager customerCommentManager;
+        public CustomerCommentManager CustomerCommentManager
+        {
+            get
+            {
+                if (customerCommentManager == null)
+                {
+                    customerCommentManager = new CustomerCommentManager(context);
+                }
+                return customerCommentManager;
+            }
+        }
 
     }
 

@@ -388,7 +388,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                             var recordDuplicationCheckQ = await unitOfWork.ContactManager.GetAsync(t => t.PrimaryPhoneNumber == creationModel.PrimaryPhoneNumber);
                             var recordDuplicationCheck = recordDuplicationCheckQ.FirstOrDefault();
 
-                            //Phone number not duplicated
+                            //Phone number not duplicated       
                             if (recordDuplicationCheck == null)
                             {
                                 //Verify pool configuration for capacity checks

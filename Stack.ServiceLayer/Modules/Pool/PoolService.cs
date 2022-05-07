@@ -667,6 +667,38 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
+        public async Task<ApiResponse<List<PoolConfigurationModel>>> GetSystemPools()
+        {
+            ApiResponse<List<PoolConfigurationModel>> result = new ApiResponse<List<PoolConfigurationModel>>();
+            try
+            {
+                var poolQuery = await unitOfWork.PoolManager.GetAsync(includeProperties: "Pool_Users");
+                var pools = poolQuery.ToList();
+
+                if (pools != null && pools.Count > 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<PoolConfigurationModel>>(pools);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No users found");
+                    result.Errors.Add("لم يتم العثور على مستخدمين");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
         //Get pool specified pool users / all pool users with their capacity
         public async Task<ApiResponse<List<PoolAssignedUserCapacityModel>>> GetPoolAssignedUsersCapacity(GetPoolAssignedUsersCapacityModel model)
         {
@@ -2557,10 +2589,11 @@ namespace Stack.ServiceLayer.Modules.pool
 
                     if (customerCreationRes != null)
                     {
+                        await unitOfWork.SaveChangesAsync();
+
                         contact.CustomerID = customerCreationRes.ID;
                         var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(contact);
 
-                        await unitOfWork.SaveChangesAsync();
 
                         //Create deal
 

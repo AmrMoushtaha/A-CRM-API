@@ -13,6 +13,7 @@ using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Hierarchy;
 using Stack.Entities.Models.Modules.Interest;
+using System.Linq;
 
 namespace Stack.API.AutoMapperConfig
 {
@@ -44,6 +45,8 @@ namespace Stack.API.AutoMapperConfig
 
             CreateMap<Pool, PoolConfigurationModel>()
             .ForMember(dist => dist.PoolID, opt => opt.MapFrom(t => t.ID))
+            .ForMember(dist => dist.UsersCount, opt => opt.MapFrom(t => t.Pool_Users.Where(a => a.IsAdmin == false).Count()))
+            .ForMember(dist => dist.AdminsCount, opt => opt.MapFrom(t => t.Pool_Users.Where(a => a.IsAdmin == true).Count()))
             .ReverseMap();
 
             CreateMap<PoolRequest, PoolRequestModel>()

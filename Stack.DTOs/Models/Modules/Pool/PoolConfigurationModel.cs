@@ -13,6 +13,8 @@ namespace Stack.DTOs.Models.Modules.Pool
         public string DescriptionEN { get; set; }
         public int ConfigurationType { get; set; }
         public int? Capacity { get; set; }
+        public int UsersCount { get; set; }
+        public int AdminsCount { get; set; }
 
     }
 
