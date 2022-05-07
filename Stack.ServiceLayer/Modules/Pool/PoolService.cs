@@ -387,6 +387,81 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
+        public async Task<ApiResponse<bool>> SuspendPoolUsers(PoolAssignmentModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    //Verify admin priviliges
+                    var poolQ = await unitOfWork.PoolManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Pool_Users");
+                    var pool = poolQ.FirstOrDefault();
+
+                    if (pool != null)
+                    {
+
+                        for (int i = 0; i < model.UserIDs.Count; i++)
+                        {
+                            var currentUserID = model.UserIDs[i];
+                            var currentUser = pool.Pool_Users.Where(t => t.UserID == currentUserID).FirstOrDefault();
+
+                            currentUser.Status = (int)PoolUserStatuses.Suspended;
+
+                            var removalRes = await unitOfWork.PoolUserManager.UpdateAsync(currentUser);
+                            if (!removalRes)
+                            {
+                                result.Errors.Add("Error suspending user");
+                            }
+                        }
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        if (result.Errors.Count == 0)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+                            result.Succeeded = true;
+                            result.Data = true;
+                            return result;
+                        }
+                        else
+                        {
+                            int errorsCount = result.Errors.Count;
+                            result.Errors = new List<string>();
+                            result.Succeeded = false;
+                            result.Errors.Add(errorsCount + " Users were not removed");
+                            result.Errors.Add(errorsCount + " Users were not removed");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Not authorized");
+                        result.Errors.Add("غير مصرح");
+                        result.ErrorCode = ErrorCode.A500;
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
         //---------------------------- Get ----------------------------//
 
         //Sidebar view - Get user pools
@@ -672,7 +747,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<List<PoolConfigurationModel>> result = new ApiResponse<List<PoolConfigurationModel>>();
             try
             {
-                var poolQuery = await unitOfWork.PoolManager.GetAsync(includeProperties: "Pool_Users");
+                var poolQuery = await unitOfWork.PoolManager.GetAsync(includeProperties: "Pool_Users,Requests");
                 var pools = poolQuery.ToList();
 
                 if (pools != null && pools.Count > 0)

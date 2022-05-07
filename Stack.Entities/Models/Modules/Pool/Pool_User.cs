@@ -1,4 +1,5 @@
 ﻿using Stack.Entities.Models.Modules.Auth;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,6 +13,9 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public int? Capacity { get; set; }
 
         public bool IsAdmin { get; set; }
+
+        public int Status { get; set; }
+        public DateTime JoinDate { get; set; }
 
         [ForeignKey("UserID")]
         public virtual ApplicationUser User { get; set; }
