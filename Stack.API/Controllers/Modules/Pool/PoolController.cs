@@ -79,6 +79,27 @@ namespace Stack.API.Controllers.Modules.Pool
         }
 
         [AllowAnonymous]
+        [HttpPost("GetPoolRecords")]
+        public async Task<IActionResult> GetPoolRecords(GetPoolRecordsModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetPoolRecords(model));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetSystemPools")]
+        public async Task<IActionResult> GetSystemPools()
+        {
+            return await GetResponseHandler(async () => await service.GetSystemPools());
+        }
+
+        [AllowAnonymous]
+        [HttpPost("GetUserAssignedRecords")]
+        public async Task<IActionResult> GetUserAssignedRecords(GetPoolRecordsModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetUserAssignedRecords(model));
+        }
+
+        [AllowAnonymous]
         [HttpPost("GetPoolAssignedUsersCapacity")]
         public async Task<IActionResult> GetPoolAssignedUsersCapacity(GetPoolAssignedUsersCapacityModel model)
         {
@@ -104,6 +125,13 @@ namespace Stack.API.Controllers.Modules.Pool
         public async Task<IActionResult> AssignUsersToPool(PoolAssignmentModel model)
         {
             return await AddItemResponseHandler(async () => await service.AssignUsersToPool(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("SuspendPoolUsers")]
+        public async Task<IActionResult> SuspendPoolUsers(PoolAssignmentModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.SuspendPoolUsers(model));
         }
 
         [AllowAnonymous]

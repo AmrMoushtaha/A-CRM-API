@@ -8,11 +8,13 @@ using Stack.DTOs.Requests.Modules.AreaInterest;
 using Stack.DTOs.Requests.Modules.CustomerStage;
 using Stack.DTOs.Requests.Modules.Hierarchy;
 using Stack.DTOs.Requests.Modules.Interest;
+using Stack.Entities.Enums.Modules.Pool;
 using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Hierarchy;
 using Stack.Entities.Models.Modules.Interest;
+using System.Linq;
 
 namespace Stack.API.AutoMapperConfig
 {
@@ -44,6 +46,9 @@ namespace Stack.API.AutoMapperConfig
 
             CreateMap<Pool, PoolConfigurationModel>()
             .ForMember(dist => dist.PoolID, opt => opt.MapFrom(t => t.ID))
+            .ForMember(dist => dist.UsersCount, opt => opt.MapFrom(t => t.Pool_Users.Where(a => a.IsAdmin == false).Count()))
+            .ForMember(dist => dist.AdminsCount, opt => opt.MapFrom(t => t.Pool_Users.Where(a => a.IsAdmin == true).Count()))
+            .ForMember(dist => dist.RequestsCount, opt => opt.MapFrom(t => t.Requests.Where(a => a.Status == (int)PoolRequestStatuses.Pending).Count()))
             .ReverseMap();
 
             CreateMap<PoolRequest, PoolRequestModel>()
@@ -52,6 +57,10 @@ namespace Stack.API.AutoMapperConfig
             .ForMember(dist => dist.PoolNameEN, opt => opt.MapFrom(t => t.Pool.NameEN))
             .ReverseMap();
 
+            CreateMap<Deal, RecordDeal>()
+            .ForMember(dist => dist.RecordID, opt => opt.MapFrom(t => t.ActiveStageID))
+            .ForMember(dist => dist.RecordType, opt => opt.MapFrom(t => t.ActiveStageType))
+            .ReverseMap();
             //Contact
             CreateMap<Contact, ContactViewModel>()
            .ForMember(dist => dist.ContactPhoneNumbers, opt => opt.MapFrom(t => t.PhoneNumbers))
@@ -62,6 +71,89 @@ namespace Stack.API.AutoMapperConfig
            .ForMember(dist => dist.StatusID, opt => opt.MapFrom(t => t.Status.ID))
            .ForMember(dist => dist.Tags, opt => opt.MapFrom(t => t.Tags))
            .ReverseMap();
+
+
+            CreateMap<Prospect, ContactListViewModel>()
+          .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+          .ReverseMap();
+
+            CreateMap<Lead, ContactListViewModel>()
+          .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+          .ReverseMap();
+
+            CreateMap<Opportunity, ContactListViewModel>()
+          .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+          .ReverseMap();
+
+            CreateMap<DoneDeal, ContactListViewModel>()
+          .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+          .ReverseMap();
+
+            CreateMap<Prospect, ContactViewModel>()
+          .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.EN))
+          .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.AR))
+          .ForMember(dist => dist.Email, opt => opt.MapFrom(t => t.Deal.Customer.Email))
+          .ForMember(dist => dist.Address, opt => opt.MapFrom(t => t.Deal.Customer.Address))
+          .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.Occupation, opt => opt.MapFrom(t => t.Deal.Customer.Occupation))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+          .ForMember(dist => dist.LeadSourceName, opt => opt.MapFrom(t => t.Deal.Customer.Contact.LeadSourceName))
+          .ForMember(dist => dist.LeadSourceType, opt => opt.MapFrom(t => t.Deal.Customer.Contact.LeadSourceType))
+          .ForMember(dist => dist.Comments, opt => opt.MapFrom(t => t.Deal.Customer.Contact.Comments))
+          .ForMember(dist => dist.Tags, opt => opt.MapFrom(t => t.Deal.Customer.Contact.Tags))
+          .ReverseMap();
+
+            CreateMap<Lead, ContactViewModel>()
+          .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.EN))
+          .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.AR))
+          .ForMember(dist => dist.Email, opt => opt.MapFrom(t => t.Deal.Customer.Email))
+          .ForMember(dist => dist.Address, opt => opt.MapFrom(t => t.Deal.Customer.Address))
+          .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.Occupation, opt => opt.MapFrom(t => t.Deal.Customer.Occupation))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+          .ForMember(dist => dist.LeadSourceName, opt => opt.MapFrom(t => t.Deal.Customer.Contact.LeadSourceName))
+          .ForMember(dist => dist.LeadSourceType, opt => opt.MapFrom(t => t.Deal.Customer.Contact.LeadSourceType))
+          .ForMember(dist => dist.Comments, opt => opt.MapFrom(t => t.Deal.Customer.Contact.Comments))
+          .ForMember(dist => dist.Tags, opt => opt.MapFrom(t => t.Deal.Customer.Contact.Tags))
+          .ReverseMap();
+
+            CreateMap<Opportunity, ContactViewModel>()
+          .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.EN))
+          .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.AR))
+          .ForMember(dist => dist.Email, opt => opt.MapFrom(t => t.Deal.Customer.Email))
+          .ForMember(dist => dist.Address, opt => opt.MapFrom(t => t.Deal.Customer.Address))
+          .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.Occupation, opt => opt.MapFrom(t => t.Deal.Customer.Occupation))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+          .ForMember(dist => dist.LeadSourceName, opt => opt.MapFrom(t => t.Deal.Customer.Contact.LeadSourceName))
+          .ForMember(dist => dist.LeadSourceType, opt => opt.MapFrom(t => t.Deal.Customer.Contact.LeadSourceType))
+          .ForMember(dist => dist.Comments, opt => opt.MapFrom(t => t.Deal.Customer.Contact.Comments))
+          .ForMember(dist => dist.Tags, opt => opt.MapFrom(t => t.Deal.Customer.Contact.Tags))
+          .ReverseMap();
+
+            CreateMap<DoneDeal, ContactViewModel>()
+          .ForMember(dist => dist.Email, opt => opt.MapFrom(t => t.Deal.Customer.Email))
+          .ForMember(dist => dist.Address, opt => opt.MapFrom(t => t.Deal.Customer.Address))
+          .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.Occupation, opt => opt.MapFrom(t => t.Deal.Customer.Occupation))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+          .ForMember(dist => dist.LeadSourceName, opt => opt.MapFrom(t => t.Deal.Customer.Contact.LeadSourceName))
+          .ForMember(dist => dist.LeadSourceType, opt => opt.MapFrom(t => t.Deal.Customer.Contact.LeadSourceType))
+          .ForMember(dist => dist.Comments, opt => opt.MapFrom(t => t.Deal.Customer.Contact.Comments))
+          .ForMember(dist => dist.Tags, opt => opt.MapFrom(t => t.Deal.Customer.Contact.Tags))
+          .ReverseMap();
 
             CreateMap<ContactPhoneNumber, ContactPhoneNumberDTO>()
            .ReverseMap();
@@ -93,12 +185,11 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<LInterestInput, LInterestInputModel>()
             .ReverseMap();
 
-            CreateMap<LInterestInput, InputToAdd>()
-            .ReverseMap();
-            CreateMap<LInterestInput, InputToEdit>()
+            CreateMap<LInterestInput, LInterestInputToAdd>()
             .ReverseMap();
 
-            CreateMap<Level, LevelToAdd>() 
+
+            CreateMap<Level, LevelToAdd>()
             .ReverseMap();
             CreateMap<Level, LevelToEdit>()
             .ReverseMap();

@@ -13,6 +13,12 @@
   <ItemGroup>
     <Compile Remove="Migrations\20220402225707_model-builder-updates.cs" />
     <Compile Remove="Migrations\20220402225707_model-builder-updates.Designer.cs" />
+    <Compile Remove="Migrations\20220505052107_deal-adjusted.cs" />
+    <Compile Remove="Migrations\20220505052107_deal-adjusted.Designer.cs" />
+    <Compile Remove="Migrations\20220506234245_updateInterestInput.cs" />
+    <Compile Remove="Migrations\20220506234245_updateInterestInput.Designer.cs" />
+    <Compile Remove="Migrations\20220506234508_updateInterestInput.cs" />
+    <Compile Remove="Migrations\20220506234508_updateInterestInput.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

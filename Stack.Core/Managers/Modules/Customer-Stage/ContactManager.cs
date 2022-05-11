@@ -2,6 +2,7 @@
 using Stack.DAL;
 using Stack.DTOs.Models.Modules.CustomerStage;
 using Stack.DTOs.Models.Modules.Pool;
+using Stack.Entities.Enums.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Repository;
 using System;
@@ -91,7 +92,7 @@ namespace Stack.Core.Managers.Modules.Materials
         {
             return await Task.Run(() =>
             {
-                return context.Contacts.Where(t => t.AssignedUserID == userID)
+                return context.Contacts.Where(t => t.AssignedUserID == userID && t.State == (int)CustomerStageState.Initial)
                    .Select(p => new ContactListViewModel
                    {
                        ID = p.ID,

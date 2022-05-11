@@ -25,6 +25,9 @@ using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Enums.Modules.CustomerStage;
 using Stack.DTOs.Requests.Modules.CustomerStage;
 using Stack.Entities.Enums.Modules.Pool;
+using Stack.DTOs.Models.Modules.Pool;
+using Stack.DTOs.Models.Modules.CustomerStage;
+using Stack.DTOs.Requests.Modules.Pool;
 
 namespace Stack.ServiceLayer.Modules.CustomerStage
 {
@@ -107,10 +110,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
 
 
-                if (leadStatuses != null && leadStatuses.Count > 0 )
+                if (leadStatuses != null && leadStatuses.Count > 0)
                 {
 
-                    for(int i = 0; i < leadStatuses.Count; i++)
+                    for (int i = 0; i < leadStatuses.Count; i++)
                     {
 
                         StatusModel statusToAdd = new StatusModel();
@@ -194,7 +197,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 result.Data.Stages.Add(leadStage);
 
                 result.Data.Stages.Add(prospectStage);
-         
+
                 result.Data.Stages.Add(opportunityStage);
 
                 result.Data.Stages.Add(contactStage);
@@ -374,7 +377,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     if (user != null)
                     {
                         //Get Designated Pool for assigned user
-                        var poolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == creationModel.PoolID && t.UserID == creationModel.AssigneeID);
+                        var poolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == creationModel.PoolID && t.UserID == creationModel.AssigneeID, includeProperties: "Pool");
                         var poolUser = poolQuery.FirstOrDefault();
 
                         if (poolUser != null)
@@ -385,7 +388,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                             var recordDuplicationCheckQ = await unitOfWork.ContactManager.GetAsync(t => t.PrimaryPhoneNumber == creationModel.PrimaryPhoneNumber);
                             var recordDuplicationCheck = recordDuplicationCheckQ.FirstOrDefault();
 
-                            //Phone number not duplicated
+                            //Phone number not duplicated       
                             if (recordDuplicationCheck == null)
                             {
                                 //Verify pool configuration for capacity checks
@@ -536,6 +539,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                             Occupation = creationModel.Occupation,
                                                             LeadSourceName = recordDuplicationCheck.LeadSourceName,
                                                             LeadSourceType = recordDuplicationCheck.LeadSourceType,
+                                                            PoolID = recordDuplicationCheck.PoolID
                                                         };
 
                                                         var customerCreationRes = await unitOfWork.CustomerManager.CreateAsync(customer);
@@ -544,11 +548,18 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         {
                                                             await unitOfWork.SaveChangesAsync();
 
+                                                            recordDuplicationCheck.CustomerID = customerCreationRes.ID;
+                                                            recordDuplicationCheck.State = (int)CustomerStageState.Converted;
+                                                            var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(recordDuplicationCheck);
+
+
                                                             //Create deal
 
                                                             Deal deal = new Deal
                                                             {
-                                                                CustomerID = customerCreationRes.ID
+                                                                CustomerID = customerCreationRes.ID,
+                                                                PoolID = recordDuplicationCheck.PoolID,
+                                                                ActiveStageType = creationModel.RecordType
                                                             };
 
                                                             var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -572,6 +583,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                                     var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
                                                                     if (recordCreationRes != null)
                                                                     {
+                                                                        //Update deal with active stage
+                                                                        deal.ActiveStageID = recordCreationRes.ID;
+                                                                        var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                                                         await unitOfWork.SaveChangesAsync();
                                                                         RecordCreationResponse responseModel = new RecordCreationResponse
                                                                         {
@@ -602,6 +617,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                                     var recordCreationRes = await unitOfWork.ProspectManager.CreateAsync(record);
                                                                     if (recordCreationRes != null)
                                                                     {
+                                                                        //Update deal with active stage
+                                                                        deal.ActiveStageID = recordCreationRes.ID;
+                                                                        var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                                                         await unitOfWork.SaveChangesAsync();
                                                                         RecordCreationResponse responseModel = new RecordCreationResponse
                                                                         {
@@ -632,6 +651,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                                     var recordCreationRes = await unitOfWork.OpportunityManager.CreateAsync(record);
                                                                     if (recordCreationRes != null)
                                                                     {
+                                                                        //Update deal with active stage
+                                                                        deal.ActiveStageID = recordCreationRes.ID;
+                                                                        var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                                                         await unitOfWork.SaveChangesAsync();
                                                                         RecordCreationResponse responseModel = new RecordCreationResponse
                                                                         {
@@ -661,10 +684,15 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                                     var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
                                                                     if (recordCreationRes != null)
                                                                     {
+                                                                        //Update deal with active stage
+                                                                        deal.ActiveStageID = recordCreationRes.ID;
+                                                                        var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                                                         recordDuplicationCheck.IsFinalized = true;
                                                                         var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(recordDuplicationCheck);
 
                                                                         await unitOfWork.SaveChangesAsync();
+
                                                                         RecordCreationResponse responseModel = new RecordCreationResponse
                                                                         {
                                                                             CapacityIncreaseCount = record_PoolUser.Capacity
@@ -733,7 +761,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         {
                                             recordDuplicationCheck.AssignedUserID = creationModel.AssigneeID;
                                             recordDuplicationCheck.Customer.AssignedUserID = creationModel.AssigneeID;
-
                                             //Iterate all customer deals and overtake their assignee ID
                                             for (int i = 0; i < recordDuplicationCheck.Customer.Deals.Count; i++)
                                             {
@@ -795,7 +822,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                                             Deal deal = new Deal
                                             {
-                                                CustomerID = recordDuplicationCheck.CustomerID.Value
+                                                CustomerID = recordDuplicationCheck.CustomerID.Value,
+                                                PoolID = recordDuplicationCheck.PoolID,
+                                                ActiveStageType = creationModel.RecordType
                                             };
 
                                             var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -820,6 +849,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                     var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
                                                     if (recordCreationRes != null)
                                                     {
+                                                        //Update deal with active stage
+                                                        deal.ActiveStageID = recordCreationRes.ID;
+                                                        var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                                         await unitOfWork.SaveChangesAsync();
                                                         RecordCreationResponse responseModel = new RecordCreationResponse
                                                         {
@@ -851,6 +884,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                     var recordCreationRes = await unitOfWork.ProspectManager.CreateAsync(record);
                                                     if (recordCreationRes != null)
                                                     {
+                                                        //Update deal with active stage
+                                                        deal.ActiveStageID = recordCreationRes.ID;
+                                                        var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
                                                         await unitOfWork.SaveChangesAsync();
                                                         RecordCreationResponse responseModel = new RecordCreationResponse
                                                         {
@@ -881,6 +917,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                     var recordCreationRes = await unitOfWork.OpportunityManager.CreateAsync(record);
                                                     if (recordCreationRes != null)
                                                     {
+                                                        //Update deal with active stage
+                                                        deal.ActiveStageID = recordCreationRes.ID;
+                                                        var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
                                                         await unitOfWork.SaveChangesAsync();
                                                         RecordCreationResponse responseModel = new RecordCreationResponse
                                                         {
@@ -910,6 +949,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                     var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
                                                     if (recordCreationRes != null)
                                                     {
+                                                        //Update deal with active stage
+                                                        deal.ActiveStageID = recordCreationRes.ID;
+                                                        var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                                         recordDuplicationCheck.IsFinalized = true;
                                                         var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(recordDuplicationCheck);
 
@@ -950,6 +993,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                         //Contact only
                                         else
                                         {
+
                                             //create deal flow for such contact
                                             //Create customer
                                             Customer customer = new Customer
@@ -971,11 +1015,17 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             {
                                                 await unitOfWork.SaveChangesAsync();
 
-                                                //Create deal
+                                                recordDuplicationCheck.CustomerID = customerCreationRes.ID;
+                                                recordDuplicationCheck.State = (int)CustomerStageState.Converted;
+                                                var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(recordDuplicationCheck);
 
+
+                                                //Create deal
                                                 Deal deal = new Deal
                                                 {
-                                                    CustomerID = customerCreationRes.ID
+                                                    CustomerID = customerCreationRes.ID,
+                                                    PoolID = recordDuplicationCheck.PoolID,
+                                                    ActiveStageType = creationModel.RecordType
                                                 };
 
                                                 var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -999,6 +1049,12 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
                                                         if (recordCreationRes != null)
                                                         {
+                                                            await unitOfWork.SaveChangesAsync();
+
+                                                            //Update deal with active stage
+                                                            deal.ActiveStageID = recordCreationRes.ID;
+                                                            var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                                             await unitOfWork.SaveChangesAsync();
                                                             RecordCreationResponse responseModel = new RecordCreationResponse
                                                             {
@@ -1030,6 +1086,12 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         if (recordCreationRes != null)
                                                         {
                                                             await unitOfWork.SaveChangesAsync();
+
+                                                            //Update deal with active stage
+                                                            deal.ActiveStageID = recordCreationRes.ID;
+                                                            var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                                            await unitOfWork.SaveChangesAsync();
                                                             RecordCreationResponse responseModel = new RecordCreationResponse
                                                             {
                                                                 CapacityIncreaseCount = record_PoolUser.Capacity
@@ -1060,6 +1122,12 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         if (recordCreationRes != null)
                                                         {
                                                             await unitOfWork.SaveChangesAsync();
+
+                                                            //Update deal with active stage
+                                                            deal.ActiveStageID = recordCreationRes.ID;
+                                                            var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                                            await unitOfWork.SaveChangesAsync();
                                                             RecordCreationResponse responseModel = new RecordCreationResponse
                                                             {
                                                                 CapacityIncreaseCount = record_PoolUser.Capacity
@@ -1088,6 +1156,12 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
                                                         if (recordCreationRes != null)
                                                         {
+                                                            await unitOfWork.SaveChangesAsync();
+
+                                                            //Update deal with active stage
+                                                            deal.ActiveStageID = recordCreationRes.ID;
+                                                            var dealUpdateRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                                             recordDuplicationCheck.IsFinalized = true;
                                                             var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(recordDuplicationCheck);
 
@@ -1223,8 +1297,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             }
         }
 
-
-
         //Create record 
         public async Task<ApiResponse<RecordCreationResponse>> CreateSingleRecord(RecordCreationModel creationModel, Pool_User PoolUser)
         {
@@ -1244,7 +1316,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     IsFresh = false,
                     PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                     Occupation = creationModel.Occupation,
-                    State = (int)CustomerStageState.Initial,
+                    State = (int)CustomerStageState.Converted,
                 };
 
                 if (creationModel.RecordType == (int)CustomerStageIndicator.Lead || creationModel.RecordType == (int)CustomerStageIndicator.Opportunity)
@@ -1276,11 +1348,16 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     {
                         await unitOfWork.SaveChangesAsync();
 
-                        //Create deal
+                        contactCreationRes.CustomerID = customerCreationRes.ID;
+                        var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(contactCreationRes);
 
+
+                        //Create deal
                         Deal deal = new Deal
                         {
-                            CustomerID = customerCreationRes.ID
+                            CustomerID = customerCreationRes.ID,
+                            PoolID = creationModel.PoolID,
+                            ActiveStageType = creationModel.RecordType
                         };
 
                         var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
@@ -1304,6 +1381,11 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
+                                    await unitOfWork.SaveChangesAsync();
+
+                                    dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                    var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                     await unitOfWork.SaveChangesAsync();
                                     RecordCreationResponse responseModel = new RecordCreationResponse
                                     {
@@ -1335,6 +1417,11 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 if (recordCreationRes != null)
                                 {
                                     await unitOfWork.SaveChangesAsync();
+
+                                    dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                    var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                    await unitOfWork.SaveChangesAsync();
                                     RecordCreationResponse responseModel = new RecordCreationResponse
                                     {
                                         CapacityIncreaseCount = PoolUser.Capacity
@@ -1365,6 +1452,11 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 if (recordCreationRes != null)
                                 {
                                     await unitOfWork.SaveChangesAsync();
+
+                                    dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                    var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                    await unitOfWork.SaveChangesAsync();
                                     RecordCreationResponse responseModel = new RecordCreationResponse
                                     {
                                         CapacityIncreaseCount = PoolUser.Capacity
@@ -1393,6 +1485,11 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
+                                    await unitOfWork.SaveChangesAsync();
+
+                                    dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                    var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
                                     contact.IsFinalized = true;
                                     var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(contactCreationRes);
 
@@ -1454,8 +1551,369 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 return result;
             }
         }
-
         #endregion
+        public async Task<ApiResponse<ContactViewModel>> GetCurrentStageRecord(GetPoolRecordsModel model)
+        {
+            ApiResponse<ContactViewModel> result = new ApiResponse<ContactViewModel>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    if (model.RecordType == (int)CustomerStageIndicator.Prospect)
+                    {
+                        var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var records = recordsQ.FirstOrDefault();
+
+                        if (records != null)
+                        {
+                            //Get all record deals
+                            List<RecordDeal> recordDealsList = new List<RecordDeal>();
+
+                            var recordDealsQ = await unitOfWork.DealManager.GetAsync(t => t.CustomerID == records.Deal.CustomerID);
+                            var recordDeals = recordDealsQ.ToList();
+
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<ContactViewModel>(records);
+                            result.Data.RecordDeals = mapper.Map<List<RecordDeal>>(recordDeals);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.Lead)
+                    {
+                        var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var records = recordsQ.FirstOrDefault();
+
+                        if (records != null)
+                        {
+                            //Get all record deals
+                            List<RecordDeal> recordDealsList = new List<RecordDeal>();
+
+                            var recordDealsQ = await unitOfWork.DealManager.GetAsync(t => t.CustomerID == records.Deal.CustomerID);
+                            var recordDeals = recordDealsQ.ToList();
+
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<ContactViewModel>(records);
+                            result.Data.RecordDeals = mapper.Map<List<RecordDeal>>(recordDeals);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.Opportunity)
+                    {
+                        var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var records = recordsQ.FirstOrDefault();
+
+                        if (records != null)
+                        {
+                            //Get all record deals
+
+                            var recordDealsQ = await unitOfWork.DealManager.GetAsync(t => t.CustomerID == records.Deal.CustomerID);
+                            var recordDeals = recordDealsQ.ToList();
+
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<ContactViewModel>(records);
+                            result.Data.RecordDeals = mapper.Map<List<RecordDeal>>(recordDeals);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.DoneDeal)
+                    {
+                        var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var records = recordsQ.FirstOrDefault();
+
+                        if (records != null)
+                        {
+                            //Get all record deals
+                            List<RecordDeal> recordDealsList = new List<RecordDeal>();
+
+                            var recordDealsQ = await unitOfWork.DealManager.GetAsync(t => t.CustomerID == records.Deal.CustomerID);
+                            var recordDeals = recordDealsQ.ToList();
+
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<ContactViewModel>(records);
+                            result.Data.RecordDeals = mapper.Map<List<RecordDeal>>(recordDeals);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetAllJunkedRecords(int customerStage)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    List<ContactListViewModel> junkedRecords = new List<ContactListViewModel>();
+                    //Get all user pools
+                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.UserID == userID, includeProperties: "Pool");
+                    var userPools = userPoolQuery.ToList();
+
+                    if (userPools != null && userPools.Count > 0)
+                    {
+                        for (int i = 0; i < userPools.Count; i++)
+                        {
+                            var userPool = userPools[i];
+
+                            if (customerStage == (int)CustomerStageIndicator.Contact)
+                            {
+                                var recordsQ = await unitOfWork.ContactManager.GetAsync(t => t.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.Junked);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else if (customerStage == (int)CustomerStageIndicator.Prospect)
+                            {
+                                var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.Junked);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else if (customerStage == (int)CustomerStageIndicator.Lead)
+                            {
+                                var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.Deal.Customer.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.Junked);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else if (customerStage == (int)CustomerStageIndicator.Opportunity)
+                            {
+                                var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.Deal.Customer.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.Junked);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else if (customerStage == (int)CustomerStageIndicator.DoneDeal)
+                            {
+                                var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.Deal.Customer.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.Junked);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Unauthorized");
+                                result.Errors.Add("غير مصرح");
+                                return result;
+                            }
+                        }
+
+                        result.Succeeded = true;
+                        result.Data = junkedRecords;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Unauthorized");
+                        result.Errors.Add("غير مصرح");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetAllNotInterestedRecords(int customerStage)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    List<ContactListViewModel> junkedRecords = new List<ContactListViewModel>();
+                    //Get all user pools
+                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.UserID == userID, includeProperties: "Pool");
+                    var userPools = userPoolQuery.ToList();
+
+                    if (userPools != null && userPools.Count > 0)
+                    {
+                        for (int i = 0; i < userPools.Count; i++)
+                        {
+                            var userPool = userPools[i];
+
+                            if (customerStage == (int)CustomerStageIndicator.Contact)
+                            {
+                                var recordsQ = await unitOfWork.ContactManager.GetAsync(t => t.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.NotInterested);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else if (customerStage == (int)CustomerStageIndicator.Prospect)
+                            {
+                                var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.NotInterested);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else if (customerStage == (int)CustomerStageIndicator.Lead)
+                            {
+                                var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.Deal.Customer.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.NotInterested);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else if (customerStage == (int)CustomerStageIndicator.Opportunity)
+                            {
+                                var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.Deal.Customer.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.NotInterested);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else if (customerStage == (int)CustomerStageIndicator.DoneDeal)
+                            {
+                                var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.Deal.Customer.PoolID == userPool.PoolID
+                                && t.State == (int)CustomerStageState.NotInterested);
+                                var records = recordsQ.ToList();
+
+                                if (records != null && records.Count > 0)
+                                {
+                                    junkedRecords.AddRange(mapper.Map<List<ContactListViewModel>>(records));
+                                }
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Unauthorized");
+                                result.Errors.Add("غير مصرح");
+                                return result;
+                            }
+                        }
+
+                        result.Succeeded = true;
+                        result.Data = junkedRecords;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Unauthorized");
+                        result.Errors.Add("غير مصرح");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
 
     }
 

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220505233010_record-lock-applied-to-all-types")]
+    partial class recordlockappliedtoalltypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1246,35 +1248,6 @@ namespace Stack.DAL.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.CustomerComment", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("CustomerID")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("CustomerID");
-
-                    b.ToTable("CustomerComments");
-                });
-
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.CustomerPhoneNumber", b =>
                 {
                     b.Property<long>("ID")
@@ -1655,12 +1628,6 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("JoinDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
                     b.HasKey("PoolID", "UserID");
 
                     b.HasIndex("UserID");
@@ -1916,6 +1883,8 @@ namespace Stack.DAL.Migrations
 
                     b.HasIndex("OwnerID");
 
+                    b.HasIndex("ParentLInterestID");
+
                     b.ToTable("LInterests");
                 });
 
@@ -1929,19 +1898,27 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("Attachment")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("AttributeID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("InputField")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("InputID")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("InputType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<long>("LInterestID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("SelectedAttributeID")
+                    b.Property<long?>("LInterestID")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("InputID");
 
                     b.HasIndex("LInterestID");
 
@@ -2301,15 +2278,6 @@ namespace Stack.DAL.Migrations
                         .HasForeignKey("AssignedUserID");
                 });
 
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.CustomerComment", b =>
-                {
-                    b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Customer")
-                        .WithMany("Comments")
-                        .HasForeignKey("CustomerID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.CustomerPhoneNumber", b =>
                 {
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Customer")
@@ -2484,15 +2452,23 @@ namespace Stack.DAL.Migrations
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Owner")
                         .WithMany("SeparatedLInterests")
                         .HasForeignKey("OwnerID");
+
+                    b.HasOne("Stack.Entities.Models.Modules.Interest.LInterest", "ParentLInterest")
+                        .WithMany()
+                        .HasForeignKey("ParentLInterestID");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Interest.LInterestInput", b =>
                 {
-                    b.HasOne("Stack.Entities.Models.Modules.Interest.LInterest", "LInterest")
-                        .WithMany("LInterestInput")
-                        .HasForeignKey("LInterestID")
+                    b.HasOne("Stack.Entities.Models.Modules.Hierarchy.Input", "Input")
+                        .WithMany()
+                        .HasForeignKey("InputID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Stack.Entities.Models.Modules.Interest.LInterest", null)
+                        .WithMany("Inputs")
+                        .HasForeignKey("LInterestID");
                 });
 #pragma warning restore 612, 618
         }

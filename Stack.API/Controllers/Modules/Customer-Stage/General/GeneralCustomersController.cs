@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
 using Stack.DTOs.Requests.Modules.Auth;
 using Stack.DTOs.Requests.Modules.CustomerStage;
+using Stack.DTOs.Requests.Modules.Pool;
 using Stack.ServiceLayer.Modules.Auth;
 using Stack.ServiceLayer.Modules.CustomerStage;
 using System.Threading.Tasks;
@@ -28,6 +29,13 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
         [AllowAnonymous]
+        [HttpPost("GetCurrentStageRecord")]
+        public async Task<IActionResult> GetCurrentStageRecord(GetPoolRecordsModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetCurrentStageRecord(model));
+        }
+
+        [AllowAnonymous]
         [HttpGet("GetDealPossibleStages")]
         public async Task<IActionResult> GetDealPossibleStages()
         {
@@ -43,6 +51,20 @@ namespace Stack.API.Controllers.Modules.Auth
 
 
 
+        [AllowAnonymous]
+        [HttpGet("GetAllJunkedRecords/{customerStage}")]
+        public async Task<IActionResult> GetAllJunkedRecords(int customerStage)
+        {
+            return await GetResponseHandler(async () => await service.GetAllJunkedRecords(customerStage));
+        }
+
+
+        [AllowAnonymous]
+        [HttpGet("GetAllNotInterestedRecords/{customerStage}")]
+        public async Task<IActionResult> GetAllNotInterestedRecords(int customerStage)
+        {
+            return await GetResponseHandler(async () => await service.GetAllNotInterestedRecords(customerStage));
+        }
 
     }
 

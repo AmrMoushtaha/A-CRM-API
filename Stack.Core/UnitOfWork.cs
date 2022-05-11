@@ -423,6 +423,19 @@ namespace Stack.Core
             }
         }
 
+        private LInterestInputManager lInterestInputManager;
+        public LInterestInputManager LInterestInputManager
+        {
+            get
+            {
+                if (lInterestInputManager == null)
+                {
+                    lInterestInputManager = new LInterestInputManager(context);
+                }
+                return lInterestInputManager;
+            }
+        }
+
         private PoolManager poolManager;
         public PoolManager PoolManager
         {
@@ -671,6 +684,18 @@ namespace Stack.Core
         }
 
 
+        private CustomerCommentManager customerCommentManager;
+        public CustomerCommentManager CustomerCommentManager
+        {
+            get
+            {
+                if (customerCommentManager == null)
+                {
+                    customerCommentManager = new CustomerCommentManager(context);
+                }
+                return customerCommentManager;
+            }
+        }
 
     }
 

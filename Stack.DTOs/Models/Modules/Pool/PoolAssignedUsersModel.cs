@@ -9,5 +9,10 @@ namespace Stack.DTOs.Models.Modules.Pool
         public string UserID { get; set; }
         public string NameAR { get; set; }
         public string NameEN { get; set; }
+
+        public bool IsAdmin { get; set; }
+        public DateTime JoinDate { get; set; }
+
+        public int Status { get; set; }
     }
 }

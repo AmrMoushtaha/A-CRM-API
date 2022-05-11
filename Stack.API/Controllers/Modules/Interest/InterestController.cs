@@ -51,12 +51,11 @@ namespace Stack.API.Controllers.Modules.Auth
         #endregion
 
 
-        //#region Interest Input
-        //[AllowAnonymous]
+        #region Interest Input
         //[HttpPost]
-        //public async Task<IActionResult> CreateLInterestInput(LInterestInputToAdd LInterestInputToAdd)
+        //public async Task<IActionResult> CreateLInterestInput(LInterestInputsToAdd LInterestInputsToAdd)
         //{
-        //    return await AddItemResponseHandler(async () => await service.Create_LInterestInput(LInterestInputToAdd));
+        //    return await AddItemResponseHandler(async () => await service.Create_LInterestInput(LInterestInputsToAdd));
         //}
 
         //[AllowAnonymous]
@@ -72,7 +71,7 @@ namespace Stack.API.Controllers.Modules.Auth
         //{
         //    return await GetResponseHandler(async () => await service.Get_LInterestByInputID(ID));
         //}
-        //#endregion
+        #endregion
 
 
     }

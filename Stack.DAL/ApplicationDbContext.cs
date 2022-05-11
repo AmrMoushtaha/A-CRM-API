@@ -50,7 +50,6 @@ namespace Stack.DAL
 
             base.OnModelCreating(modelBuilder);
 
-
             modelBuilder.Entity<Contact>()
             .Property<bool>("IsDeleted");
 
@@ -63,9 +62,14 @@ namespace Stack.DAL
             modelBuilder.Entity<ContactComment>()
             .Property<bool>("IsDeleted");
 
-
             modelBuilder.Entity<Customer>()
             .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CustomerComment>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<Deal>()
+           .Property<bool>("IsDeleted");
 
             modelBuilder.Entity<Lead>()
            .Property<bool>("IsDeleted");
@@ -151,11 +155,16 @@ namespace Stack.DAL
             modelBuilder.Entity<Customer>()
                .HasQueryFilter(Customer => EF.Property<bool>(Customer, "IsDeleted") == false);
 
+
+            modelBuilder.Entity<CustomerComment>()
+               .HasQueryFilter(CustomerComment => EF.Property<bool>(CustomerComment, "IsDeleted") == false);
+
             modelBuilder.Entity<CustomerPhoneNumber>()
                .HasQueryFilter(CustomerPhoneNumber => EF.Property<bool>(CustomerPhoneNumber, "IsDeleted") == false);
 
             modelBuilder.Entity<Deal>()
                .HasQueryFilter(Deal => EF.Property<bool>(Deal, "IsDeleted") == false);
+
 
             modelBuilder.Entity<Lead>()
                .HasQueryFilter(Lead => EF.Property<bool>(Lead, "IsDeleted") == false);
@@ -259,6 +268,7 @@ namespace Stack.DAL
 
 
 
+
             modelBuilder.Entity<Contact_Tag>().HasKey(x => new { x.ContactID, x.TagID });
             modelBuilder.Entity<Contact_Tag>()
             .HasOne(pr => pr.Contact)
@@ -310,9 +320,23 @@ namespace Stack.DAL
             .HasForeignKey(pr => pr.SectionID).OnDelete(DeleteBehavior.NoAction);
 
 
+
+            modelBuilder.Entity<Deal>()
+               .HasOne(a => a.Customer)
+               .WithMany(au => au.Deals)
+               .HasForeignKey(a => a.CustomerID);
+
+            modelBuilder.Entity<Prospect>()
+               .HasOne(a => a.Deal)
+               .WithMany(au => au.Prospects)
+               .HasForeignKey(a => a.DealID);
         }
 
 
+        public virtual DbSet<Pool> Pools { get; set; }
+        public virtual DbSet<Pool_User> Pool_Users { get; set; }
+        public virtual DbSet<PoolConnectionID> PoolConnectionIDs { get; set; }
+        public virtual DbSet<PoolRequest> PoolRequests { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<Contact_Tag> Contact_Tags { get; set; }
         public virtual DbSet<Customer_Tag> Customer_Tags { get; set; }
@@ -320,17 +344,16 @@ namespace Stack.DAL
         public virtual DbSet<ContactStatus> ContactStatuses { get; set; }
         public virtual DbSet<ContactPhoneNumber> ContactPhoneNumbers { get; set; }
         public virtual DbSet<ContactComment> ContactComments { get; set; }
+        public virtual DbSet<CustomerComment> CustomerComments { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<Deal> Deals { get; set; }
+        public virtual DbSet<Prospect> Prospects { get; set; }
+        public virtual DbSet<ProspectStatus> ProspectStatuses { get; set; }
         public virtual DbSet<Lead> Leads { get; set; }
         public virtual DbSet<LeadStatus> LeadStatuses { get; set; }
         public virtual DbSet<Opportunity> Opportunities { get; set; }
         public virtual DbSet<OpportunityStatus> OpportunityStatuses { get; set; }
-        public virtual DbSet<Prospect> Prospects { get; set; }
         public virtual DbSet<DoneDeal> DoneDeals { get; set; }
-        public virtual DbSet<ProspectStatus> ProspectStatuses { get; set; }
-        public virtual DbSet<Deal> Deals { get; set; }
-        public virtual DbSet<Pool> Pools { get; set; }
-        public virtual DbSet<Pool_User> Pool_Users { get; set; }
         public virtual DbSet<Activity> Activities { get; set; }
         public virtual DbSet<ActivitySection> ActivitySections { get; set; }
         public virtual DbSet<SubmissionDetails> SubmissionDetails { get; set; }
@@ -340,7 +363,6 @@ namespace Stack.DAL
         public virtual DbSet<SectionQuestionAnswer> SectionQuestionAnswers { get; set; }
         public virtual DbSet<SectionQuestionOption> SectionQuestionOptions { get; set; }
         public virtual DbSet<SelectedOption> SelectedOptions { get; set; }
-
         public virtual DbSet<CustomerRequest> CustomerRequests { get; set; }
         public virtual DbSet<CR_Section> CR_Sections { get; set; }
         public virtual DbSet<CRSubmissionDetails> CRSubmissionDetails { get; set; }
@@ -350,7 +372,6 @@ namespace Stack.DAL
         public virtual DbSet<CRSectionQuestionAnswer> CRSectionQuestionAnswers { get; set; }
         public virtual DbSet<CRSectionQuestionOption> CRSectionQuestionOptions { get; set; }
         public virtual DbSet<CRSelectedOption> CRSelectedOptions { get; set; }
-
         public virtual DbSet<ProcessFlow> ProcessFlows { get; set; }
         public virtual DbSet<Location_Pool> Location_Pools { get; set; }
         public virtual DbSet<Location> Locations { get; set; }
@@ -359,15 +380,11 @@ namespace Stack.DAL
         public virtual DbSet<Input> Inputs { get; set; }
         public virtual DbSet<LInterestInput> LInterestInputs { get; set; }
         public virtual DbSet<LInterest> LInterests { get; set; }
-        public virtual DbSet<PoolConnectionID> PoolConnectionIDs { get; set; }
         public virtual DbSet<SystemConfiguration> SystemConfiguration { get; set; }
         public virtual DbSet<AuthorizationSection> AuthorizationSections { get; set; }
         public virtual DbSet<SectionAuthorization> SectionAuthorizations { get; set; }
         public virtual DbSet<LeadSourceName> LeadSourceNames { get; set; }
         public virtual DbSet<LeadSourceType> LeadSourceTypes { get; set; }
-        public virtual DbSet<PoolRequest> PoolRequests { get; set; }
-
-
         public virtual DbSet<LAttribute> LAttributes { get; set; }
 
     }

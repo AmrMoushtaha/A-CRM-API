@@ -6,6 +6,7 @@ using Stack.Core;
 using Stack.DTOs;
 using Stack.DTOs.Models;
 using Stack.DTOs.Requests;
+using Stack.Entities.Enums.Modules.CustomerStage;
 using Stack.Entities.Models;
 using Stack.Entities.Models.Modules.Common;
 using Stack.Repository.Common;
@@ -62,7 +63,8 @@ namespace Stack.API.Hubs
                 {
                     if (connection.RecordID != 0)
                     {
-                        if (connection.RecordType == 0) //Contact
+                        //Update record lock status and remove schedule
+                        if (connection.RecordType == (int)CustomerStageIndicator.Contact) //Contact
                         {
                             var recordQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == connection.RecordID);
                             var record = recordQ.FirstOrDefault();
@@ -77,12 +79,55 @@ namespace Stack.API.Hubs
 
                             }
                         }
-                        else if (connection.RecordType == 1)//Lead
+                        else if (connection.RecordType == (int)CustomerStageIndicator.Prospect) //Contact
                         {
-                            throw new NotImplementedException();
+                            var recordQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == connection.RecordID);
+                            var record = recordQ.FirstOrDefault();
+                            if (record != null)
+                            {
+                                //Remove scheduled job
+                                var jobDeletionRes = BackgroundJob.Delete(record.ForceUnlock_JobID);
+
+                                record.IsLocked = false;
+                                record.ForceUnlock_JobID = null;
+                                var updateResult = await unitOfWork.ProspectManager.UpdateAsync(record);
+
+                            }
                         }
+                        else if (connection.RecordType == (int)CustomerStageIndicator.Lead) //Contact
+                        {
+                            var recordQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == connection.RecordID);
+                            var record = recordQ.FirstOrDefault();
+                            if (record != null)
+                            {
+                                //Remove scheduled job
+                                var jobDeletionRes = BackgroundJob.Delete(record.ForceUnlock_JobID);
 
+                                record.IsLocked = false;
+                                record.ForceUnlock_JobID = null;
+                                var updateResult = await unitOfWork.LeadManager.UpdateAsync(record);
 
+                            }
+                        }
+                        else if (connection.RecordType == (int)CustomerStageIndicator.Opportunity) //Contact
+                        {
+                            var recordQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == connection.RecordID);
+                            var record = recordQ.FirstOrDefault();
+                            if (record != null)
+                            {
+                                //Remove scheduled job
+                                var jobDeletionRes = BackgroundJob.Delete(record.ForceUnlock_JobID);
+
+                                record.IsLocked = false;
+                                record.ForceUnlock_JobID = null;
+                                var updateResult = await unitOfWork.OpportunityManager.UpdateAsync(record);
+
+                            }
+                        }
+                        else
+                        {
+                            throw new NotSupportedException();
+                        }
 
                         //Update current pool for users
                         await UpdatePool(connection.PoolID);

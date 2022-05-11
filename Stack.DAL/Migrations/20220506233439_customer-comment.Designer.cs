@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220506233439_customer-comment")]
+    partial class customercomment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1655,12 +1657,6 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("JoinDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
                     b.HasKey("PoolID", "UserID");
 
                     b.HasIndex("UserID");
@@ -1916,6 +1912,8 @@ namespace Stack.DAL.Migrations
 
                     b.HasIndex("OwnerID");
 
+                    b.HasIndex("ParentLInterestID");
+
                     b.ToTable("LInterests");
                 });
 
@@ -1929,19 +1927,27 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("Attachment")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("AttributeID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("InputField")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<long>("InputID")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("InputType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<long>("LInterestID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("SelectedAttributeID")
+                    b.Property<long?>("LInterestID")
                         .HasColumnType("bigint");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("InputID");
 
                     b.HasIndex("LInterestID");
 
@@ -2484,15 +2490,23 @@ namespace Stack.DAL.Migrations
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Customer", "Owner")
                         .WithMany("SeparatedLInterests")
                         .HasForeignKey("OwnerID");
+
+                    b.HasOne("Stack.Entities.Models.Modules.Interest.LInterest", "ParentLInterest")
+                        .WithMany()
+                        .HasForeignKey("ParentLInterestID");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Interest.LInterestInput", b =>
                 {
-                    b.HasOne("Stack.Entities.Models.Modules.Interest.LInterest", "LInterest")
-                        .WithMany("LInterestInput")
-                        .HasForeignKey("LInterestID")
+                    b.HasOne("Stack.Entities.Models.Modules.Hierarchy.Input", "Input")
+                        .WithMany()
+                        .HasForeignKey("InputID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Stack.Entities.Models.Modules.Interest.LInterest", null)
+                        .WithMany("Inputs")
+                        .HasForeignKey("LInterestID");
                 });
 #pragma warning restore 612, 618
         }

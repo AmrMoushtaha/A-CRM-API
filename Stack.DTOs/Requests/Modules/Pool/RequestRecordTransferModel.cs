@@ -11,6 +11,7 @@ namespace Stack.DTOs.Requests.Modules.Pool
         public string AssigneeID { get; set; }
         public string PrimaryPhoneNumber { get; set; }
         public long? RecordStatusID { get; set; }
+        public int RecordType { get; set; }
     }
 
 }

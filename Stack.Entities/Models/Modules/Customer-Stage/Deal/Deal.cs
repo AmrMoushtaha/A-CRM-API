@@ -13,15 +13,16 @@ namespace Stack.Entities.Models.Modules.CustomerStage
 
         public int ActiveStageType { get; set; }
 
+        public long PoolID { get; set; }
 
         public virtual List<Prospect> Prospects { get; set; }
         public virtual List<Lead> Leads { get; set; }
         public virtual List<Opportunity> Opportunities { get; set; }
-
-
+        public virtual List<DoneDeal> DoneDeals { get; set; }
 
         [ForeignKey("CustomerID")]
         public virtual Customer Customer { get; set; }
+        
         public virtual ProcessFlow ProcessFlow { get; set; }
     }
 
