@@ -396,7 +396,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                     long referenceDealID = 0;
 
                     //If the stage is being updated . 
-                    if (model.CurrentStage != model.NewStage)
+                    if (model.NewStage != null && model.CurrentStage != model.NewStage)
                     {
                         //if the current stage is Contact, create a new customer &  deal and assign it to the existing process flow .
                         if (model.CurrentStage == "Contact")
@@ -686,6 +686,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 newStageRecord.AssignedUserID = referenceUser.Id;
 
                                 newStageRecord.DealID = referenceDealID;
+
 
                                 var createNewStageRecordResult = await unitOfWork.OpportunityManager.CreateAsync(newStageRecord);
 

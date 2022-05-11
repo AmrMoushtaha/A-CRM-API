@@ -61,6 +61,7 @@ namespace Stack.API.AutoMapperConfig
             .ForMember(dist => dist.RecordID, opt => opt.MapFrom(t => t.ActiveStageID))
             .ForMember(dist => dist.RecordType, opt => opt.MapFrom(t => t.ActiveStageType))
             .ReverseMap();
+
             //Contact
             CreateMap<Contact, ContactViewModel>()
            .ForMember(dist => dist.ContactPhoneNumbers, opt => opt.MapFrom(t => t.PhoneNumbers))
@@ -159,6 +160,10 @@ namespace Stack.API.AutoMapperConfig
            .ReverseMap();
 
             CreateMap<ContactComment, ContactCommentDTO>()
+           .ReverseMap();
+
+
+            CreateMap<ContactComment, CommentReponseModel>()
            .ReverseMap();
 
             CreateMap<Contact_Tag, ContactTagDTO>()
