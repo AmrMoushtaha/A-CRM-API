@@ -199,8 +199,6 @@ namespace Stack.DAL
             modelBuilder.Entity<SectionQuestion>()
              .HasQueryFilter(SectionQuestion => EF.Property<bool>(SectionQuestion, "IsDeleted") == false);
 
-            modelBuilder.Entity<SectionQuestionAnswer>()
-             .HasQueryFilter(SectionQuestionAnswer => EF.Property<bool>(SectionQuestionAnswer, "IsDeleted") == false);
 
             modelBuilder.Entity<SectionQuestionOption>()
              .HasQueryFilter(SectionQuestionOption => EF.Property<bool>(SectionQuestionOption, "IsDeleted") == false);
