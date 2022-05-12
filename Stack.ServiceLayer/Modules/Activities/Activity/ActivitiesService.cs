@@ -18,6 +18,7 @@ using Stack.DTOs.Models.Shared;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Enums.Modules.CustomerStage;
+using Stack.DTOs.Models.Modules.Activities.ActivityDetails;
 
 namespace Stack.ServiceLayer.Modules.Activities
 {
@@ -2510,6 +2511,252 @@ namespace Stack.ServiceLayer.Modules.Activities
 
         }
 
+        /// <summary>
+        /// Get the details of an activity by it's ID .
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<ApiResponse<ActivityDetailsDTO>> GetActivityDetailsByActivityID(long ActivityID)
+        {
+            ApiResponse<ActivityDetailsDTO> result = new ApiResponse<ActivityDetailsDTO>();
+            try
+            {
+
+                var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ID == ActivityID,
+                    includeProperties: "ActivityType,ActivitySections,SubmissionDetails,ApplicationUser,SubmissionDetails.ScheduledActivity,ActivitySections.QuestionAnswers,ActivitySections.QuestionAnswers,ActivitySections.QuestionAnswers.Question,ActivitySections.QuestionAnswers,ActivitySections.QuestionAnswers.SelectedOption,ActivitySections.QuestionAnswers.SelectedOption.SectionQuestionOption");
+
+                Activity referenceActivity = activitiesResult.FirstOrDefault();
+
+
+                //
+                //
+                //
+                //
+                //
+                //
+
+                if (referenceActivity != null)
+                {
+
+                    ActivityDetailsDTO detailsModel = new ActivityDetailsDTO();
+
+                    detailsModel.NameEN = referenceActivity.ActivityType.NameEN;
+
+                    detailsModel.NameAR = referenceActivity.ActivityType.NameAR;
+
+                    detailsModel.StartDate = (DateTime)referenceActivity.CreationDate;
+
+                    detailsModel.EndDate = (DateTime)referenceActivity.SubmissionDate;
+
+                    detailsModel.PerformedBy = referenceActivity.ApplicationUser.FirstName + " " + referenceActivity.ApplicationUser.LastName;
+
+                    detailsModel.Comment = referenceActivity.SubmissionDetails.Comment;
+
+                    detailsModel.ScheduledActivityDate = (DateTime)referenceActivity.SubmissionDetails.ScheduledActivityDate;
+
+                    detailsModel.ScheduledActivityNameAR = referenceActivity.SubmissionDetails.ScheduledActivity.NameAR;
+
+                    detailsModel.ScheduledActivityNameEN = referenceActivity.SubmissionDetails.ScheduledActivity.NameEN;
+
+                    detailsModel.IsStatusChanged = referenceActivity.SubmissionDetails.IsStatusChanged;
+
+                    detailsModel.IsStageChanged = referenceActivity.SubmissionDetails.IsStageChanged;
+
+                    detailsModel.Stage = referenceActivity.SubmissionDetails.CurrentStage;
+
+                    detailsModel.NewStage = referenceActivity.SubmissionDetails.NewStage;
+
+                    if (referenceActivity.SubmissionDetails.CurrentStage == CustomerStageIndicator.Contact.ToString() && referenceActivity.SubmissionDetails.CurrentStatus != null && referenceActivity.SubmissionDetails.CurrentStatus != 0)
+                    {
+
+                        var statusesResult = await unitOfWork.ContactStatusManager.GetAsync(a => a.ID == referenceActivity.SubmissionDetails.CurrentStatus);
+
+                        ContactStatus referenceStatus = statusesResult.FirstOrDefault();
+
+                        detailsModel.StatusEN = referenceStatus.EN;
+
+                        detailsModel.StatusAR = referenceStatus.AR;
+
+                    }
+
+                    if (referenceActivity.SubmissionDetails.CurrentStage == CustomerStageIndicator.Prospect.ToString() && referenceActivity.SubmissionDetails.CurrentStatus != null && referenceActivity.SubmissionDetails.CurrentStatus != 0)
+                    {
+
+                        var statusesResult = await unitOfWork.ProspectStatusManager.GetAsync(a => a.ID == referenceActivity.SubmissionDetails.CurrentStatus);
+
+                        ProspectStatus referenceStatus = statusesResult.FirstOrDefault();
+
+                        detailsModel.StatusEN = referenceStatus.EN;
+
+                        detailsModel.StatusAR = referenceStatus.AR;
+
+                    }
+
+                    if (referenceActivity.SubmissionDetails.CurrentStage == CustomerStageIndicator.Lead.ToString() && referenceActivity.SubmissionDetails.CurrentStatus != null && referenceActivity.SubmissionDetails.CurrentStatus != 0)
+                    {
+
+                        var statusesResult = await unitOfWork.LeadStatusManager.GetAsync(a => a.ID == referenceActivity.SubmissionDetails.CurrentStatus);
+
+                        LeadStatus referenceStatus = statusesResult.FirstOrDefault();
+
+                        detailsModel.StatusEN = referenceStatus.EN;
+
+                        detailsModel.StatusAR = referenceStatus.AR;
+
+                    }
+
+                    if (referenceActivity.SubmissionDetails.CurrentStage == CustomerStageIndicator.Opportunity.ToString() && referenceActivity.SubmissionDetails.CurrentStatus != null && referenceActivity.SubmissionDetails.CurrentStatus != 0)
+                    {
+
+                        var statusesResult = await unitOfWork.OpportunityStatusManager.GetAsync(a => a.ID == referenceActivity.SubmissionDetails.CurrentStatus);
+
+                        OpportunityStatus referenceStatus = statusesResult.FirstOrDefault();
+
+                        detailsModel.StatusEN = referenceStatus.EN;
+
+                        detailsModel.StatusAR = referenceStatus.AR;
+
+                    }
+
+                    if (detailsModel.IsStatusChanged == true)
+                    {
+
+
+                        if (referenceActivity.SubmissionDetails.CurrentStage == CustomerStageIndicator.Contact.ToString() && referenceActivity.SubmissionDetails.CurrentStage != null)
+                        {
+
+                            var statusesResult = await unitOfWork.ContactStatusManager.GetAsync(a => a.ID == referenceActivity.SubmissionDetails.NewStatus);
+
+                            ContactStatus referenceStatus = statusesResult.FirstOrDefault();
+
+                            detailsModel.NewStatusEN = referenceStatus.EN;
+
+                            detailsModel.NewStatusAR = referenceStatus.AR;
+
+                        }
+
+                        if (referenceActivity.SubmissionDetails.CurrentStage == CustomerStageIndicator.Prospect.ToString() && referenceActivity.SubmissionDetails.CurrentStage != null)
+                        {
+
+                            var statusesResult = await unitOfWork.ProspectStatusManager.GetAsync(a => a.ID == referenceActivity.SubmissionDetails.NewStatus);
+
+                            ProspectStatus referenceStatus = statusesResult.FirstOrDefault();
+
+                            detailsModel.NewStatusEN = referenceStatus.EN;
+
+                            detailsModel.NewStatusAR = referenceStatus.AR;
+
+                        }
+
+                        if (referenceActivity.SubmissionDetails.CurrentStage == CustomerStageIndicator.Lead.ToString() && referenceActivity.SubmissionDetails.CurrentStage != null)
+                        {
+
+                            var statusesResult = await unitOfWork.LeadStatusManager.GetAsync(a => a.ID == referenceActivity.SubmissionDetails.NewStatus);
+
+                            LeadStatus referenceStatus = statusesResult.FirstOrDefault();
+
+                            detailsModel.NewStatusEN = referenceStatus.EN;
+
+                            detailsModel.NewStatusAR = referenceStatus.AR;
+
+                        }
+
+                        if (referenceActivity.SubmissionDetails.CurrentStage == CustomerStageIndicator.Opportunity.ToString() && referenceActivity.SubmissionDetails.CurrentStage != null)
+                        {
+
+                            var statusesResult = await unitOfWork.OpportunityStatusManager.GetAsync(a => a.ID == referenceActivity.SubmissionDetails.NewStatus);
+
+                            OpportunityStatus referenceStatus = statusesResult.FirstOrDefault();
+
+                            detailsModel.NewStatusEN = referenceStatus.EN;
+
+                            detailsModel.NewStatusAR = referenceStatus.AR;
+
+                        }
+
+
+
+                    }
+
+                    detailsModel.ActivitySections = new List<ActivitySectionDetailsDTO>();
+
+                    for(int i = 0; i < referenceActivity.ActivitySections.Count; i++)
+                    {
+
+                        ActivitySectionDetailsDTO sectionDetail = new ActivitySectionDetailsDTO();
+
+                        sectionDetail.Order = referenceActivity.ActivitySections[i].Order;
+
+                        sectionDetail.QuestionAnswers = new List<SectionQuestionAnswerDetailsDTO>();
+
+                        if(referenceActivity.ActivitySections[i].QuestionAnswers != null)
+                        {
+
+                            for (int j = 0; j < referenceActivity.ActivitySections[i].QuestionAnswers.Count; j++)
+                            {
+
+                                SectionQuestionAnswerDetailsDTO questionAnswer = new SectionQuestionAnswerDetailsDTO();
+
+                                questionAnswer.QuestionType = referenceActivity.ActivitySections[i].QuestionAnswers[j].Question.Type;
+
+                                questionAnswer.DescriptionEN = referenceActivity.ActivitySections[i].QuestionAnswers[j].Question.DescriptionEN;
+
+                                questionAnswer.DescriptionAR = referenceActivity.ActivitySections[i].QuestionAnswers[j].Question.DescriptionAR;
+
+                                questionAnswer.Order = referenceActivity.ActivitySections[i].QuestionAnswers[j].Question.Order;
+
+                                questionAnswer.AnswerValueEN = referenceActivity.ActivitySections[i].QuestionAnswers[j].Value;
+
+                                questionAnswer.AnswerValueAR = referenceActivity.ActivitySections[i].QuestionAnswers[j].Value;
+
+                                questionAnswer.AnswerDateValue = referenceActivity.ActivitySections[i].QuestionAnswers[j].DateValue;
+
+                                if (referenceActivity.ActivitySections[i].QuestionAnswers[j].SelectedOption != null)
+                                {
+
+                                    questionAnswer.AnswerValueEN = referenceActivity.ActivitySections[i].QuestionAnswers[j].SelectedOption.SectionQuestionOption.ValueEN;
+
+                                    questionAnswer.AnswerValueAR = referenceActivity.ActivitySections[i].QuestionAnswers[j].SelectedOption.SectionQuestionOption.ValueAR;
+
+                                }
+
+                                //Add question answer . 
+                                sectionDetail.QuestionAnswers.Add(questionAnswer);
+
+                            }
+
+                        }
+
+                        detailsModel.ActivitySections.Add(sectionDetail);
+                  
+                    }
+
+
+                    result.Data = detailsModel;
+                    result.Succeeded = true;
+                    return result;
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Failed to fetch activity details, Please try again !");
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+
+            }
+
+
+        }
 
 
     }
