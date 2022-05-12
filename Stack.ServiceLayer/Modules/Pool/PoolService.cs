@@ -2909,8 +2909,9 @@ namespace Stack.ServiceLayer.Modules.pool
                         Email = contact.Email,
                         PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
                         Occupation = contact.Occupation,
-                        LeadSourceName = contact.LeadSourceName,
-                        LeadSourceType = contact.LeadSourceType,
+                        ChannelID = contact.ChannelID,
+                        LSTID = contact.LSTID,
+                        LSNID = contact.LSNID,
                         PoolID = contact.PoolID
                     };
 

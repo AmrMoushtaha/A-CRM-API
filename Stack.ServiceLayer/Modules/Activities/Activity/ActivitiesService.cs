@@ -430,9 +430,11 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 newCustomer.PrimaryPhoneNumber = referenceContact.PrimaryPhoneNumber;
 
-                                newCustomer.LeadSourceType = referenceContact.LeadSourceType;
+                                newCustomer.ChannelID = referenceContact.ChannelID;
 
-                                newCustomer.LeadSourceName = referenceContact.LeadSourceName;
+                                newCustomer.LSTID = referenceContact.LSTID;
+
+                                newCustomer.LSNID = referenceContact.LSNID;
 
                                 newCustomer.Address = referenceContact.Address;
 

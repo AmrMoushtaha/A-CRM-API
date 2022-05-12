@@ -8,6 +8,7 @@ namespace Stack.DTOs.Models
     public class JwtAccessToken
     {
         public string Token { get; set; }
+        public string AuthToken { get; set; }
         public DateTime Expiration { get; set; }
 
     }

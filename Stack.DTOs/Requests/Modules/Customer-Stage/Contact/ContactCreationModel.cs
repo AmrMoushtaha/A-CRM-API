@@ -10,12 +10,12 @@ namespace Stack.DTOs.Requests.Modules.CustomerStage
         public long PoolID { get; set; }
         public string FullNameEN { get; set; }
         public string FullNameAR { get; set; }
-
         public string Email { get; set; }
         public string Address { get; set; }
         public string Occupation { get; set; }
-        public string LeadSourceType { get; set; }
-        public string LeadSourceName { get; set; }
+        public int? ChannelID { get; set; }
+        public int? LSTID { get; set; }
+        public int? LSNID { get; set; }
         public string PrimaryPhoneNumber { get; set; }
 
         public string AssigneeID { get; set; }

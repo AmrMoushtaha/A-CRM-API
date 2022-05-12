@@ -15,8 +15,9 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
         public string Email { get; set; }
         public string Address { get; set; }
         public string Occupation { get; set; }
-        public string LeadSourceType { get; set; }
-        public string LeadSourceName { get; set; }
+        public int? ChannelID { get; set; }
+        public int? LSTID { get; set; }
+        public int? LSNID { get; set; }
         public string PrimaryPhoneNumber { get; set; }
 
         public string StatusEN { get; set; }

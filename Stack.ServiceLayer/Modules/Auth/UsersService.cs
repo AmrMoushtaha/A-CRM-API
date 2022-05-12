@@ -66,8 +66,6 @@ namespace Stack.ServiceLayer.Modules.Auth
                         {
                                 new Claim(ClaimTypes.Name, user.UserName),
                                 new Claim(ClaimTypes.NameIdentifier, user.Id)
-
-
                         });
 
 
@@ -89,7 +87,6 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                         var egyptsDateResult = await HelperFunctions.GetEgyptsCurrentLocalTime();
 
-
                         var tokenDescriptor = new SecurityTokenDescriptor
                         {
                             Subject = new ClaimsIdentity(claims),
@@ -103,6 +100,9 @@ namespace Stack.ServiceLayer.Modules.Auth
                         var token = tokenHandler.CreateToken(tokenDescriptor);
 
                         result.Data = new JwtAccessToken();
+                        var serializedAuthModel = JsonConvert.SerializeObject(user.SystemAuthorizations);
+                        var serializedAuthModelBytes = Encoding.UTF8.GetBytes(serializedAuthModel);
+                        result.Data.AuthToken = Convert.ToBase64String(serializedAuthModelBytes);
                         result.Data.Token = tokenHandler.WriteToken(token);
                         result.Data.Expiration = token.ValidTo;
 
@@ -202,7 +202,7 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                 var userExists = await unitOfWork.UserManager.FindByNameAsync(model.Username);
 
-                if(userExists == null)
+                if (userExists == null)
                 {
 
                     user.SystemAuthorizations = JsonConvert.SerializeObject(model.AuthModel);
@@ -254,7 +254,7 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                 }
 
-              
+
             }
             catch (Exception ex)
             {
@@ -273,17 +273,17 @@ namespace Stack.ServiceLayer.Modules.Auth
             try
             {
 
-               var userResult = await unitOfWork.UserManager.FindByIdAsync(model.UserID);
+                var userResult = await unitOfWork.UserManager.FindByIdAsync(model.UserID);
 
-               if(userResult != null)
-               {
+                if (userResult != null)
+                {
 
-                    if(model.Username != userResult.UserName)
+                    if (model.Username != userResult.UserName)
                     {
 
                         var duplicateUsernameResult = await unitOfWork.UserManager.FindDuplicateUsername(model.UserID, model.Username);
 
-                        if(duplicateUsernameResult == null)
+                        if (duplicateUsernameResult == null)
                         {
 
                             userResult.UserName = model.Username;
@@ -303,7 +303,7 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                     }
 
-                    var oldAuthModel = JsonConvert.DeserializeObject<AuthorizationsModel>(userResult.SystemAuthorizations);    
+                    var oldAuthModel = JsonConvert.DeserializeObject<AuthorizationsModel>(userResult.SystemAuthorizations);
                     userResult.FirstName = model.FirstName;
                     userResult.LastName = model.LastName;
                     userResult.Email = model.Email;
@@ -331,7 +331,7 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                     await unitOfWork.SaveChangesAsync();
 
-                    if(updateUserResult.Succeeded == true)
+                    if (updateUserResult.Succeeded == true)
                     {
 
                         result.Succeeded = true;
@@ -349,9 +349,9 @@ namespace Stack.ServiceLayer.Modules.Auth
                     }
 
 
-               }
-               else
-               {
+                }
+                else
+                {
                     result.Succeeded = false;
                     result.Data = false;
                     result.Errors.Add("Failed to update user details, Please try again !");
@@ -386,7 +386,7 @@ namespace Stack.ServiceLayer.Modules.Auth
 
                     var updateResult = await unitOfWork.UserManager.UpdateAsync(userResult);
 
-                    if(updateResult.Succeeded == true)
+                    if (updateResult.Succeeded == true)
                     {
 
                         result.Succeeded = true;
@@ -436,12 +436,12 @@ namespace Stack.ServiceLayer.Modules.Auth
             try
             {
 
-                
-                
+
+
                 List<ApplicationUser> usersList = await unitOfWork.UserManager.GetAllSystemUsers();
 
 
-                 var  usersToReturn = mapper.Map<List<ApplicationUserDTO>>(usersList);
+                var usersToReturn = mapper.Map<List<ApplicationUserDTO>>(usersList);
 
                 //usersToReturn = usersToReturn.FindAll(a => a.AuthModel.RoleNameEN != "Administrator");
 
