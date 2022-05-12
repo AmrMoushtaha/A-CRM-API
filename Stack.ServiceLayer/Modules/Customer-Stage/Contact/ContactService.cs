@@ -1180,6 +1180,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 ContactID = commentModel.ReferenceID,
                                 CreatedBy = user.FirstName + " " + user.LastName,
                                 Comment = commentModel.Comment,
+                                CreationDate = await HelperFunctions.GetEgyptsCurrentLocalTime()
                             };
 
                             var creationRes = await unitOfWork.ContactCommentManager.CreateAsync(newComment);

@@ -51,6 +51,7 @@ namespace Stack.ServiceLayer.Modules.pool
         }
 
 
+        #region Creation
         //Create pool with default configuration
         public async Task<ApiResponse<bool>> CreatePool(PoolCreationModel model)
         {
@@ -148,10 +149,41 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
+        #endregion
 
-        //---------------------------- Pool Configuration and Assignment ----------------------------//
+        #region Configuration
+        public async Task<ApiResponse<PoolConfigurationModel>> GetPoolConfiguration(long poolID)
+        {
+            ApiResponse<PoolConfigurationModel> result = new ApiResponse<PoolConfigurationModel>();
+            try
+            {
+                var poolQuery = await unitOfWork.PoolManager.GetAsync(t => t.ID == poolID);
+                var pool = poolQuery.FirstOrDefault();
 
-        //Set Pool Configuration: 'Capacity'/'Auto-Assignment'/ 'Auto-Assignment W/Capacity'
+                if (pool != null)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<PoolConfigurationModel>(pool);
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No users found");
+                    result.Errors.Add("لم يتم العثور على مستخدمين");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
         public async Task<ApiResponse<bool>> SetPoolConfiguration(PoolConfigurationModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -300,7 +332,80 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        //Pool Assignment
+        public async Task<ApiResponse<bool>> UpdatePool(UpdatePoolModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var poolQuery = await unitOfWork.PoolManager.GetAsync(t => t.ID == model.PoolID);
+                var pool = poolQuery.FirstOrDefault();
+
+                if (pool != null)
+                {
+                    pool.NameEN = model.NameEN;
+                    pool.NameAR = model.NameAR;
+                    pool.DescriptionAR = model.DescriptionAR;
+                    pool.DescriptionEN = model.DescriptionEN;
+                    int poolConfigurationType = pool.ConfigurationType;
+                    pool.ConfigurationType = model.ConfigurationType;
+                    pool.Capacity = model.Capacity;
+
+                    var updateRes = await unitOfWork.PoolManager.UpdateAsync(pool);
+
+                    if (updateRes)
+                    {
+                        //Update users capacity
+                        if (poolConfigurationType == (int)PoolConfigurationTypes.AutoAssignment || poolConfigurationType == (int)PoolConfigurationTypes.Default
+                            && (model.ConfigurationType == (int)PoolConfigurationTypes.Capacity || model.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity))
+                        {
+                            var poolUsersQ = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == pool.ID);
+                            var poolUsers = poolUsersQ.ToList();
+                            if (poolUsers != null && poolUsers.Count > 0)
+                            {
+                                for (int i = 0; i < poolUsers.Count; i++)
+                                {
+                                    var poolUser = poolUsers[i];
+                                    poolUser.Capacity = model.Capacity;
+
+                                    var updateCapacityRes = await unitOfWork.PoolUserManager.UpdateAsync(poolUser);
+                                }
+                            }
+
+                        }
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        result.Succeeded = true;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Error updating pool");
+                        result.Errors.Add("Error updating pool");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("pool not found");
+                    result.Errors.Add("pool not found");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+        #endregion
+
+        #region Assignment
         public async Task<ApiResponse<bool>> AssignUsersToPool(PoolAssignmentModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -387,6 +492,7 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
+        //Suspend Pool Users
         public async Task<ApiResponse<bool>> SuspendPoolUsers(PoolAssignmentModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -462,11 +568,158 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        //---------------------------- Get ----------------------------//
+        //UnSuspend Pool Users
+        public async Task<ApiResponse<bool>> UnSuspendPoolUsers(PoolAssignmentModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-        //Sidebar view - Get user pools
+                if (userID != null)
+                {
+                    //Verify admin priviliges
+                    var poolQ = await unitOfWork.PoolManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Pool_Users");
+                    var pool = poolQ.FirstOrDefault();
 
-        //Get user assigned pools via user token
+                    if (pool != null)
+                    {
+
+                        for (int i = 0; i < model.UserIDs.Count; i++)
+                        {
+                            var currentUserID = model.UserIDs[i];
+                            var currentUser = pool.Pool_Users.Where(t => t.UserID == currentUserID).FirstOrDefault();
+
+                            currentUser.Status = (int)PoolUserStatuses.Active;
+
+                            var removalRes = await unitOfWork.PoolUserManager.UpdateAsync(currentUser);
+                            if (!removalRes)
+                            {
+                                result.Errors.Add("Error suspending user");
+                            }
+                        }
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        if (result.Errors.Count == 0)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+                            result.Succeeded = true;
+                            result.Data = true;
+                            return result;
+                        }
+                        else
+                        {
+                            int errorsCount = result.Errors.Count;
+                            result.Errors = new List<string>();
+                            result.Succeeded = false;
+                            result.Errors.Add(errorsCount + " Users were not removed");
+                            result.Errors.Add(errorsCount + " Users were not removed");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Not authorized");
+                        result.Errors.Add("غير مصرح");
+                        result.ErrorCode = ErrorCode.A500;
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
+        public async Task<ApiResponse<bool>> GrantPoolAdminPermissions(PoolAssignmentModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (userID != null)
+                {
+                    //Verify admin priviliges
+                    var poolQ = await unitOfWork.PoolManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Pool_Users");
+                    var pool = poolQ.FirstOrDefault();
+
+                    if (pool != null)
+                    {
+
+                        for (int i = 0; i < model.UserIDs.Count; i++)
+                        {
+                            var currentUserID = model.UserIDs[i];
+                            var currentUser = pool.Pool_Users.Where(t => t.UserID == currentUserID).FirstOrDefault();
+
+                            currentUser.IsAdmin = true;
+
+                            var removalRes = await unitOfWork.PoolUserManager.UpdateAsync(currentUser);
+                            if (!removalRes)
+                            {
+                                result.Errors.Add("Error granting admin permissions");
+                            }
+                        }
+
+                        await unitOfWork.SaveChangesAsync();
+
+                        if (result.Errors.Count == 0)
+                        {
+                            result.Succeeded = true;
+                            result.Data = true;
+                            return result;
+                        }
+                        else
+                        {
+                            int errorsCount = result.Errors.Count;
+                            result.Errors = new List<string>();
+                            result.Succeeded = false;
+                            result.Errors.Add(errorsCount + " Users were not removed");
+                            result.Errors.Add(errorsCount + " Users were not removed");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Not authorized");
+                        result.Errors.Add("غير مصرح");
+                        result.ErrorCode = ErrorCode.A500;
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
         public async Task<ApiResponse<List<PoolSidebarViewModel>>> GetUserAssignedPools()
         {
             ApiResponse<List<PoolSidebarViewModel>> result = new ApiResponse<List<PoolSidebarViewModel>>();
@@ -565,64 +818,43 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        //Pool view - Get main pool details
-        public async Task<ApiResponse<PoolSidebarViewModel>> GetPoolDetails(long poolID)
-        {
-            ApiResponse<PoolSidebarViewModel> result = new ApiResponse<PoolSidebarViewModel>();
-            try
-            {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-                if (userID != null)
-                {
-                    var userPools = await unitOfWork.PoolManager.GetPoolDetails(poolID);
-
-                    if (userPools != null)
-                    {
-                        result.Succeeded = true;
-                        result.Data = userPools;
-                        return result;
-                    }
-                    else
-                    {
-                        result.Succeeded = false;
-                        result.Errors.Add("No pools found");
-                        result.Errors.Add("لا يوجد قوائم");
-                        result.ErrorType = ErrorType.NotFound;
-                        return result;
-                    }
-                }
-                else
-                {
-                    result.Succeeded = false;
-                    result.Errors.Add("Not authorized");
-                    result.Errors.Add("غير مصرح");
-                    result.ErrorCode = ErrorCode.A500;
-                    return result;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                result.Succeeded = false;
-                result.Errors.Add(ex.Message);
-                result.ErrorType = ErrorType.SystemError;
-                return result;
-            }
-
-        }
-
         //Get pool users
         public async Task<ApiResponse<List<PoolAssignedUsersModel>>> GetPoolAssignedUsers(long poolID)
         {
             ApiResponse<List<PoolAssignedUsersModel>> result = new ApiResponse<List<PoolAssignedUsersModel>>();
             try
             {
-                var poolUsersQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID, includeProperties: "User");
-                var poolUsers = poolUsersQuery.ToList();
+                var poolQ = await unitOfWork.PoolManager.GetAsync(t => t.ID == poolID, includeProperties: "Pool_Users,Pool_Users.User");
+                var pool = poolQ.FirstOrDefault();
 
-                if (poolUsers != null && poolUsers.Count > 0)
+                if (pool != null && pool.Pool_Users != null && pool.Pool_Users.Count > 0)
                 {
+                    List<Pool_User> poolUsers = pool.Pool_Users;
+
+                    if (pool.ConfigurationType == (int)PoolConfigurationTypes.Capacity
+                        || pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity)
+                    {
+                        List<PoolAssignedUsersModel> usersList = new List<PoolAssignedUsersModel>();
+                        //Iterate pool users and get reserved slots
+                        for (int i = 0; i < poolUsers.Count; i++)
+                        {
+                            var poolUser = poolUsers[i];
+                            var poolUserRecordsQ = await unitOfWork.ContactManager.GetAsync(t => t.PoolID == poolID && t.AssignedUserID == poolUser.UserID && t.CapacityCalculated == true);
+                            var poolUserRecordsCount = poolUserRecordsQ.Count();
+
+                            PoolAssignedUsersModel user = new PoolAssignedUsersModel();
+                            user = mapper.Map<PoolAssignedUsersModel>(poolUser);
+                            user.ReservedSlots = poolUserRecordsCount;
+
+                            usersList.Add(user);
+                        }
+
+                        result.Succeeded = true;
+                        result.Data = usersList;
+                        return result;
+
+                    }
+
                     result.Succeeded = true;
                     result.Data = mapper.Map<List<PoolAssignedUsersModel>>(poolUsers);
                     return result;
@@ -709,28 +941,47 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
+        #endregion
 
-        public async Task<ApiResponse<PoolConfigurationModel>> GetPoolConfiguration(long poolID)
+
+
+
+        //Pool view - Get main pool details
+        public async Task<ApiResponse<PoolSidebarViewModel>> GetPoolDetails(long poolID)
         {
-            ApiResponse<PoolConfigurationModel> result = new ApiResponse<PoolConfigurationModel>();
+            ApiResponse<PoolSidebarViewModel> result = new ApiResponse<PoolSidebarViewModel>();
             try
             {
-                var poolQuery = await unitOfWork.PoolManager.GetAsync(t => t.ID == poolID);
-                var pool = poolQuery.FirstOrDefault();
+                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                if (pool != null)
+                if (userID != null)
                 {
-                    result.Succeeded = true;
-                    result.Data = mapper.Map<PoolConfigurationModel>(pool);
-                    return result;
+                    var userPools = await unitOfWork.PoolManager.GetPoolDetails(poolID);
+
+                    if (userPools != null)
+                    {
+                        result.Succeeded = true;
+                        result.Data = userPools;
+                        return result;
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("No pools found");
+                        result.Errors.Add("لا يوجد قوائم");
+                        result.ErrorType = ErrorType.NotFound;
+                        return result;
+                    }
                 }
                 else
                 {
                     result.Succeeded = false;
-                    result.Errors.Add("No users found");
-                    result.Errors.Add("لم يتم العثور على مستخدمين");
+                    result.Errors.Add("Not authorized");
+                    result.Errors.Add("غير مصرح");
+                    result.ErrorCode = ErrorCode.A500;
                     return result;
                 }
+
             }
             catch (Exception ex)
             {
@@ -741,6 +992,10 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
+
+
+
+
 
         public async Task<ApiResponse<List<PoolConfigurationModel>>> GetSystemPools()
         {
@@ -1201,7 +1456,6 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
-
 
         //----------------------------- Pool record Verification and lock ----------------------------//
 

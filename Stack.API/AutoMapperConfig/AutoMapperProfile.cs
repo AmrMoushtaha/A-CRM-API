@@ -5,12 +5,16 @@ using Stack.DTOs.Models.Modules.Auth;
 using Stack.DTOs.Models.Modules.CustomerStage;
 using Stack.DTOs.Models.Modules.Pool;
 using Stack.DTOs.Requests.Modules.AreaInterest;
+using Stack.DTOs.Requests.Modules.Channel;
+using Stack.DTOs.Requests.Modules.Channels;
 using Stack.DTOs.Requests.Modules.CustomerStage;
 using Stack.DTOs.Requests.Modules.Hierarchy;
 using Stack.DTOs.Requests.Modules.Interest;
 using Stack.Entities.Enums.Modules.Pool;
 using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
+using Stack.Entities.Models.Modules.Channel;
+using Stack.Entities.Models.Modules.Channels;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Hierarchy;
 using Stack.Entities.Models.Modules.Interest;
@@ -228,7 +232,12 @@ namespace Stack.API.AutoMapperConfig
             CreateMap<Input, InputToEdit>()
            .ReverseMap();
 
-
+            CreateMap<Channel, ChannelViewModel>()
+            .ReverseMap();
+            CreateMap<LeadSourceType, LeadSourceTypeViewModel>()
+            .ReverseMap();
+            CreateMap<LeadSourceName, LeadSourceNameViewModel>()
+            .ReverseMap();
         }
 
     }

@@ -697,6 +697,45 @@ namespace Stack.Core
             }
         }
 
+        private ChannelManager channelManager;
+        public ChannelManager ChannelManager
+        {
+            get
+            {
+                if (channelManager == null)
+                {
+                    channelManager = new ChannelManager(context);
+                }
+                return channelManager;
+            }
+        }
+
+        private LeadSourceNameManager leadSourceNameManager;
+        public LeadSourceNameManager LeadSourceNameManager
+        {
+            get
+            {
+                if (leadSourceNameManager == null)
+                {
+                    leadSourceNameManager = new LeadSourceNameManager(context);
+                }
+                return leadSourceNameManager;
+            }
+        }
+
+        private LeadSourceTypeManager leadSourceTypeManager;
+        public LeadSourceTypeManager LeadSourceTypeManager
+        {
+            get
+            {
+                if (leadSourceTypeManager == null)
+                {
+                    leadSourceTypeManager = new LeadSourceTypeManager(context);
+                }
+                return leadSourceTypeManager;
+            }
+        }
+
     }
 
 }

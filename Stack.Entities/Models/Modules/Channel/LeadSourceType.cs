@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Stack.Entities.Models.Modules.CustomerStage
+namespace Stack.Entities.Models.Modules.Channel
 {
-    public class LeadSourceName
+    public class LeadSourceType
     {
         public long ID { get; set; }
         public string TitleEN { get; set; }
         public string TitleAR { get; set; }
         public string DescriptionEN { get; set; }
         public string DescriptionAR { get; set; }
+        public int Status { get; set; }
+        public string Icon { get; set; }
+        public long ChannelID { get; set; }
 
-        public long LeadSourceTypeID { get; set; }
-
-        [ForeignKey("LeadSourceTypeID")]
-        public LeadSourceType LeadSourceType { get; set; }
+        [ForeignKey("ChannelID")]
+        public List<LeadSourceName> LeadSourceNames { get; set; }
     }
 
 }

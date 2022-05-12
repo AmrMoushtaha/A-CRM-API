@@ -14,5 +14,8 @@ namespace Stack.DTOs.Models.Modules.Pool
         public DateTime JoinDate { get; set; }
 
         public int Status { get; set; }
+
+        public int? Capacity { get; set; }
+        public int? ReservedSlots { get; set; }
     }
 }

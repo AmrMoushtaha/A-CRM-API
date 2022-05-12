@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Stack.ServiceLayer.Modules.Activities;
 using Stack.ServiceLayer.Modules.Auth;
+using Stack.ServiceLayer.Modules.Channels;
 using Stack.ServiceLayer.Modules.CustomerStage;
 using Stack.ServiceLayer.Modules.Hierarchy;
 using Stack.ServiceLayer.Modules.Interest;
@@ -35,6 +36,7 @@ namespace Stack.API.Extensions
             caller.AddScoped<InterestService>();
             caller.AddScoped<HierarchyService>();
             caller.AddScoped<GeneralCustomersService>();
+            caller.AddScoped<ChannelsService>();
         }
 
     }
