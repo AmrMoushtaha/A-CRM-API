@@ -120,6 +120,14 @@ namespace Stack.API.Controllers.Modules.Pool
             return await AddItemResponseHandler(async () => await service.CreatePool(model));
         }
 
+
+        [AllowAnonymous]
+        [HttpPost("UpdatePool")]
+        public async Task<IActionResult> UpdatePool(UpdatePoolModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.UpdatePool(model));
+        }
+
         [AllowAnonymous]
         [HttpPost("AssignUsersToPool")]
         public async Task<IActionResult> AssignUsersToPool(PoolAssignmentModel model)
@@ -132,6 +140,20 @@ namespace Stack.API.Controllers.Modules.Pool
         public async Task<IActionResult> SuspendPoolUsers(PoolAssignmentModel model)
         {
             return await AddItemResponseHandler(async () => await service.SuspendPoolUsers(model));
+        }
+        
+        [AllowAnonymous]
+        [HttpPost("UnSuspendPoolUsers")]
+        public async Task<IActionResult> UnSuspendPoolUsers(PoolAssignmentModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.UnSuspendPoolUsers(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("GrantPoolAdminPermissions")]
+        public async Task<IActionResult> GrantPoolAdminPermissions(PoolAssignmentModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GrantPoolAdminPermissions(model));
         }
 
         [AllowAnonymous]

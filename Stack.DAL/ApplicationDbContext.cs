@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Stack.Entities.Models.Modules.Activities;
 using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
+using Stack.Entities.Models.Modules.Channel;
+using Stack.Entities.Models.Modules.Channels;
 using Stack.Entities.Models.Modules.Common;
 using Stack.Entities.Models.Modules.CustomerRequest;
 using Stack.Entities.Models.Modules.CustomerStage;
@@ -131,6 +133,9 @@ namespace Stack.DAL
             modelBuilder.Entity<Tag>()
             .Property<bool>("IsDeleted");
 
+            modelBuilder.Entity<Channel>()
+            .Property<bool>("IsDeleted");
+
             modelBuilder.Entity<LeadSourceName>()
             .Property<bool>("IsDeleted");
 
@@ -236,6 +241,9 @@ namespace Stack.DAL
 
             modelBuilder.Entity<Tag>()
              .HasQueryFilter(Tag => EF.Property<bool>(Tag, "IsDeleted") == false);
+
+            modelBuilder.Entity<Channel>()
+             .HasQueryFilter(Channel => EF.Property<bool>(Channel, "IsDeleted") == false);
 
             modelBuilder.Entity<LeadSourceName>()
              .HasQueryFilter(LeadSourceName => EF.Property<bool>(LeadSourceName, "IsDeleted") == false);
@@ -383,6 +391,7 @@ namespace Stack.DAL
         public virtual DbSet<SystemConfiguration> SystemConfiguration { get; set; }
         public virtual DbSet<AuthorizationSection> AuthorizationSections { get; set; }
         public virtual DbSet<SectionAuthorization> SectionAuthorizations { get; set; }
+        public virtual DbSet<Channel> Channels { get; set; }
         public virtual DbSet<LeadSourceName> LeadSourceNames { get; set; }
         public virtual DbSet<LeadSourceType> LeadSourceTypes { get; set; }
         public virtual DbSet<LAttribute> LAttributes { get; set; }

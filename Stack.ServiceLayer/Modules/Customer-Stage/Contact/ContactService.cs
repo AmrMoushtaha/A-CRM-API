@@ -597,18 +597,18 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                         if (pool != null)
                         {
-                            //Verify user authorization
+                            //verify user authorizations
                             var poolAuthSectionQ = await unitOfWork.AuthorizationSectionsManager.GetAsync(t => t.Code == AuthorizationSectionCodes.Pool.ToString());
                             var poolAuthSection = poolAuthSectionQ.FirstOrDefault();
 
-                            var sectionAuthorized = userAuthModel.AuthorizationSections.Where(t => t.Code == poolAuthSection.Code && t.IsAuthorized == true).FirstOrDefault();
+                            var sectionAuthorized = userAuthModel.AuthorizationSections.Where(t => t.Code == "1" && t.IsAuthorized == true).FirstOrDefault();
                             //User authorized
                             if (sectionAuthorized != null)
                             {
                                 bool canAssignToSelf = false;
                                 bool canAssignToOther = false;
-                                canAssignToSelf = sectionAuthorized.SectionAuthorizations.Where(t => t.Code == SectionAuthorizationCodes.AssignContactsToHimself.ToString()).FirstOrDefault().IsAuthorized;
-                                canAssignToOther = sectionAuthorized.SectionAuthorizations.Where(t => t.Code == SectionAuthorizationCodes.AssignContactToAnyAgentInAnyteam.ToString()).FirstOrDefault().IsAuthorized;
+                                canAssignToSelf = sectionAuthorized.SectionAuthorizations.Where(t => t.Code == "5").FirstOrDefault().IsAuthorized;
+                                canAssignToOther = sectionAuthorized.SectionAuthorizations.Where(t => t.Code == "7").FirstOrDefault().IsAuthorized;
                                 //Identify pool configuration type
 
                                 if (pool.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignment ||
@@ -1157,9 +1157,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             }
         }
 
-        public async Task<ApiResponse<bool>> AddComment(AddCommentModel commentModel)
+        public async Task<ApiResponse<CommentReponseModel>> AddComment(AddCommentModel commentModel)
         {
-            ApiResponse<bool> result = new ApiResponse<bool>();
+            ApiResponse<CommentReponseModel> result = new ApiResponse<CommentReponseModel>();
             try
             {
                 var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -1180,6 +1180,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 ContactID = commentModel.ReferenceID,
                                 CreatedBy = user.FirstName + " " + user.LastName,
                                 Comment = commentModel.Comment,
+                                CreationDate = await HelperFunctions.GetEgyptsCurrentLocalTime()
                             };
 
                             var creationRes = await unitOfWork.ContactCommentManager.CreateAsync(newComment);
@@ -1187,7 +1188,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                             {
                                 await unitOfWork.SaveChangesAsync();
                                 result.Succeeded = true;
-                                result.Data = true;
+                                result.Data = mapper.Map<CommentReponseModel>(creationRes);
                                 return result;
                             }
                             else
