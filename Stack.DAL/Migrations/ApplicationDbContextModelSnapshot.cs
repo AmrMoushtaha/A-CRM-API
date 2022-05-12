@@ -1159,6 +1159,9 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("CapacityCalculated")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("ChannelID")
+                        .HasColumnType("int");
+
                     b.Property<long?>("CustomerID")
                         .HasColumnType("bigint");
 
@@ -1186,11 +1189,11 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsLocked")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LeadSourceName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("LSNID")
+                        .HasColumnType("int");
 
-                    b.Property<string>("LeadSourceType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("LSTID")
+                        .HasColumnType("int");
 
                     b.Property<string>("Occupation")
                         .HasColumnType("nvarchar(max)");
@@ -1326,6 +1329,9 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("AssignedUserID")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("ChannelID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -1337,6 +1343,12 @@ namespace Stack.DAL.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("LSNID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LSTID")
+                        .HasColumnType("int");
 
                     b.Property<string>("LeadSourceName")
                         .HasColumnType("nvarchar(max)");

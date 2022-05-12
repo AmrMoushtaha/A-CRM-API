@@ -17,6 +17,7 @@ namespace Stack.DAL.Migrations
                     NameEN = table.Column<string>(nullable: true),
                     Status = table.Column<string>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
+                    ColorCode = table.Column<string>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -31,7 +32,13 @@ namespace Stack.DAL.Migrations
                     Id = table.Column<string>(nullable: false),
                     Name = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true)
+                    ConcurrencyStamp = table.Column<string>(nullable: true),
+                    SystemAuthorizations = table.Column<string>(nullable: true),
+                    NameAR = table.Column<string>(nullable: true),
+                    DescriptionEN = table.Column<string>(nullable: true),
+                    DescriptionAR = table.Column<string>(nullable: true),
+                    HasParent = table.Column<bool>(nullable: false),
+                    ParentRoleID = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -59,11 +66,46 @@ namespace Stack.DAL.Migrations
                     AccessFailedCount = table.Column<int>(nullable: false),
                     FirstName = table.Column<string>(type: "varchar(70)", nullable: true),
                     LastName = table.Column<string>(type: "varchar(70)", nullable: true),
-                    Status = table.Column<string>(nullable: true)
+                    Status = table.Column<int>(nullable: false),
+                    SystemAuthorizations = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuthorizationSections",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NameAR = table.Column<string>(nullable: true),
+                    NameEN = table.Column<string>(nullable: true),
+                    Code = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthorizationSections", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Channels",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TitleEN = table.Column<string>(nullable: true),
+                    TitleAR = table.Column<string>(nullable: true),
+                    DescriptionEN = table.Column<string>(nullable: true),
+                    DescriptionAR = table.Column<string>(nullable: true),
+                    Icon = table.Column<string>(nullable: true),
+                    Status = table.Column<int>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Channels", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,7 +116,7 @@ namespace Stack.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EN = table.Column<string>(nullable: true),
                     AR = table.Column<string>(nullable: true),
-                    Status = table.Column<int>(nullable: false),
+                    Status = table.Column<string>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -83,17 +125,44 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "InterestAttributes",
+                name: "CRTypes",
                 columns: table => new
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Label = table.Column<string>(nullable: true),
+                    NameAR = table.Column<string>(nullable: true),
+                    NameEN = table.Column<string>(nullable: true),
+                    Status = table.Column<string>(nullable: true),
+                    CreatedBy = table.Column<string>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InterestAttributes", x => x.ID);
+                    table.PrimaryKey("PK_CRTypes", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LAttributes",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    LabelAR = table.Column<string>(nullable: true),
+                    LabelEN = table.Column<string>(nullable: true),
+                    IsPredefined = table.Column<bool>(nullable: false),
+                    ParentAttributeID = table.Column<long>(nullable: true),
+                    ParentInputID = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LAttributes", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_LAttributes_LAttributes_ParentAttributeID",
+                        column: x => x.ParentAttributeID,
+                        principalTable: "LAttributes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -105,7 +174,6 @@ namespace Stack.DAL.Migrations
                     EN = table.Column<string>(nullable: true),
                     AR = table.Column<string>(nullable: true),
                     Status = table.Column<string>(nullable: true),
-                    LeadID = table.Column<long>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -114,79 +182,46 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LOneInterestInputs",
+                name: "Levels",
                 columns: table => new
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(nullable: true),
-                    Label = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    LabelAR = table.Column<string>(nullable: true),
+                    LabelEN = table.Column<string>(nullable: true),
+                    Type = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LOneInterestInputs", x => x.ID);
+                    table.PrimaryKey("PK_Levels", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
-                name: "LOneInterests",
+                name: "Locations",
                 columns: table => new
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    NameEN = table.Column<string>(nullable: true),
+                    NameAR = table.Column<string>(nullable: true),
                     DescriptionEN = table.Column<string>(nullable: true),
                     DescriptionAR = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false)
+                    LocationType = table.Column<int>(nullable: false),
+                    Latitude = table.Column<float>(nullable: false),
+                    Longitude = table.Column<float>(nullable: false),
+                    ParentLocationID = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LOneInterests", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LThreeInterestInputs",
-                columns: table => new
-                {
-                    ID = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(nullable: true),
-                    Label = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LThreeInterestInputs", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LThreeInterests",
-                columns: table => new
-                {
-                    ID = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DescriptionEN = table.Column<string>(nullable: true),
-                    DescriptionAR = table.Column<string>(nullable: true),
-                    isStandalone = table.Column<bool>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LThreeInterests", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LTwoInterestInputs",
-                columns: table => new
-                {
-                    ID = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(nullable: true),
-                    Label = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LTwoInterestInputs", x => x.ID);
+                    table.PrimaryKey("PK_Locations", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Locations_Locations_ParentLocationID",
+                        column: x => x.ParentLocationID,
+                        principalTable: "Locations",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -198,7 +233,6 @@ namespace Stack.DAL.Migrations
                     EN = table.Column<string>(nullable: true),
                     AR = table.Column<string>(nullable: true),
                     Status = table.Column<string>(nullable: true),
-                    OpportunityID = table.Column<long>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -216,7 +250,7 @@ namespace Stack.DAL.Migrations
                     NameAR = table.Column<string>(nullable: true),
                     DescriptionAR = table.Column<string>(nullable: true),
                     DescriptionEN = table.Column<string>(nullable: true),
-                    ConfigurationType = table.Column<string>(nullable: true),
+                    ConfigurationType = table.Column<int>(nullable: false),
                     Capacity = table.Column<int>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
@@ -234,7 +268,6 @@ namespace Stack.DAL.Migrations
                     EN = table.Column<string>(nullable: true),
                     AR = table.Column<string>(nullable: true),
                     Status = table.Column<string>(nullable: true),
-                    ProspectID = table.Column<long>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -243,18 +276,17 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Regions",
+                name: "SystemConfiguration",
                 columns: table => new
                 {
-                    ID = table.Column<long>(nullable: false)
+                    ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(nullable: true),
-                    DescriptionEN = table.Column<string>(nullable: true),
-                    DescriptionAR = table.Column<string>(nullable: true)
+                    LockDuration = table.Column<double>(nullable: false),
+                    AutomaticUnassignmentDuration = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Regions", x => x.ID);
+                    table.PrimaryKey("PK_SystemConfiguration", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -411,10 +443,18 @@ namespace Stack.DAL.Migrations
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AssignedUserID = table.Column<string>(nullable: true),
-                    FirstNameEN = table.Column<string>(nullable: true),
-                    LastNameEN = table.Column<string>(nullable: true),
-                    FirstNameAR = table.Column<string>(nullable: true),
-                    LastNameAR = table.Column<string>(nullable: true),
+                    FullNameEN = table.Column<string>(nullable: true),
+                    FullNameAR = table.Column<string>(nullable: true),
+                    Email = table.Column<string>(nullable: true),
+                    Address = table.Column<string>(nullable: true),
+                    Occupation = table.Column<string>(nullable: true),
+                    LeadSourceType = table.Column<string>(nullable: true),
+                    LeadSourceName = table.Column<string>(nullable: true),
+                    PrimaryPhoneNumber = table.Column<string>(nullable: true),
+                    PoolID = table.Column<long>(nullable: false),
+                    ChannelID = table.Column<int>(nullable: true),
+                    LSTID = table.Column<int>(nullable: true),
+                    LSNID = table.Column<int>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -429,135 +469,166 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LOneInterest_InterestAttributes",
+                name: "PoolConnectionIDs",
                 columns: table => new
                 {
-                    LOneInterestID = table.Column<long>(nullable: false),
-                    InterestAttributeID = table.Column<long>(nullable: false)
+                    ID = table.Column<string>(maxLength: 256, nullable: false),
+                    PoolID = table.Column<long>(nullable: false),
+                    RecordID = table.Column<long>(nullable: false),
+                    RecordType = table.Column<int>(nullable: false),
+                    UserID = table.Column<string>(maxLength: 450, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LOneInterest_InterestAttributes", x => new { x.LOneInterestID, x.InterestAttributeID });
+                    table.PrimaryKey("PK_PoolConnectionIDs", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_LOneInterest_InterestAttributes_InterestAttributes_LOneInterestID",
-                        column: x => x.LOneInterestID,
-                        principalTable: "InterestAttributes",
-                        principalColumn: "ID");
-                    table.ForeignKey(
-                        name: "FK_LOneInterest_InterestAttributes_LOneInterests_LOneInterestID",
-                        column: x => x.LOneInterestID,
-                        principalTable: "LOneInterests",
-                        principalColumn: "ID");
+                        name: "FK_PoolConnectionIDs_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "LOneInterest_LOneInterestInput",
-                columns: table => new
-                {
-                    LOneInterestID = table.Column<long>(nullable: false),
-                    LOneInterestInputID = table.Column<long>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LOneInterest_LOneInterestInput", x => new { x.LOneInterestID, x.LOneInterestInputID });
-                    table.ForeignKey(
-                        name: "FK_LOneInterest_LOneInterestInput_LOneInterests_LOneInterestID",
-                        column: x => x.LOneInterestID,
-                        principalTable: "LOneInterests",
-                        principalColumn: "ID");
-                    table.ForeignKey(
-                        name: "FK_LOneInterest_LOneInterestInput_LOneInterestInputs_LOneInterestInputID",
-                        column: x => x.LOneInterestInputID,
-                        principalTable: "LOneInterestInputs",
-                        principalColumn: "ID");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LTwoInterests",
+                name: "SectionAuthorizations",
                 columns: table => new
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    DescriptionEN = table.Column<string>(nullable: true),
-                    DescriptionAR = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    LOneInterestID = table.Column<long>(nullable: true)
+                    NameAR = table.Column<string>(nullable: true),
+                    NameEN = table.Column<string>(nullable: true),
+                    Code = table.Column<string>(nullable: true),
+                    AuthorizationSectionID = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LTwoInterests", x => x.ID);
+                    table.PrimaryKey("PK_SectionAuthorizations", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_LTwoInterests_LOneInterests_LOneInterestID",
-                        column: x => x.LOneInterestID,
-                        principalTable: "LOneInterests",
+                        name: "FK_SectionAuthorizations_AuthorizationSections_AuthorizationSectionID",
+                        column: x => x.AuthorizationSectionID,
+                        principalTable: "AuthorizationSections",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LeadSourceTypes",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TitleEN = table.Column<string>(nullable: true),
+                    TitleAR = table.Column<string>(nullable: true),
+                    DescriptionEN = table.Column<string>(nullable: true),
+                    DescriptionAR = table.Column<string>(nullable: true),
+                    Status = table.Column<int>(nullable: false),
+                    Icon = table.Column<string>(nullable: true),
+                    ChannelID = table.Column<long>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeadSourceTypes", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_LeadSourceTypes_Channels_ChannelID",
+                        column: x => x.ChannelID,
+                        principalTable: "Channels",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CRSections",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NameAR = table.Column<string>(nullable: true),
+                    NameEN = table.Column<string>(nullable: true),
+                    Order = table.Column<int>(nullable: false),
+                    HasDecisionalQuestions = table.Column<bool>(nullable: false),
+                    TypeID = table.Column<long>(nullable: false),
+                    RequestTypeID = table.Column<long>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CRSections", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CRSections_CRTypes_RequestTypeID",
+                        column: x => x.RequestTypeID,
+                        principalTable: "CRTypes",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "LThreeInterest_InterestAttributes",
+                name: "CustomerRequests",
                 columns: table => new
                 {
-                    LThreeInterestID = table.Column<long>(nullable: false),
-                    InterestAttributeID = table.Column<long>(nullable: false)
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProcessFlowID = table.Column<long>(nullable: false),
+                    TypeID = table.Column<long>(nullable: false),
+                    CreationDate = table.Column<DateTime>(nullable: true),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    SubtmissionDate = table.Column<DateTime>(nullable: true),
+                    IsSubmitted = table.Column<bool>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LThreeInterest_InterestAttributes", x => new { x.LThreeInterestID, x.InterestAttributeID });
+                    table.PrimaryKey("PK_CustomerRequests", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_LThreeInterest_InterestAttributes_InterestAttributes_LThreeInterestID",
-                        column: x => x.LThreeInterestID,
-                        principalTable: "InterestAttributes",
-                        principalColumn: "ID");
-                    table.ForeignKey(
-                        name: "FK_LThreeInterest_InterestAttributes_LThreeInterests_LThreeInterestID",
-                        column: x => x.LThreeInterestID,
-                        principalTable: "LThreeInterests",
-                        principalColumn: "ID");
+                        name: "FK_CustomerRequests_CRTypes_TypeID",
+                        column: x => x.TypeID,
+                        principalTable: "CRTypes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "LThreeInterest_LThreeInterestInputs",
+                name: "LSections",
                 columns: table => new
                 {
-                    LThreeInterestID = table.Column<long>(nullable: false),
-                    LThreeInterestInputID = table.Column<long>(nullable: false)
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    LabelEN = table.Column<string>(nullable: true),
+                    LabelAR = table.Column<string>(nullable: true),
+                    LevelID = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LThreeInterest_LThreeInterestInputs", x => new { x.LThreeInterestID, x.LThreeInterestInputID });
+                    table.PrimaryKey("PK_LSections", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_LThreeInterest_LThreeInterestInputs_LThreeInterests_LThreeInterestID",
-                        column: x => x.LThreeInterestID,
-                        principalTable: "LThreeInterests",
-                        principalColumn: "ID");
-                    table.ForeignKey(
-                        name: "FK_LThreeInterest_LThreeInterestInputs_LThreeInterestInputs_LThreeInterestInputID",
-                        column: x => x.LThreeInterestInputID,
-                        principalTable: "LThreeInterestInputs",
-                        principalColumn: "ID");
+                        name: "FK_LSections_Levels_LevelID",
+                        column: x => x.LevelID,
+                        principalTable: "Levels",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Pool_Admins",
+                name: "Location_Pools",
                 columns: table => new
                 {
-                    UserID = table.Column<string>(nullable: false),
+                    LocationID = table.Column<long>(nullable: false),
                     PoolID = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Pool_Admins", x => new { x.PoolID, x.UserID });
+                    table.PrimaryKey("PK_Location_Pools", x => new { x.LocationID, x.PoolID });
                     table.ForeignKey(
-                        name: "FK_Pool_Admins_Pools_PoolID",
+                        name: "FK_Location_Pools_Locations_LocationID",
+                        column: x => x.LocationID,
+                        principalTable: "Locations",
+                        principalColumn: "ID");
+                    table.ForeignKey(
+                        name: "FK_Location_Pools_Pools_PoolID",
                         column: x => x.PoolID,
                         principalTable: "Pools",
                         principalColumn: "ID");
-                    table.ForeignKey(
-                        name: "FK_Pool_Admins_AspNetUsers_UserID",
-                        column: x => x.UserID,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -565,7 +636,11 @@ namespace Stack.DAL.Migrations
                 columns: table => new
                 {
                     UserID = table.Column<string>(nullable: false),
-                    PoolID = table.Column<long>(nullable: false)
+                    PoolID = table.Column<long>(nullable: false),
+                    Capacity = table.Column<int>(nullable: true),
+                    IsAdmin = table.Column<bool>(nullable: false),
+                    Status = table.Column<int>(nullable: false),
+                    JoinDate = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -583,26 +658,33 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Areas",
+                name: "PoolRequests",
                 columns: table => new
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(nullable: true),
+                    PoolID = table.Column<long>(nullable: false),
+                    Requestee_PoolID = table.Column<long>(nullable: true),
+                    RecordID = table.Column<long>(nullable: true),
+                    RecordType = table.Column<int>(nullable: true),
+                    RecordStatusID = table.Column<long>(nullable: true),
+                    RequesteeID = table.Column<string>(nullable: true),
+                    RequestType = table.Column<int>(nullable: false),
+                    Status = table.Column<int>(nullable: false),
+                    AppliedActionDate = table.Column<DateTime>(nullable: false),
+                    RequestDate = table.Column<DateTime>(nullable: false),
                     DescriptionEN = table.Column<string>(nullable: true),
-                    DescriptionAR = table.Column<string>(nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    RegionID = table.Column<long>(nullable: true)
+                    DescriptionAR = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Areas", x => x.ID);
+                    table.PrimaryKey("PK_PoolRequests", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Areas_Regions_RegionID",
-                        column: x => x.RegionID,
-                        principalTable: "Regions",
+                        name: "FK_PoolRequests_Pools_PoolID",
+                        column: x => x.PoolID,
+                        principalTable: "Pools",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -642,12 +724,19 @@ namespace Stack.DAL.Migrations
                     Email = table.Column<string>(nullable: true),
                     Address = table.Column<string>(nullable: true),
                     Occupation = table.Column<string>(nullable: true),
-                    LeadSourceType = table.Column<string>(nullable: true),
-                    LeadSourceName = table.Column<string>(nullable: true),
                     PrimaryPhoneNumber = table.Column<string>(nullable: true),
                     PoolID = table.Column<long>(nullable: false),
-                    StatusID = table.Column<long>(nullable: false),
+                    State = table.Column<int>(nullable: false),
+                    ChannelID = table.Column<int>(nullable: true),
+                    LSTID = table.Column<int>(nullable: true),
+                    LSNID = table.Column<int>(nullable: true),
                     AssignedUserID = table.Column<string>(nullable: true),
+                    StatusID = table.Column<long>(nullable: true),
+                    IsFinalized = table.Column<bool>(nullable: false),
+                    IsFresh = table.Column<bool>(nullable: false),
+                    IsLocked = table.Column<bool>(nullable: false),
+                    ForceUnlock_JobID = table.Column<string>(nullable: true),
+                    CapacityCalculated = table.Column<bool>(nullable: false),
                     CustomerID = table.Column<long>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
@@ -677,7 +766,7 @@ namespace Stack.DAL.Migrations
                         column: x => x.StatusID,
                         principalTable: "ContactStatuses",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -700,6 +789,29 @@ namespace Stack.DAL.Migrations
                         column: x => x.TagID,
                         principalTable: "Tags",
                         principalColumn: "ID");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomerComments",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Comment = table.Column<string>(nullable: true),
+                    CustomerID = table.Column<long>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    CreationDate = table.Column<DateTime>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CustomerComments", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CustomerComments_Customers_CustomerID",
+                        column: x => x.CustomerID,
+                        principalTable: "Customers",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -728,7 +840,11 @@ namespace Stack.DAL.Migrations
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerID = table.Column<long>(nullable: false)
+                    CustomerID = table.Column<long>(nullable: false),
+                    ActiveStageID = table.Column<long>(nullable: false),
+                    ActiveStageType = table.Column<int>(nullable: false),
+                    PoolID = table.Column<long>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -742,91 +858,189 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LTwoInterest_InterestAttributes",
+                name: "LInterests",
                 columns: table => new
                 {
-                    LTwoInterestID = table.Column<long>(nullable: false),
-                    InterestAttributeID = table.Column<long>(nullable: false)
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    DescriptionEN = table.Column<string>(nullable: true),
+                    DescriptionAR = table.Column<string>(nullable: true),
+                    IsSeparate = table.Column<bool>(nullable: false),
+                    LevelID = table.Column<long>(nullable: false),
+                    OwnerID = table.Column<long>(nullable: true),
+                    LocationID = table.Column<long>(nullable: true),
+                    ParentLInterestID = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LTwoInterest_InterestAttributes", x => new { x.LTwoInterestID, x.InterestAttributeID });
+                    table.PrimaryKey("PK_LInterests", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_LTwoInterest_InterestAttributes_InterestAttributes_LTwoInterestID",
-                        column: x => x.LTwoInterestID,
-                        principalTable: "InterestAttributes",
+                        name: "FK_LInterests_Levels_LevelID",
+                        column: x => x.LevelID,
+                        principalTable: "Levels",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_LInterests_Locations_LocationID",
+                        column: x => x.LocationID,
+                        principalTable: "Locations",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_LInterests_Customers_OwnerID",
+                        column: x => x.OwnerID,
+                        principalTable: "Customers",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LeadSourceNames",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TitleEN = table.Column<string>(nullable: true),
+                    TitleAR = table.Column<string>(nullable: true),
+                    DescriptionEN = table.Column<string>(nullable: true),
+                    DescriptionAR = table.Column<string>(nullable: true),
+                    Status = table.Column<int>(nullable: false),
+                    Icon = table.Column<string>(nullable: true),
+                    LeadSourceTypeID = table.Column<long>(nullable: false),
+                    ChannelID = table.Column<long>(nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeadSourceNames", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_LeadSourceNames_LeadSourceTypes_ChannelID",
+                        column: x => x.ChannelID,
+                        principalTable: "LeadSourceTypes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_LeadSourceNames_LeadSourceTypes_LeadSourceTypeID",
+                        column: x => x.LeadSourceTypeID,
+                        principalTable: "LeadSourceTypes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CRSectionQuestions",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DescriptionAR = table.Column<string>(nullable: true),
+                    DescriptionEN = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(nullable: true),
+                    isRequired = table.Column<bool>(nullable: false),
+                    Order = table.Column<int>(nullable: false),
+                    IsDecisional = table.Column<bool>(nullable: false),
+                    SectionID = table.Column<long>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CRSectionQuestions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CRSectionQuestions_CRSections_SectionID",
+                        column: x => x.SectionID,
+                        principalTable: "CRSections",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CR_Sections",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Order = table.Column<int>(nullable: false),
+                    StartDate = table.Column<DateTime>(nullable: true),
+                    EndDate = table.Column<DateTime>(nullable: true),
+                    IsSubmitted = table.Column<bool>(nullable: false),
+                    RequestID = table.Column<long>(nullable: false),
+                    SectionID = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CR_Sections", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CR_Sections_CustomerRequests_RequestID",
+                        column: x => x.RequestID,
+                        principalTable: "CustomerRequests",
                         principalColumn: "ID");
                     table.ForeignKey(
-                        name: "FK_LTwoInterest_InterestAttributes_LTwoInterests_LTwoInterestID",
-                        column: x => x.LTwoInterestID,
-                        principalTable: "LTwoInterests",
+                        name: "FK_CR_Sections_CRSections_SectionID",
+                        column: x => x.SectionID,
+                        principalTable: "CRSections",
                         principalColumn: "ID");
                 });
 
             migrationBuilder.CreateTable(
-                name: "LTwoInterest_LTwoInterestInputs",
+                name: "CRSubmissionDetails",
                 columns: table => new
                 {
-                    LTwoInterestID = table.Column<long>(nullable: false),
-                    LTwoInterestInputID = table.Column<long>(nullable: false)
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SubmissionDate = table.Column<DateTime>(nullable: true),
+                    IsStatusChanged = table.Column<bool>(nullable: false),
+                    Comment = table.Column<string>(nullable: true),
+                    RequestID = table.Column<long>(nullable: false),
+                    CRTypeID = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LTwoInterest_LTwoInterestInputs", x => new { x.LTwoInterestID, x.LTwoInterestInputID });
+                    table.PrimaryKey("PK_CRSubmissionDetails", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_LTwoInterest_LTwoInterestInputs_LTwoInterests_LTwoInterestID",
-                        column: x => x.LTwoInterestID,
-                        principalTable: "LTwoInterests",
-                        principalColumn: "ID");
+                        name: "FK_CRSubmissionDetails_CRTypes_CRTypeID",
+                        column: x => x.CRTypeID,
+                        principalTable: "CRTypes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_LTwoInterest_LTwoInterestInputs_LTwoInterestInputs_LTwoInterestInputID",
-                        column: x => x.LTwoInterestInputID,
-                        principalTable: "LTwoInterestInputs",
-                        principalColumn: "ID");
+                        name: "FK_CRSubmissionDetails_CustomerRequests_RequestID",
+                        column: x => x.RequestID,
+                        principalTable: "CustomerRequests",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Area_LOneInterests",
+                name: "Inputs",
                 columns: table => new
                 {
-                    AreaID = table.Column<long>(nullable: false),
-                    LOneInterestID = table.Column<long>(nullable: false)
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    LabelAR = table.Column<string>(nullable: true),
+                    LabelEN = table.Column<string>(nullable: true),
+                    Type = table.Column<int>(nullable: false),
+                    PredefinedInputType = table.Column<int>(nullable: true),
+                    IsRequired = table.Column<bool>(nullable: false),
+                    SectionID = table.Column<long>(nullable: false),
+                    AttributeID = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Area_LOneInterests", x => new { x.AreaID, x.LOneInterestID });
+                    table.PrimaryKey("PK_Inputs", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Area_LOneInterests_Areas_AreaID",
-                        column: x => x.AreaID,
-                        principalTable: "Areas",
-                        principalColumn: "ID");
+                        name: "FK_Inputs_LAttributes_AttributeID",
+                        column: x => x.AttributeID,
+                        principalTable: "LAttributes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Area_LOneInterests_LOneInterests_LOneInterestID",
-                        column: x => x.LOneInterestID,
-                        principalTable: "LOneInterests",
-                        principalColumn: "ID");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Area_Pools",
-                columns: table => new
-                {
-                    AreaID = table.Column<long>(nullable: false),
-                    PoolID = table.Column<long>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Area_Pools", x => new { x.AreaID, x.PoolID });
-                    table.ForeignKey(
-                        name: "FK_Area_Pools_Areas_AreaID",
-                        column: x => x.AreaID,
-                        principalTable: "Areas",
-                        principalColumn: "ID");
-                    table.ForeignKey(
-                        name: "FK_Area_Pools_Pools_PoolID",
-                        column: x => x.PoolID,
-                        principalTable: "Pools",
-                        principalColumn: "ID");
+                        name: "FK_Inputs_LSections_SectionID",
+                        column: x => x.SectionID,
+                        principalTable: "LSections",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -919,6 +1133,34 @@ namespace Stack.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DoneDeals",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AssignedUserID = table.Column<string>(nullable: true),
+                    DealID = table.Column<long>(nullable: false),
+                    State = table.Column<int>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DoneDeals", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_DoneDeals_AspNetUsers_AssignedUserID",
+                        column: x => x.AssignedUserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DoneDeals_Deals_DealID",
+                        column: x => x.DealID,
+                        principalTable: "Deals",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Leads",
                 columns: table => new
                 {
@@ -926,9 +1168,11 @@ namespace Stack.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AssignedUserID = table.Column<string>(nullable: true),
                     DealID = table.Column<long>(nullable: false),
-                    State = table.Column<string>(nullable: true),
-                    StatusID = table.Column<long>(nullable: false),
-                    isJunked = table.Column<bool>(nullable: false),
+                    State = table.Column<int>(nullable: false),
+                    StatusID = table.Column<long>(nullable: true),
+                    IsFresh = table.Column<bool>(nullable: false),
+                    IsLocked = table.Column<bool>(nullable: false),
+                    ForceUnlock_JobID = table.Column<string>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -951,7 +1195,7 @@ namespace Stack.DAL.Migrations
                         column: x => x.StatusID,
                         principalTable: "LeadStatuses",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -962,9 +1206,11 @@ namespace Stack.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AssignedUserID = table.Column<string>(nullable: true),
                     DealID = table.Column<long>(nullable: false),
-                    State = table.Column<string>(nullable: true),
-                    StatusID = table.Column<long>(nullable: false),
-                    isJunked = table.Column<bool>(nullable: false),
+                    State = table.Column<int>(nullable: false),
+                    StatusID = table.Column<long>(nullable: true),
+                    IsFresh = table.Column<bool>(nullable: false),
+                    IsLocked = table.Column<bool>(nullable: false),
+                    ForceUnlock_JobID = table.Column<string>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -987,7 +1233,7 @@ namespace Stack.DAL.Migrations
                         column: x => x.StatusID,
                         principalTable: "OpportunityStatuses",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -998,7 +1244,7 @@ namespace Stack.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreationDate = table.Column<DateTime>(nullable: false),
                     IsComplete = table.Column<bool>(nullable: false),
-                    CustomerID = table.Column<long>(nullable: false),
+                    CustomerID = table.Column<long>(nullable: true),
                     DealID = table.Column<long>(nullable: true),
                     ContactID = table.Column<long>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
@@ -1017,7 +1263,7 @@ namespace Stack.DAL.Migrations
                         column: x => x.CustomerID,
                         principalTable: "Customers",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ProcessFlows_Deals_DealID",
                         column: x => x.DealID,
@@ -1034,9 +1280,12 @@ namespace Stack.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AssignedUserID = table.Column<string>(nullable: true),
                     DealID = table.Column<long>(nullable: false),
-                    State = table.Column<string>(nullable: true),
-                    StatusID = table.Column<long>(nullable: false),
-                    isJunked = table.Column<bool>(nullable: false),
+                    State = table.Column<int>(nullable: false),
+                    StatusID = table.Column<long>(nullable: true),
+                    PoolID = table.Column<long>(nullable: false),
+                    IsFresh = table.Column<bool>(nullable: false),
+                    IsLocked = table.Column<bool>(nullable: false),
+                    ForceUnlock_JobID = table.Column<string>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
@@ -1059,7 +1308,87 @@ namespace Stack.DAL.Migrations
                         column: x => x.StatusID,
                         principalTable: "ProspectStatuses",
                         principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LInterestInputs",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    Attachment = table.Column<string>(nullable: true),
+                    SelectedAttributeID = table.Column<long>(nullable: true),
+                    InputID = table.Column<long>(nullable: false),
+                    LInterestID = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LInterestInputs", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_LInterestInputs_LInterests_LInterestID",
+                        column: x => x.LInterestID,
+                        principalTable: "LInterests",
+                        principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CRSectionQuestionOptions",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ValueAR = table.Column<string>(nullable: true),
+                    ValueEN = table.Column<string>(nullable: true),
+                    RoutesTo = table.Column<string>(nullable: true),
+                    QuestionID = table.Column<long>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CRSectionQuestionOptions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CRSectionQuestionOptions_CRSectionQuestions_QuestionID",
+                        column: x => x.QuestionID,
+                        principalTable: "CRSectionQuestions",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CRSectionQuestionAnswers",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Value = table.Column<string>(nullable: true),
+                    RequestSectionID = table.Column<long>(nullable: true),
+                    QuestionID = table.Column<long>(nullable: true),
+                    CR_SectionID = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CRSectionQuestionAnswers", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CRSectionQuestionAnswers_CR_Sections_CR_SectionID",
+                        column: x => x.CR_SectionID,
+                        principalTable: "CR_Sections",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CRSectionQuestionAnswers_CRSectionQuestions_QuestionID",
+                        column: x => x.QuestionID,
+                        principalTable: "CRSectionQuestions",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CRSectionQuestionAnswers_CRSections_RequestSectionID",
+                        column: x => x.RequestSectionID,
+                        principalTable: "CRSections",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1072,7 +1401,7 @@ namespace Stack.DAL.Migrations
                     ActivityTypeID = table.Column<long>(nullable: false),
                     CreationDate = table.Column<DateTime>(nullable: true),
                     CreatedBy = table.Column<string>(nullable: true),
-                    SubtmissionDate = table.Column<DateTime>(nullable: true),
+                    SubmissionDate = table.Column<DateTime>(nullable: true),
                     IsSubmitted = table.Column<bool>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false)
                 },
@@ -1086,11 +1415,43 @@ namespace Stack.DAL.Migrations
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_Activities_AspNetUsers_CreatedBy",
+                        column: x => x.CreatedBy,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_Activities_ProcessFlows_ProcessFlowID",
                         column: x => x.ProcessFlowID,
                         principalTable: "ProcessFlows",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CRSelectedOptions",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SectionQuestionOptionID = table.Column<long>(nullable: true),
+                    SectionQuestionAnswerID = table.Column<long>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CRSelectedOptions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CRSelectedOptions_CRSectionQuestionAnswers_SectionQuestionAnswerID",
+                        column: x => x.SectionQuestionAnswerID,
+                        principalTable: "CRSectionQuestionAnswers",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CRSelectedOptions_CRSectionQuestionOptions_SectionQuestionOptionID",
+                        column: x => x.SectionQuestionOptionID,
+                        principalTable: "CRSectionQuestionOptions",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1103,8 +1464,8 @@ namespace Stack.DAL.Migrations
                     StartDate = table.Column<DateTime>(nullable: true),
                     EndDate = table.Column<DateTime>(nullable: true),
                     IsSubmitted = table.Column<bool>(nullable: false),
-                    ActivityID = table.Column<long>(nullable: false),
-                    SectionID = table.Column<long>(nullable: false)
+                    ActivityID = table.Column<long>(nullable: true),
+                    SectionID = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1113,7 +1474,8 @@ namespace Stack.DAL.Migrations
                         name: "FK_ActivitySections_Activities_ActivityID",
                         column: x => x.ActivityID,
                         principalTable: "Activities",
-                        principalColumn: "ID");
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_ActivitySections_Sections_SectionID",
                         column: x => x.SectionID,
@@ -1127,13 +1489,15 @@ namespace Stack.DAL.Migrations
                 {
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubmissionDate = table.Column<DateTime>(nullable: true),
                     CurrentStage = table.Column<string>(nullable: true),
                     NewStage = table.Column<string>(nullable: true),
-                    CurrentStatus = table.Column<string>(nullable: true),
-                    NewStatus = table.Column<string>(nullable: true),
+                    CurrentStatus = table.Column<long>(nullable: true),
+                    NewStatus = table.Column<long>(nullable: true),
                     IsStatusChanged = table.Column<bool>(nullable: false),
+                    IsStageChanged = table.Column<bool>(nullable: false),
                     Comment = table.Column<string>(nullable: true),
+                    SubmissionDate = table.Column<DateTime>(nullable: true),
+                    ScheduledActivityDate = table.Column<DateTime>(nullable: true),
                     ScheduledActivityID = table.Column<long>(nullable: true),
                     ActivityID = table.Column<long>(nullable: false)
                 },
@@ -1161,6 +1525,7 @@ namespace Stack.DAL.Migrations
                     ID = table.Column<long>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Value = table.Column<string>(nullable: true),
+                    DateValue = table.Column<DateTime>(nullable: false),
                     ActivitySectionID = table.Column<long>(nullable: true),
                     QuestionID = table.Column<long>(nullable: true)
                 },
@@ -1172,13 +1537,13 @@ namespace Stack.DAL.Migrations
                         column: x => x.ActivitySectionID,
                         principalTable: "ActivitySections",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_SectionQuestionAnswers_SectionQuestions_QuestionID",
                         column: x => x.QuestionID,
                         principalTable: "SectionQuestions",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -1213,6 +1578,11 @@ namespace Stack.DAL.Migrations
                 column: "ActivityTypeID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Activities_CreatedBy",
+                table: "Activities",
+                column: "CreatedBy");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Activities_ProcessFlowID",
                 table: "Activities",
                 column: "ProcessFlowID");
@@ -1226,21 +1596,6 @@ namespace Stack.DAL.Migrations
                 name: "IX_ActivitySections_SectionID",
                 table: "ActivitySections",
                 column: "SectionID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Area_LOneInterests_LOneInterestID",
-                table: "Area_LOneInterests",
-                column: "LOneInterestID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Area_Pools_PoolID",
-                table: "Area_Pools",
-                column: "PoolID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Areas_RegionID",
-                table: "Areas",
-                column: "RegionID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -1304,7 +1659,9 @@ namespace Stack.DAL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Contacts_CustomerID",
                 table: "Contacts",
-                column: "CustomerID");
+                column: "CustomerID",
+                unique: true,
+                filter: "[CustomerID] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contacts_PoolID",
@@ -1317,14 +1674,87 @@ namespace Stack.DAL.Migrations
                 column: "StatusID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CR_Sections_RequestID",
+                table: "CR_Sections",
+                column: "RequestID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CR_Sections_SectionID",
+                table: "CR_Sections",
+                column: "SectionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSectionQuestionAnswers_CR_SectionID",
+                table: "CRSectionQuestionAnswers",
+                column: "CR_SectionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSectionQuestionAnswers_QuestionID",
+                table: "CRSectionQuestionAnswers",
+                column: "QuestionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSectionQuestionAnswers_RequestSectionID",
+                table: "CRSectionQuestionAnswers",
+                column: "RequestSectionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSectionQuestionOptions_QuestionID",
+                table: "CRSectionQuestionOptions",
+                column: "QuestionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSectionQuestions_SectionID",
+                table: "CRSectionQuestions",
+                column: "SectionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSections_RequestTypeID",
+                table: "CRSections",
+                column: "RequestTypeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSelectedOptions_SectionQuestionAnswerID",
+                table: "CRSelectedOptions",
+                column: "SectionQuestionAnswerID",
+                unique: true,
+                filter: "[SectionQuestionAnswerID] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSelectedOptions_SectionQuestionOptionID",
+                table: "CRSelectedOptions",
+                column: "SectionQuestionOptionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSubmissionDetails_CRTypeID",
+                table: "CRSubmissionDetails",
+                column: "CRTypeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CRSubmissionDetails_RequestID",
+                table: "CRSubmissionDetails",
+                column: "RequestID",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Customer_Tags_TagID",
                 table: "Customer_Tags",
                 column: "TagID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CustomerComments_CustomerID",
+                table: "CustomerComments",
+                column: "CustomerID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CustomerPhoneNumber_CustomerID",
                 table: "CustomerPhoneNumber",
                 column: "CustomerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CustomerRequests_TypeID",
+                table: "CustomerRequests",
+                column: "TypeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Customers_AssignedUserID",
@@ -1335,6 +1765,31 @@ namespace Stack.DAL.Migrations
                 name: "IX_Deals_CustomerID",
                 table: "Deals",
                 column: "CustomerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoneDeals_AssignedUserID",
+                table: "DoneDeals",
+                column: "AssignedUserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DoneDeals_DealID",
+                table: "DoneDeals",
+                column: "DealID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Inputs_AttributeID",
+                table: "Inputs",
+                column: "AttributeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Inputs_SectionID",
+                table: "Inputs",
+                column: "SectionID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LAttributes_ParentAttributeID",
+                table: "LAttributes",
+                column: "ParentAttributeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Leads_AssignedUserID",
@@ -1352,24 +1807,54 @@ namespace Stack.DAL.Migrations
                 column: "StatusID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LOneInterest_LOneInterestInput_LOneInterestInputID",
-                table: "LOneInterest_LOneInterestInput",
-                column: "LOneInterestInputID");
+                name: "IX_LeadSourceNames_ChannelID",
+                table: "LeadSourceNames",
+                column: "ChannelID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LThreeInterest_LThreeInterestInputs_LThreeInterestInputID",
-                table: "LThreeInterest_LThreeInterestInputs",
-                column: "LThreeInterestInputID");
+                name: "IX_LeadSourceNames_LeadSourceTypeID",
+                table: "LeadSourceNames",
+                column: "LeadSourceTypeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LTwoInterest_LTwoInterestInputs_LTwoInterestInputID",
-                table: "LTwoInterest_LTwoInterestInputs",
-                column: "LTwoInterestInputID");
+                name: "IX_LeadSourceTypes_ChannelID",
+                table: "LeadSourceTypes",
+                column: "ChannelID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LTwoInterests_LOneInterestID",
-                table: "LTwoInterests",
-                column: "LOneInterestID");
+                name: "IX_LInterestInputs_LInterestID",
+                table: "LInterestInputs",
+                column: "LInterestID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LInterests_LevelID",
+                table: "LInterests",
+                column: "LevelID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LInterests_LocationID",
+                table: "LInterests",
+                column: "LocationID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LInterests_OwnerID",
+                table: "LInterests",
+                column: "OwnerID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Location_Pools_PoolID",
+                table: "Location_Pools",
+                column: "PoolID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Locations_ParentLocationID",
+                table: "Locations",
+                column: "ParentLocationID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LSections_LevelID",
+                table: "LSections",
+                column: "LevelID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Opportunities_AssignedUserID",
@@ -1387,14 +1872,19 @@ namespace Stack.DAL.Migrations
                 column: "StatusID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Pool_Admins_UserID",
-                table: "Pool_Admins",
-                column: "UserID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Pool_Users_UserID",
                 table: "Pool_Users",
                 column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PoolConnectionIDs_UserID",
+                table: "PoolConnectionIDs",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PoolRequests_PoolID",
+                table: "PoolRequests",
+                column: "PoolID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProcessFlows_ContactID",
@@ -1428,6 +1918,11 @@ namespace Stack.DAL.Migrations
                 name: "IX_Prospects_StatusID",
                 table: "Prospects",
                 column: "StatusID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SectionAuthorizations_AuthorizationSectionID",
+                table: "SectionAuthorizations",
+                column: "AuthorizationSectionID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SectionQuestionAnswers_ActivitySectionID",
@@ -1481,12 +1976,6 @@ namespace Stack.DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Area_LOneInterests");
-
-            migrationBuilder.DropTable(
-                name: "Area_Pools");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -1511,43 +2000,55 @@ namespace Stack.DAL.Migrations
                 name: "ContactPhoneNumbers");
 
             migrationBuilder.DropTable(
+                name: "CRSelectedOptions");
+
+            migrationBuilder.DropTable(
+                name: "CRSubmissionDetails");
+
+            migrationBuilder.DropTable(
                 name: "Customer_Tags");
+
+            migrationBuilder.DropTable(
+                name: "CustomerComments");
 
             migrationBuilder.DropTable(
                 name: "CustomerPhoneNumber");
 
             migrationBuilder.DropTable(
+                name: "DoneDeals");
+
+            migrationBuilder.DropTable(
+                name: "Inputs");
+
+            migrationBuilder.DropTable(
                 name: "Leads");
 
             migrationBuilder.DropTable(
-                name: "LOneInterest_InterestAttributes");
+                name: "LeadSourceNames");
 
             migrationBuilder.DropTable(
-                name: "LOneInterest_LOneInterestInput");
+                name: "LInterestInputs");
 
             migrationBuilder.DropTable(
-                name: "LThreeInterest_InterestAttributes");
-
-            migrationBuilder.DropTable(
-                name: "LThreeInterest_LThreeInterestInputs");
-
-            migrationBuilder.DropTable(
-                name: "LTwoInterest_InterestAttributes");
-
-            migrationBuilder.DropTable(
-                name: "LTwoInterest_LTwoInterestInputs");
+                name: "Location_Pools");
 
             migrationBuilder.DropTable(
                 name: "Opportunities");
 
             migrationBuilder.DropTable(
-                name: "Pool_Admins");
-
-            migrationBuilder.DropTable(
                 name: "Pool_Users");
 
             migrationBuilder.DropTable(
+                name: "PoolConnectionIDs");
+
+            migrationBuilder.DropTable(
+                name: "PoolRequests");
+
+            migrationBuilder.DropTable(
                 name: "Prospects");
+
+            migrationBuilder.DropTable(
+                name: "SectionAuthorizations");
 
             migrationBuilder.DropTable(
                 name: "SelectedOptions");
@@ -1556,34 +2057,34 @@ namespace Stack.DAL.Migrations
                 name: "SubmissionDetails");
 
             migrationBuilder.DropTable(
-                name: "Areas");
+                name: "SystemConfiguration");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "CRSectionQuestionAnswers");
+
+            migrationBuilder.DropTable(
+                name: "CRSectionQuestionOptions");
+
+            migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "LAttributes");
+
+            migrationBuilder.DropTable(
+                name: "LSections");
 
             migrationBuilder.DropTable(
                 name: "LeadStatuses");
 
             migrationBuilder.DropTable(
-                name: "LOneInterestInputs");
+                name: "LeadSourceTypes");
 
             migrationBuilder.DropTable(
-                name: "LThreeInterests");
-
-            migrationBuilder.DropTable(
-                name: "LThreeInterestInputs");
-
-            migrationBuilder.DropTable(
-                name: "InterestAttributes");
-
-            migrationBuilder.DropTable(
-                name: "LTwoInterests");
-
-            migrationBuilder.DropTable(
-                name: "LTwoInterestInputs");
+                name: "LInterests");
 
             migrationBuilder.DropTable(
                 name: "OpportunityStatuses");
@@ -1592,16 +2093,28 @@ namespace Stack.DAL.Migrations
                 name: "ProspectStatuses");
 
             migrationBuilder.DropTable(
+                name: "AuthorizationSections");
+
+            migrationBuilder.DropTable(
                 name: "SectionQuestionAnswers");
 
             migrationBuilder.DropTable(
                 name: "SectionQuestionOptions");
 
             migrationBuilder.DropTable(
-                name: "Regions");
+                name: "CR_Sections");
 
             migrationBuilder.DropTable(
-                name: "LOneInterests");
+                name: "CRSectionQuestions");
+
+            migrationBuilder.DropTable(
+                name: "Channels");
+
+            migrationBuilder.DropTable(
+                name: "Levels");
+
+            migrationBuilder.DropTable(
+                name: "Locations");
 
             migrationBuilder.DropTable(
                 name: "ActivitySections");
@@ -1610,10 +2123,19 @@ namespace Stack.DAL.Migrations
                 name: "SectionQuestions");
 
             migrationBuilder.DropTable(
+                name: "CustomerRequests");
+
+            migrationBuilder.DropTable(
+                name: "CRSections");
+
+            migrationBuilder.DropTable(
                 name: "Activities");
 
             migrationBuilder.DropTable(
                 name: "Sections");
+
+            migrationBuilder.DropTable(
+                name: "CRTypes");
 
             migrationBuilder.DropTable(
                 name: "ProcessFlows");
