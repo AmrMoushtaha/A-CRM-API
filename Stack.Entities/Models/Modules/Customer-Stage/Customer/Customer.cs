@@ -13,7 +13,6 @@ namespace Stack.Entities.Models.Modules.CustomerStage
 
         public string FullNameEN { get; set; }
         public string FullNameAR { get; set; }
-
         public string Email { get; set; }
         public string Address { get; set; }
         public string Occupation { get; set; }
@@ -21,6 +20,10 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string LeadSourceName { get; set; }
         public string PrimaryPhoneNumber { get; set; }
         public long PoolID { get; set; }
+
+        public int? ChannelID { get; set; }
+        public int? LSTID { get; set; }
+        public int? LSNID { get; set; }
 
         public virtual List<CustomerPhoneNumber> PhoneNumbers { get; set; }
         public virtual List<Deal> Deals { get; set; }

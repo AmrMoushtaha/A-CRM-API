@@ -104,6 +104,13 @@ namespace Stack.API.Controllers.Modules.Activities
             return await AddItemResponseHandler(async () => await service.GetActivityHistoryByDealID(DealID));
         }
 
+        [AllowAnonymous]
+        [HttpGet("GetActivityDetailsByActivityID/{ActivityID}")]
+        public async Task<IActionResult> GetActivityDetailsByActivityID(long ActivityID)
+        {
+            return await AddItemResponseHandler(async () => await service.GetActivityDetailsByActivityID(ActivityID));
+        }
+
     }
 
 }

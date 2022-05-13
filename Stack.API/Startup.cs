@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Stack.API.Hubs;
 using Hangfire;
+using Microsoft.AspNetCore.Http;
 
 namespace Stack.API
 {
@@ -43,12 +44,11 @@ namespace Stack.API
 
             services.Configure<List<DTOs.Requests.Modules.System.AuthorizationSection>>(Configuration.GetSection("SystemAuthorizationSections"));
 
-
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             //Live server connection string
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
-            //services.AddHangfire(x => x.UseSqlServerStorage("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd;"));
+            services.AddHangfire(x => x.UseSqlServerStorage("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd;"));
 
 
             //Local server connection string
@@ -60,7 +60,7 @@ namespace Stack.API
 
             //Hangfire connection string
             //Local connection string
-            services.AddHangfire(x => x.UseSqlServerStorage("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
+            //services.AddHangfire(x => x.UseSqlServerStorage("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
             //services.AddHangfire(x => x.UseSqlServerStorage("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
 
             services.AddHangfireServer();
@@ -71,31 +71,33 @@ namespace Stack.API
             .AddUserManager<ApplicationUserManager>()
             .AddRoleManager<ApplicationRoleManager>();
 
+            services.AddHttpContextAccessor();
 
-            //CORS Configuration . 
-            services.AddCors(options =>
-            {
-                options.AddPolicy(name: AllowSpecificOrigins,
-                             builder =>
-                             {
-                                 builder.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://localhost:4200")
-                                    .AllowAnyMethod()
-                                    .AllowAnyHeader()
-                                    .AllowCredentials();
-                             });
-            });
 
+            ////CORS Configuration . 
             //services.AddCors(options =>
             //{
             //    options.AddPolicy(name: AllowSpecificOrigins,
             //                 builder =>
             //                 {
-            //                     builder.WithOrigins("https://crm.app-blender.com")
+            //                     builder.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://localhost:4200")
             //                        .AllowAnyMethod()
             //                        .AllowAnyHeader()
             //                        .AllowCredentials();
             //                 });
             //});
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: AllowSpecificOrigins,
+                             builder =>
+                             {
+                                 builder.WithOrigins("https://test.app-blender.com","https://crm.app-blender.com")
+                                    .AllowAnyMethod()
+                                    .AllowAnyHeader()
+                                    .AllowCredentials();
+                             });
+            });
 
             //Configure Auto Mapper .
             services.AddAutoMapper(typeof(AutoMapperProfile));
@@ -199,12 +201,12 @@ namespace Stack.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
-            app.UseDeveloperExceptionPage();
+            //app.UseDeveloperExceptionPage();
 
 
             app.UseHttpsRedirection();

@@ -537,8 +537,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                             Email = creationModel.Email,
                                                             PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                                             Occupation = creationModel.Occupation,
-                                                            LeadSourceName = recordDuplicationCheck.LeadSourceName,
-                                                            LeadSourceType = recordDuplicationCheck.LeadSourceType,
+                                                            ChannelID = recordDuplicationCheck.ChannelID,
+                                                            LSTID = recordDuplicationCheck.LSTID,
+                                                            LSNID = recordDuplicationCheck.LSNID,
                                                             PoolID = recordDuplicationCheck.PoolID
                                                         };
 
@@ -1005,8 +1006,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 Email = creationModel.Email,
                                                 PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                                 Occupation = creationModel.Occupation,
-                                                LeadSourceName = recordDuplicationCheck.LeadSourceName,
-                                                LeadSourceType = recordDuplicationCheck.LeadSourceType,
+                                                ChannelID = recordDuplicationCheck.ChannelID,
+                                                LSTID = recordDuplicationCheck.LSTID,
+                                                LSNID = recordDuplicationCheck.LSNID,
                                             };
 
                                             var customerCreationRes = await unitOfWork.CustomerManager.CreateAsync(customer);
@@ -1339,8 +1341,9 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                         Email = creationModel.Email,
                         PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                         Occupation = creationModel.Occupation,
-                        LeadSourceName = contactCreationRes.LeadSourceName,
-                        LeadSourceType = contactCreationRes.LeadSourceType,
+                        ChannelID = contactCreationRes.ChannelID,
+                        LSTID = contactCreationRes.LSTID,
+                        LSNID = contactCreationRes.LSNID,
                     };
 
                     var customerCreationRes = await unitOfWork.CustomerManager.CreateAsync(customer);
