@@ -52,9 +52,10 @@ namespace Stack.API
 
 
             //Local server connection string
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= B-YASMIN-GHAZY\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= DESKTOP-HH8V8OH; Database = CRMDB;Integrated Security =true;MultipleActiveResultSets=True; "));
 
 
             //Hangfire connection string
