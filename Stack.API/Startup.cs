@@ -55,7 +55,7 @@ namespace Stack.API
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= B-YASMIN-GHAZY\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= DESKTOP-HH8V8OH; Database = CRMDB;Integrated Security =true;MultipleActiveResultSets=True; "));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= DESKTOP-HH8V8OH; Database = CRMDB;Integrated Security =true;MultipleActiveResultSets=True; "));
 
 
             //Hangfire connection string
@@ -75,29 +75,29 @@ namespace Stack.API
 
 
             ////CORS Configuration . 
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy(name: AllowSpecificOrigins,
-            //                 builder =>
-            //                 {
-            //                     builder.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://localhost:4200")
-            //                        .AllowAnyMethod()
-            //                        .AllowAnyHeader()
-            //                        .AllowCredentials();
-            //                 });
-            //});
-
             services.AddCors(options =>
             {
                 options.AddPolicy(name: AllowSpecificOrigins,
                              builder =>
                              {
-                                 builder.WithOrigins("https://test.app-blender.com","https://crm.app-blender.com")
+                                 builder.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://localhost:4200")
                                     .AllowAnyMethod()
                                     .AllowAnyHeader()
                                     .AllowCredentials();
                              });
             });
+
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy(name: AllowSpecificOrigins,
+            //                 builder =>
+            //                 {
+            //                     builder.WithOrigins("https://test.app-blender.com","https://crm.app-blender.com")
+            //                        .AllowAnyMethod()
+            //                        .AllowAnyHeader()
+            //                        .AllowCredentials();
+            //                 });
+            //});
 
             //Configure Auto Mapper .
             services.AddAutoMapper(typeof(AutoMapperProfile));

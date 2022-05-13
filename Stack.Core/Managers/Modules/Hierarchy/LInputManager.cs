@@ -20,7 +20,10 @@ namespace Stack.Core.Managers.Modules.Hierarchy
         {
             return await Task.Run(() =>
             {
-                return context.Inputs.Max(o => o.Order);
+                if (context.Inputs.Count()!=0)
+                    return context.Inputs.Max(o => o.Order);
+                else
+                    return 0;
             });
         }
     }
