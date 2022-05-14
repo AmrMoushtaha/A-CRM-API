@@ -49,6 +49,13 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.CreateSingleStageRecord_AssignToUser(model));
         }
 
+        [AllowAnonymous]
+        [HttpPost("CreateSingleStageRecord_AssignToSelf")]
+        public async Task<IActionResult> CreateSingleStageRecord_AssignToSelf(RecordCreationModel model)
+        {
+            return await GetResponseHandler(async () => await service.CreateSingleStageRecord_AssignToSelf(model));
+        }
+
 
 
         [AllowAnonymous]
