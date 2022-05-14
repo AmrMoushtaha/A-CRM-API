@@ -1,6 +1,8 @@
 ﻿using Stack.DAL;
 using Stack.Entities.Models.Modules.Hierarchy;
 using Stack.Repository;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Stack.Core.Managers.Modules.Hierarchy
 {
@@ -9,9 +11,23 @@ namespace Stack.Core.Managers.Modules.Hierarchy
         public LInputManager(ApplicationDbContext _context) : base(_context)
         {
 
+            dbSet = _context.Set<Input>();
+            context = _context;
 
         }
 
+        public async Task<int> MaxOrder()
+        {
+            return await Task.Run(() =>
+            {
+                if (context.Inputs.Count()!=0)
+                    return context.Inputs.Max(o => o.Order);
+                else
+                    return 0;
+            });
+        }
     }
 
 }
+
+

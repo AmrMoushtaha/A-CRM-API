@@ -12,6 +12,8 @@ namespace Stack.Entities.Models.Modules.Hierarchy
         public int Type { get; set; } //Enum 
         public int? PredefinedInputType { get; set; } //Enum 
 
+        public int Order { get; set; }  
+
         public bool IsRequired { get; set; } 
         //public bool IsLevelDependent { get; set; } 
         //public int MaxValue { get; set; } 

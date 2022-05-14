@@ -225,7 +225,7 @@ namespace Stack.ServiceLayer.Modules.Interest
                     var LInterestInputToAdd = LInterestInputs[i];
                     LInterestInput InputToCreate = mapper.Map<LInterestInput>(LInterestInputToAdd);
                     InputToCreate.LInterestID = interestID;
-                    if (InputToCreate.Attachment != "" ||
+                    if ((InputToCreate.Attachment != "" && InputToCreate.Attachment != null) ||
                         (InputToCreate.SelectedAttributeID != 0 && InputToCreate.SelectedAttributeID != null))
                     {
                         var createInputResult = await unitOfWork.LInterestInputManager.CreateAsync(InputToCreate);

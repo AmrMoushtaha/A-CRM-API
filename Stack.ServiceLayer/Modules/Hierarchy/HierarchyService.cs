@@ -61,17 +61,17 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                 {
                     SectionToAdd SectionToAdd = new SectionToAdd
                     {
-                        LabelAR="عام",
-                        LabelEN="General",
-                        LevelID= LevelsList[i].ID
+                        LabelAR = "عام",
+                        LabelEN = "General",
+                        LevelID = LevelsList[i].ID
                     };
                     await Create_Section(SectionToAdd);
                 }
 
                 result.Succeeded = true;
-                    result.Data = true;
-                    return result;
-                
+                result.Data = true;
+                return result;
+
 
                 //result.Errors.Add("Failed to Initialize !");
                 //result.Succeeded = false;
@@ -93,7 +93,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<List<Level>> result = new ApiResponse<List<Level>>();
             try
             {
-                var LevelResult = await unitOfWork.LevelManager.GetAsync(a=>!a.IsDeleted);
+                var LevelResult = await unitOfWork.LevelManager.GetAsync(a => !a.IsDeleted);
                 List<Level> LevelsList = LevelResult.ToList();
                 if (LevelsList != null && LevelsList.Count != 0)
                 {
@@ -167,7 +167,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var LevelResult = await unitOfWork.LevelManager.GetAsync(a => (a.LabelEN == LevelToEdit.LabelEN 
+                var LevelResult = await unitOfWork.LevelManager.GetAsync(a => (a.LabelEN == LevelToEdit.LabelEN
                 || a.LabelAR == LevelToEdit.LabelAR) && a.ID != LevelToEdit.ID);
                 Level DuplicateLevelResult = LevelResult.FirstOrDefault();
                 var LevelR = await unitOfWork.LevelManager.GetByIdAsync(LevelToEdit.ID);
@@ -177,7 +177,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                     LevelR.LabelAR = LevelToEdit.LabelAR;
                     LevelR.LabelEN = LevelToEdit.LabelEN;
                     LevelR.Type = LevelToEdit.Type;
-                    
+
                     var createInputResult = await unitOfWork.LevelManager.UpdateAsync(LevelR);
                     var SaveResult = await unitOfWork.SaveChangesAsync();
 
@@ -221,14 +221,15 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<List<LSection>> result = new ApiResponse<List<LSection>>();
             try
             {
-                var SectionResult = await unitOfWork.SectionManager.GetAsync(a=>a.LevelID== levelID && !a.IsDeleted , includeProperties: "Inputs");
+                var SectionResult = await unitOfWork.SectionManager.GetAsync(a => a.LevelID == levelID && !a.IsDeleted, includeProperties: "Inputs");
                 List<LSection> SectionsList = SectionResult.ToList();
                 if (SectionsList != null && SectionsList.Count != 0)
                 {
-                    SectionsList = SectionsList.Select(a => {
+                    SectionsList = SectionsList.Select(a =>
+                    {
                         a.Inputs = a.Inputs.Where(i => !i.IsDeleted).ToList();
                         return a;
-                        }).ToList();
+                    }).ToList();
 
                     result.Succeeded = true;
                     result.Data = mapper.Map<List<LSection>>(SectionsList);
@@ -325,7 +326,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             try
             {
                 var SectionResult = await unitOfWork.SectionManager.GetAsync(a => (a.LabelAR == SectionToAdd.LabelAR
-                || a.LabelEN == SectionToAdd.LabelEN)&& a.LevelID==SectionToAdd.LevelID );
+                || a.LabelEN == SectionToAdd.LabelEN) && a.LevelID == SectionToAdd.LevelID);
                 LSection DuplicateSectionResult = SectionResult.FirstOrDefault();
 
                 if (DuplicateSectionResult == null)
@@ -364,14 +365,14 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             }
 
         }
-    
+
         public async Task<ApiResponse<bool>> Edit_Section(SectionToEdit SectionToEdit)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
                 var SectionResult = await unitOfWork.SectionManager.GetAsync(a => (a.LabelEN == SectionToEdit.LabelEN
-                || a.LabelAR == SectionToEdit.LabelAR) && a.ID != SectionToEdit.ID && a.LevelID==SectionToEdit.LevelID);
+                || a.LabelAR == SectionToEdit.LabelAR) && a.ID != SectionToEdit.ID && a.LevelID == SectionToEdit.LevelID);
                 LSection DuplicateSectionResult = SectionResult.FirstOrDefault();
                 var SectionR = await unitOfWork.SectionManager.GetByIdAsync(SectionToEdit.ID);
 
@@ -425,7 +426,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<List<LAttribute>> result = new ApiResponse<List<LAttribute>>();
             try
             {
-                var InterestAttributeResult = await unitOfWork.AttributesManager.GetAsync(a=>!a.IsDeleted);
+                var InterestAttributeResult = await unitOfWork.AttributesManager.GetAsync(a => !a.IsDeleted);
                 List<LAttribute> InterestAttributeList = InterestAttributeResult.ToList();
                 if (InterestAttributeList != null && InterestAttributeList.Count != 0)
                 {
@@ -687,7 +688,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             ApiResponse<List<Input>> result = new ApiResponse<List<Input>>();
             try
             {
-                var InputsResult = await unitOfWork.LInputManager.GetAsync(a=>a.SectionID==sectionID && !a.IsDeleted);
+                var InputsResult = await unitOfWork.LInputManager.GetAsync(a => a.SectionID == sectionID && !a.IsDeleted);
                 List<Input> InputsList = InputsResult.ToList();
                 if (InputsList != null && InputsList.Count != 0)
                 {
@@ -709,7 +710,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
             }
 
         }
-      
+
         public async Task<ApiResponse<bool>> Create_Input(InputToAdd InputToAdd)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -720,43 +721,45 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
 
                 //if (DuplicateLInterestResult == null)
                 //{
-                    Input InputToCreate = mapper.Map<Input>(InputToAdd); ;
-                    var createInputResult = await unitOfWork.LInputManager.CreateAsync(InputToCreate);
-                    await unitOfWork.SaveChangesAsync();
 
-                    if (createInputResult != null)
-                    {
-                        var errors = 0;
+                Input InputToCreate = mapper.Map<Input>(InputToAdd);
+                InputToCreate.Order = await unitOfWork.LInputManager.MaxOrder() + 1;
+                var createInputResult = await unitOfWork.LInputManager.CreateAsync(InputToCreate);
+                await unitOfWork.SaveChangesAsync();
 
-                        if (InputToAdd.Attributes != null && InputToAdd.Attributes.Count != 0 && 
-                            (InputToAdd.Type == 1 || InputToAdd.Type == 9 || InputToAdd.Type == 11|| InputToAdd.Type == 0))
-                            for (int i = 0; i < InputToAdd.Attributes.Count; i++)
-                            {
-                                var AttrToadd = InputToAdd.Attributes[i];
-                                AttrToadd.IsPredefined = false;
-                                AttrToadd.ParentInputID = InputToCreate.ID;
-                                var AttRes = await Create_Attribute(AttrToadd);
-                                if (!AttRes.Succeeded)
-                                {
-                                    errors++;
-                                    result.Errors.AddRange(AttRes.Errors);
-                                }
-                            }
-                        if (errors == 0)
+                if (createInputResult != null)
+                {
+                    var errors = 0;
+
+                    if (InputToAdd.Attributes != null && InputToAdd.Attributes.Count != 0 &&
+                        (InputToAdd.Type == 1 || InputToAdd.Type == 9 || InputToAdd.Type == 11 || InputToAdd.Type == 0))
+                        for (int i = 0; i < InputToAdd.Attributes.Count; i++)
                         {
-                            result.Succeeded = true;
-                            result.Data = true;
-                            return result;
+                            var AttrToadd = InputToAdd.Attributes[i];
+                            AttrToadd.IsPredefined = false;
+                            AttrToadd.ParentInputID = InputToCreate.ID;
+                            var AttRes = await Create_Attribute(AttrToadd);
+                            if (!AttRes.Succeeded)
+                            {
+                                errors++;
+                                result.Errors.AddRange(AttRes.Errors);
+                            }
                         }
-                        result.Succeeded = false;
-                        return result;
-                    }
-                    else
+                    if (errors == 0)
                     {
-                        result.Errors.Add("Failed to create Input");
-                        result.Succeeded = false;
+                        result.Succeeded = true;
+                        result.Data = true;
                         return result;
                     }
+                    result.Succeeded = false;
+                    return result;
+                }
+                else
+                {
+                    result.Errors.Add("Failed to create Input");
+                    result.Succeeded = false;
+                    return result;
+                }
 
 
                 //}
@@ -785,7 +788,7 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                 //Input DuplicateLInterestResult = LInterestInputResult.FirstOrDefault();
                 var InputResult = await unitOfWork.LInputManager.GetByIdAsync(InputToEdit.ID);
 
-                if ( InputResult != null)
+                if (InputResult != null)
                 {
                     InputResult.LabelAR = InputToEdit.LabelAR;
                     InputResult.LabelEN = InputToEdit.LabelEN;
@@ -853,6 +856,61 @@ namespace Stack.ServiceLayer.Modules.Hierarchy
                 result.Succeeded = false;
                 return result;
 
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
+        public async Task<ApiResponse<bool>> Reorder_Input(ReorderInputs ReorderInputs)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var InputResult = await unitOfWork.LInputManager.GetByIdAsync(ReorderInputs.FirstInput.ID);
+
+                if (InputResult != null)
+                {
+                    InputResult.Order = ReorderInputs.FirstInput.Order;
+                    var UpdateResult = await unitOfWork.LInputManager.UpdateAsync(InputResult);
+                    var SaveResult = await unitOfWork.SaveChangesAsync();
+                    if (SaveResult)
+                    {
+                        var SecondInputResult = await unitOfWork.LInputManager.GetByIdAsync(ReorderInputs.SecondInput.ID);
+
+                        if (SecondInputResult != null)
+                        {
+                            SecondInputResult.Order = ReorderInputs.SecondInput.Order;
+                            var SecondUpdateResult = await unitOfWork.LInputManager.UpdateAsync(InputResult);
+                            var SecondSaveResult = await unitOfWork.SaveChangesAsync();
+                            if (SaveResult)
+                            {
+                                result.Succeeded = true;
+                                return result;
+                            }
+                            result.Errors.Add("Failed to reorder Input!");
+                            result.Succeeded = false;
+                            return result;
+                        }
+                        result.Errors.Add("Failed to reorder Input!");
+                        result.Succeeded = false;
+                        return result;
+
+                    }
+
+                    result.Errors.Add("Failed to reorder Input!");
+                    result.Succeeded = false;
+                    return result;
+                }
+                result.Errors.Add("Failed to reorder Input!");
+                result.Succeeded = false;
+                return result;
             }
             catch (Exception ex)
             {

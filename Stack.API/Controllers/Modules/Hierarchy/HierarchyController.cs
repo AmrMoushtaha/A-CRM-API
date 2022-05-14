@@ -116,6 +116,12 @@ namespace Stack.API.Controllers.Modules.Auth
         public async Task<IActionResult> DeleteInput(long ID)
         {
             return await GetResponseHandler(async () => await service.Delete_Input(ID));
+        }   
+        
+        [HttpPost]
+        public async Task<IActionResult> ReorderInputs(ReorderInputs model)
+        {
+            return await AddItemResponseHandler(async () => await service.Reorder_Input(model));
         }
         #endregion
 

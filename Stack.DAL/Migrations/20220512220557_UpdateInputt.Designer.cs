@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220512220557_UpdateInputt")]
+    partial class UpdateInputt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1159,9 +1161,6 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("CapacityCalculated")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("ChannelID")
-                        .HasColumnType("int");
-
                     b.Property<long?>("CustomerID")
                         .HasColumnType("bigint");
 
@@ -1189,11 +1188,11 @@ namespace Stack.DAL.Migrations
                     b.Property<bool>("IsLocked")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("LSNID")
-                        .HasColumnType("int");
+                    b.Property<string>("LeadSourceName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LSTID")
-                        .HasColumnType("int");
+                    b.Property<string>("LeadSourceType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Occupation")
                         .HasColumnType("nvarchar(max)");
@@ -1329,9 +1328,6 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("AssignedUserID")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("ChannelID")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -1343,12 +1339,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<int?>("LSNID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("LSTID")
-                        .HasColumnType("int");
 
                     b.Property<string>("LeadSourceName")
                         .HasColumnType("nvarchar(max)");
