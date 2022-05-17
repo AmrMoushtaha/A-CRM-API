@@ -38,6 +38,11 @@ namespace Stack.Entities.Models.Modules.Auth
         public virtual List<Opportunity> Opportunities { get; set; }
         public virtual List<Pool_User> Pools { get; set; }
         public virtual List<PoolConnectionID> ConnectionIDs { get; set; }
+        public virtual List<Contact_Favorite> Contact_Favorites { get; set; }
+        public virtual List<Prospect_Favorite> Prospect_Favorites { get; set; }
+        public virtual List<Lead_Favorite> Lead_Favorites { get; set; }
+        public virtual List<Opportunity_Favorite> Opportunity_Favorites { get; set; }
+        public virtual List<DoneDeal_Favorite> DoneDeal_Favorites { get; set; }
 
         public AuthorizationsModel GetAuthModel()
         {

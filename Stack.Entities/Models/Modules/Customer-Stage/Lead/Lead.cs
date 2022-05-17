@@ -19,6 +19,8 @@ namespace Stack.Entities.Models.Modules.CustomerStage
 
         public string ForceUnlock_JobID { get; set; }
 
+        public virtual List<Lead_Favorite> Favorites { get; set; }
+
 
         [ForeignKey("StatusID")]
         public virtual LeadStatus Status { get; set; }

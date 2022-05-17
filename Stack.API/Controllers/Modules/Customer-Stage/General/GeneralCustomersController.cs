@@ -73,6 +73,20 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.GetAllNotInterestedRecords(customerStage));
         }
 
+        [AllowAnonymous]
+        [HttpPost("SetRecordFavorite")]
+        public async Task<IActionResult> SetRecordFavorite(SetRecordFavoriteModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.SetRecordFavorite(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("GetUserFavorites")]
+        public async Task<IActionResult> GetUserFavorites(GetFavoritesModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetUserFavorites(model));
+        }
+
     }
 
 

@@ -3,7 +3,7 @@ using Stack.Core.Managers.Modules.Activities;
 using Stack.Core.Managers.Modules.area;
 using Stack.Core.Managers.Modules.Auth;
 using Stack.Core.Managers.Modules.Common;
-using Stack.Core.Managers.Modules.CR;
+using Stack.Core.Managers.Modules.CustomerStage;
 using Stack.Core.Managers.Modules.Hierarchy;
 using Stack.Core.Managers.Modules.Interest;
 using Stack.Core.Managers.Modules.Materials;
@@ -526,97 +526,6 @@ namespace Stack.Core
             }
         }
 
-        private CRTypesManager crTypesManager;
-        public CRTypesManager CRTypesManager
-        {
-            get
-            {
-                if (crTypesManager == null)
-                {
-                    crTypesManager = new CRTypesManager(context);
-                }
-                return crTypesManager;
-            }
-        }
-
-        private CustomerRequestsManager customerRequestsManager;
-        public CustomerRequestsManager CustomerRequestsManager
-        {
-            get
-            {
-                if (customerRequestsManager == null)
-                {
-                    customerRequestsManager = new CustomerRequestsManager(context);
-                }
-                return customerRequestsManager;
-            }
-        }
-
-        private CRSectionsManager crSectionsManager;
-        public CRSectionsManager CRSectionsManager
-        {
-            get
-            {
-                if (crSectionsManager == null)
-                {
-                    crSectionsManager = new CRSectionsManager(context);
-                }
-                return crSectionsManager;
-            }
-        }
-
-        private CR_SectionsManager cr_SectionsManager;
-        public CR_SectionsManager CR_SectionsManager
-        {
-            get
-            {
-                if (cr_SectionsManager == null)
-                {
-                    cr_SectionsManager = new CR_SectionsManager(context);
-                }
-                return cr_SectionsManager;
-            }
-        }
-
-        private CRSectionsQuestionsManager crSectionsQuestionsManager;
-        public CRSectionsQuestionsManager CRSectionsQuestionsManager
-        {
-            get
-            {
-                if (crSectionsQuestionsManager == null)
-                {
-                    crSectionsQuestionsManager = new CRSectionsQuestionsManager(context);
-                }
-                return crSectionsQuestionsManager;
-            }
-        }
-
-        private CRSectionQuestionOptionsManager crSectionQuestionOptionsManager;
-        public CRSectionQuestionOptionsManager CRSectionQuestionOptionsManager
-        {
-            get
-            {
-                if (crSectionQuestionOptionsManager == null)
-                {
-                    crSectionQuestionOptionsManager = new CRSectionQuestionOptionsManager(context);
-                }
-                return crSectionQuestionOptionsManager;
-            }
-        }
-
-
-        private CRSectionQuestionAnswersManager crSectionQuestionAnswersManager;
-        public CRSectionQuestionAnswersManager CRSectionQuestionAnswersManager
-        {
-            get
-            {
-                if (crSectionQuestionAnswersManager == null)
-                {
-                    crSectionQuestionAnswersManager = new CRSectionQuestionAnswersManager(context);
-                }
-                return crSectionQuestionAnswersManager;
-            }
-        }
 
         private PoolConnectionIDsManager poolConnectionIDsManager;
         public PoolConnectionIDsManager PoolConnectionIDsManager
@@ -733,6 +642,71 @@ namespace Stack.Core
                     leadSourceTypeManager = new LeadSourceTypeManager(context);
                 }
                 return leadSourceTypeManager;
+            }
+        }
+
+        private ContactFavoriteManager contactFavoriteManager;
+        public ContactFavoriteManager ContactFavoriteManager
+        {
+            get
+            {
+                if (contactFavoriteManager == null)
+                {
+                    contactFavoriteManager = new ContactFavoriteManager(context);
+                }
+                return contactFavoriteManager;
+            }
+        }
+
+        private ProspectFavoriteManager prospectFavoriteManager;
+        public ProspectFavoriteManager ProspectFavoriteManager
+        {
+            get
+            {
+                if (prospectFavoriteManager == null)
+                {
+                    prospectFavoriteManager = new ProspectFavoriteManager(context);
+                }
+                return prospectFavoriteManager;
+            }
+        }
+
+        private LeadFavoriteManager leadFavoriteManager;
+        public LeadFavoriteManager LeadFavoriteManager
+        {
+            get
+            {
+                if (leadFavoriteManager == null)
+                {
+                    leadFavoriteManager = new LeadFavoriteManager(context);
+                }
+                return leadFavoriteManager;
+            }
+        }
+
+        private OpportunityFavoriteManager opportunityFavoriteManager;
+        public OpportunityFavoriteManager OpportunityFavoriteManager
+        {
+            get
+            {
+                if (opportunityFavoriteManager == null)
+                {
+                    opportunityFavoriteManager = new OpportunityFavoriteManager(context);
+                }
+                return opportunityFavoriteManager;
+            }
+        }
+
+        private DoneDealFavoriteManager doneDealFavoriteManager;
+        public DoneDealFavoriteManager DoneDealFavoriteManager
+        {
+            get
+            {
+                if (doneDealFavoriteManager == null)
+                {
+                    doneDealFavoriteManager = new DoneDealFavoriteManager(context);
+                }
+                return doneDealFavoriteManager;
             }
         }
 

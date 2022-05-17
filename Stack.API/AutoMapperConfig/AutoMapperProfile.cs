@@ -78,11 +78,13 @@ namespace Stack.API.AutoMapperConfig
            .ReverseMap();
 
 
-            CreateMap<Prospect, ContactListViewModel>()
-          .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
-          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
-          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+            CreateMap<Contact, ContactListViewModel>()
           .ReverseMap();
+            CreateMap<Prospect, ContactListViewModel>()
+.ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
+.ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
+.ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
+.ReverseMap();
 
             CreateMap<Lead, ContactListViewModel>()
           .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Deal.Customer.FullNameAR))
@@ -101,6 +103,45 @@ namespace Stack.API.AutoMapperConfig
           .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Deal.Customer.FullNameEN))
           .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Deal.Customer.PrimaryPhoneNumber))
           .ReverseMap();
+
+            CreateMap<Contact_Favorite, ContactListViewModel>()
+           .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Contact.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Contact.FullNameEN))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Contact.PrimaryPhoneNumber))
+          .ForMember(dist => dist.ID, opt => opt.MapFrom(t => t.Contact.ID))
+          .ForMember(dist => dist.IsLocked, opt => opt.MapFrom(t => t.Contact.IsLocked))
+           .ReverseMap();
+
+            CreateMap<Prospect_Favorite, ContactListViewModel>()
+           .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Record.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Record.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Record.Deal.Customer.PrimaryPhoneNumber))
+          .ForMember(dist => dist.ID, opt => opt.MapFrom(t => t.Record.ID))
+          .ForMember(dist => dist.IsLocked, opt => opt.MapFrom(t => t.Record.IsLocked))
+           .ReverseMap();
+
+            CreateMap<Lead_Favorite, ContactListViewModel>()
+           .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Record.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Record.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Record.Deal.Customer.PrimaryPhoneNumber))
+          .ForMember(dist => dist.ID, opt => opt.MapFrom(t => t.Record.ID))
+          .ForMember(dist => dist.IsLocked, opt => opt.MapFrom(t => t.Record.IsLocked))
+           .ReverseMap();
+
+            CreateMap<Opportunity_Favorite, ContactListViewModel>()
+           .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Record.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Record.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Record.Deal.Customer.PrimaryPhoneNumber))
+          .ForMember(dist => dist.ID, opt => opt.MapFrom(t => t.Record.ID))
+          .ForMember(dist => dist.IsLocked, opt => opt.MapFrom(t => t.Record.IsLocked))
+           .ReverseMap();
+
+            CreateMap<DoneDeal_Favorite, ContactListViewModel>()
+           .ForMember(dist => dist.FullNameAR, opt => opt.MapFrom(t => t.Record.Deal.Customer.FullNameAR))
+          .ForMember(dist => dist.FullNameEN, opt => opt.MapFrom(t => t.Record.Deal.Customer.FullNameEN))
+          .ForMember(dist => dist.PrimaryPhoneNumber, opt => opt.MapFrom(t => t.Record.Deal.Customer.PrimaryPhoneNumber))
+          .ForMember(dist => dist.ID, opt => opt.MapFrom(t => t.Record.ID))
+           .ReverseMap();
 
             CreateMap<Prospect, ContactViewModel>()
           .ForMember(dist => dist.StatusEN, opt => opt.MapFrom(t => t.Status.EN))

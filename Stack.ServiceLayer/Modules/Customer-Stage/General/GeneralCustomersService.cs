@@ -367,7 +367,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             ApiResponse<RecordCreationResponse> result = new ApiResponse<RecordCreationResponse>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1304,7 +1304,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             ApiResponse<RecordCreationResponse> result = new ApiResponse<RecordCreationResponse>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1314,7 +1314,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     if (user != null)
                     {
                         //Get Designated Pool for assigned user
-                        var poolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == creationModel.PoolID && t.UserID == creationModel.AssigneeID, includeProperties: "Pool");
+                        var poolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == creationModel.PoolID && t.UserID == userID, includeProperties: "Pool");
                         var poolUser = poolQuery.FirstOrDefault();
 
                         if (poolUser != null)
@@ -2232,7 +2232,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                             {
                                 Lead record = new Lead
                                 {
-                                    AssignedUserID = creationModel.AssigneeID,
+                                    AssignedUserID = PoolUser.UserID,
                                     DealID = dealCreationRes.ID,
                                     IsFresh = true,
                                     State = (int)CustomerStageState.Initial,
@@ -2268,7 +2268,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                             {
                                 Prospect record = new Prospect
                                 {
-                                    AssignedUserID = creationModel.AssigneeID,
+                                    AssignedUserID = PoolUser.UserID,
                                     DealID = dealCreationRes.ID,
                                     IsFresh = true,
                                     State = (int)CustomerStageState.Initial,
@@ -2303,7 +2303,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                             {
                                 Opportunity record = new Opportunity
                                 {
-                                    AssignedUserID = creationModel.AssigneeID,
+                                    AssignedUserID = PoolUser.UserID,
                                     DealID = dealCreationRes.ID,
                                     IsFresh = true,
                                     State = (int)CustomerStageState.Initial,
@@ -2338,7 +2338,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                             {
                                 DoneDeal record = new DoneDeal
                                 {
-                                    AssignedUserID = creationModel.AssigneeID,
+                                    AssignedUserID = PoolUser.UserID,
                                     DealID = dealCreationRes.ID,
                                     State = (int)CustomerStageState.Initial,
 
@@ -2413,12 +2413,15 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             }
         }
         #endregion
+
+
+        #region Get Shared Records
         public async Task<ApiResponse<ContactViewModel>> GetCurrentStageRecord(GetPoolRecordsModel model)
         {
             ApiResponse<ContactViewModel> result = new ApiResponse<ContactViewModel>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -2553,7 +2556,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -2667,7 +2670,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -2776,6 +2779,429 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
         }
 
+        #endregion
+
+        #region Favorites
+        public async Task<ApiResponse<List<ContactListViewModel>>> SetRecordFavorite(SetRecordFavoriteModel model)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    if (model.CustomerStage == (int)CustomerStageIndicator.Contact)
+                    {
+
+                        Contact_Favorite favoriteModel = new Contact_Favorite
+                        {
+                            UserID = userID,
+                            ContactID = model.RecordID
+                        };
+
+
+                        var creationRes = await unitOfWork.ContactFavoriteManager.CreateAsync(favoriteModel);
+
+                        if (creationRes != null)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("An error occured while processing your request");
+                            result.Errors.Add("An error occured while processing your request");
+                            return result;
+                        }
+                    }
+                    else if (model.CustomerStage == (int)CustomerStageIndicator.Prospect)
+                    {
+                        Prospect_Favorite favoriteModel = new Prospect_Favorite
+                        {
+                            UserID = userID,
+                            RecordID = model.RecordID
+                        };
+
+
+                        var creationRes = await unitOfWork.ProspectFavoriteManager.CreateAsync(favoriteModel);
+
+                        if (creationRes != null)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("An error occured while processing your request");
+                            result.Errors.Add("An error occured while processing your request");
+                            return result;
+                        }
+
+                    }
+                    else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
+                    {
+                        Lead_Favorite favoriteModel = new Lead_Favorite
+                        {
+                            UserID = userID,
+                            RecordID = model.RecordID
+                        };
+
+
+                        var creationRes = await unitOfWork.LeadFavoriteManager.CreateAsync(favoriteModel);
+
+                        if (creationRes != null)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("An error occured while processing your request");
+                            result.Errors.Add("An error occured while processing your request");
+                            return result;
+                        }
+
+                    }
+                    else if (model.CustomerStage == (int)CustomerStageIndicator.Opportunity)
+                    {
+                        Opportunity_Favorite favoriteModel = new Opportunity_Favorite
+                        {
+                            UserID = userID,
+                            RecordID = model.RecordID
+                        };
+
+
+                        var creationRes = await unitOfWork.OpportunityFavoriteManager.CreateAsync(favoriteModel);
+
+                        if (creationRes != null)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("An error occured while processing your request");
+                            result.Errors.Add("An error occured while processing your request");
+                            return result;
+                        }
+                    }
+                    else if (model.CustomerStage == (int)CustomerStageIndicator.DoneDeal)
+                    {
+                        DoneDeal_Favorite favoriteModel = new DoneDeal_Favorite
+                        {
+                            UserID = userID,
+                            RecordID = model.RecordID
+                        };
+
+
+                        var creationRes = await unitOfWork.DoneDealFavoriteManager.CreateAsync(favoriteModel);
+
+                        if (creationRes != null)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("An error occured while processing your request");
+                            result.Errors.Add("An error occured while processing your request");
+                            return result;
+                        }
+
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Invalid Stage");
+                        result.Errors.Add("Invalid Stage");
+                        return result;
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetUserFavorites(GetFavoritesModel model)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    if (model.PoolID != null)
+                    {
+                        if (model.CustomerStage == (int)CustomerStageIndicator.Contact)
+                        {
+                            var favoritesQ = await unitOfWork.ContactFavoriteManager.GetAsync(t => t.UserID == userID && t.Contact.PoolID == model.PoolID && t.Contact.State == (int)CustomerStageState.Unassigned, includeProperties:"Contact");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Prospect)
+                        {
+                            var favoritesQ = await unitOfWork.ProspectFavoriteManager.GetAsync(t => t.UserID == userID && t.Record.PoolID == model.PoolID
+                            && t.Record.State == (int)CustomerStageState.Unassigned, includeProperties: "Record,Record.Deal,Record.Deal.Customer");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
+                        {
+                            var favoritesQ = await unitOfWork.LeadFavoriteManager.GetAsync(t => t.UserID == userID && t.Record.Deal.Customer.PoolID == model.PoolID
+                            && t.Record.State == (int)CustomerStageState.Unassigned, includeProperties: "Record,Record.Deal,Record.Deal.Customer");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            var favoritesQ = await unitOfWork.OpportunityFavoriteManager.GetAsync(t => t.UserID == userID && t.Record.Deal.Customer.PoolID == model.PoolID
+                            && t.Record.State == (int)CustomerStageState.Unassigned, includeProperties: "Record,Record.Deal,Record.Deal.Customer");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.DoneDeal)
+                        {
+                            var favoritesQ = await unitOfWork.DoneDealFavoriteManager.GetAsync(t => t.UserID == userID && t.Record.Deal.Customer.PoolID == model.PoolID
+                            && t.Record.State == (int)CustomerStageState.Unassigned, includeProperties: "Record,Record.Deal,Record.Deal.Customer");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Invalid Stage");
+                            result.Errors.Add("Invalid Stage");
+                            return result;
+                        }
+
+                    }
+                    //Get User Assigned Favorites
+                    else
+                    {
+                        if (model.CustomerStage == (int)CustomerStageIndicator.Contact)
+                        {
+
+                            var favoritesQ = await unitOfWork.ContactFavoriteManager.GetAsync(t => t.UserID == userID && t.Contact.AssignedUserID == userID && t.Contact.State == (int)CustomerStageState.Initial, includeProperties: "Contact");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Prospect)
+                        {
+                            var favoritesQ = await unitOfWork.ProspectFavoriteManager.GetAsync(t => t.UserID == userID && t.Record.AssignedUserID == userID && t.Record.State == (int)CustomerStageState.Initial, includeProperties: "Record,Record.Deal,Record.Deal.Customer");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
+                        {
+                            var favoritesQ = await unitOfWork.LeadFavoriteManager.GetAsync(t => t.UserID == userID && t.Record.AssignedUserID == userID && t.Record.State == (int)CustomerStageState.Initial, includeProperties: "Record,Record.Deal,Record.Deal.Customer");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            var favoritesQ = await unitOfWork.ProspectFavoriteManager.GetAsync(t => t.UserID == userID && t.Record.AssignedUserID == userID && t.Record.State == (int)CustomerStageState.Initial, includeProperties: "Record,Record.Deal,Record.Deal.Customer");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.DoneDeal)
+                        {
+                            var favoritesQ = await unitOfWork.ProspectFavoriteManager.GetAsync(t => t.UserID == userID && t.Record.AssignedUserID == userID && t.Record.State == (int)CustomerStageState.Initial, includeProperties: "Record,Record.Deal,Record.Deal.Customer");
+                            var favorites = favoritesQ.ToList();
+
+                            if (favorites != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(favorites);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No favorites found");
+                                result.Errors.Add("No favorites found");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Invalid Stage");
+                            result.Errors.Add("Invalid Stage");
+                            return result;
+                        }
+
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+        #endregion
     }
 
 }

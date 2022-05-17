@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220515161608_record-favorites")]
+    partial class recordfavorites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -857,6 +859,290 @@ namespace Stack.DAL.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("SystemConfiguration");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSection", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("HasDecisionalQuestions")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameAR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameEN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("RequestTypeID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TypeID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("RequestTypeID");
+
+                    b.ToTable("CRSections");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestion", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("DescriptionAR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionEN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDecisional")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SectionID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("isRequired")
+                        .HasColumnType("bit");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("SectionID");
+
+                    b.ToTable("CRSectionQuestions");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestionAnswer", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long?>("CR_SectionID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("QuestionID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("RequestSectionID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("CR_SectionID");
+
+                    b.HasIndex("QuestionID");
+
+                    b.HasIndex("RequestSectionID");
+
+                    b.ToTable("CRSectionQuestionAnswers");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestionOption", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("QuestionID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RoutesTo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ValueAR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ValueEN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("QuestionID");
+
+                    b.ToTable("CRSectionQuestionOptions");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSelectedOption", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long?>("SectionQuestionAnswerID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("SectionQuestionOptionID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("SectionQuestionAnswerID")
+                        .IsUnique()
+                        .HasFilter("[SectionQuestionAnswerID] IS NOT NULL");
+
+                    b.HasIndex("SectionQuestionOptionID");
+
+                    b.ToTable("CRSelectedOptions");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSubmissionDetails", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long?>("CRTypeID")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsStatusChanged")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("RequestID")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("SubmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("CRTypeID");
+
+                    b.HasIndex("RequestID")
+                        .IsUnique();
+
+                    b.ToTable("CRSubmissionDetails");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRType", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameAR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameEN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("CRTypes");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CR_Section", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsSubmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<long>("RequestID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SectionID")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("RequestID");
+
+                    b.HasIndex("SectionID");
+
+                    b.ToTable("CR_Sections");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CustomerRequest", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSubmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("ProcessFlowID")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("SubtmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("TypeID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("TypeID");
+
+                    b.ToTable("CustomerRequests");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerStage.Contact", b =>
@@ -2031,6 +2317,94 @@ namespace Stack.DAL.Migrations
                     b.HasOne("Stack.Entities.Models.Modules.Auth.ApplicationUser", "User")
                         .WithMany("ConnectionIDs")
                         .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSection", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRType", "RequestType")
+                        .WithMany("Sections")
+                        .HasForeignKey("RequestTypeID");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestion", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRSection", "Section")
+                        .WithMany("Questions")
+                        .HasForeignKey("SectionID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestionAnswer", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CR_Section", null)
+                        .WithMany("QuestionAnswers")
+                        .HasForeignKey("CR_SectionID");
+
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestion", "Question")
+                        .WithMany("QuestionAnswers")
+                        .HasForeignKey("QuestionID");
+
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRSection", "RequestSection")
+                        .WithMany()
+                        .HasForeignKey("RequestSectionID");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestionOption", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestion", "Question")
+                        .WithMany("QuestionOptions")
+                        .HasForeignKey("QuestionID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSelectedOption", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestionAnswer", "SectionQuestionAnswer")
+                        .WithOne("SelectedOption")
+                        .HasForeignKey("Stack.Entities.Models.Modules.CustomerRequest.CRSelectedOption", "SectionQuestionAnswerID");
+
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRSectionQuestionOption", "SectionQuestionOption")
+                        .WithMany("SelectedOptions")
+                        .HasForeignKey("SectionQuestionOptionID");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CRSubmissionDetails", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRType", null)
+                        .WithMany("SubmissionDetails")
+                        .HasForeignKey("CRTypeID");
+
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CustomerRequest", "CustomerRequest")
+                        .WithOne("SubmissionDetails")
+                        .HasForeignKey("Stack.Entities.Models.Modules.CustomerRequest.CRSubmissionDetails", "RequestID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CR_Section", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CustomerRequest", "CustomerRequest")
+                        .WithMany("RequestSections")
+                        .HasForeignKey("RequestID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRSection", "Section")
+                        .WithMany("RequestSections")
+                        .HasForeignKey("SectionID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CustomerRequest.CustomerRequest", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CustomerRequest.CRType", "RequestType")
+                        .WithMany("Requests")
+                        .HasForeignKey("TypeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

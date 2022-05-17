@@ -141,7 +141,7 @@ namespace Stack.API.Controllers.Modules.Pool
         {
             return await AddItemResponseHandler(async () => await service.SuspendPoolUsers(model));
         }
-        
+
         [AllowAnonymous]
         [HttpPost("UnSuspendPoolUsers")]
         public async Task<IActionResult> UnSuspendPoolUsers(PoolAssignmentModel model)
@@ -176,7 +176,6 @@ namespace Stack.API.Controllers.Modules.Pool
         {
             return await AddItemResponseHandler(async () => await service.LockRecord(model));
         }
-
 
         [AllowAnonymous]
         [HttpPost("RequestTransfer")]
@@ -213,8 +212,11 @@ namespace Stack.API.Controllers.Modules.Pool
             return await GetResponseHandler(async () => await service.RejectRequest(requestID));
         }
 
+        [AllowAnonymous]
+        [HttpPost("FilterPoolRecords")]
+        public async Task<IActionResult> FilterPoolRecords(FilterPoolRecordsModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.FilterPoolRecords(model));
+        }
     }
-
-
-
 }

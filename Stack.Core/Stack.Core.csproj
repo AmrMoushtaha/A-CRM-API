@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Stack.Repository\Stack.Repository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Managers\Modules\CustomerRequests\" />
+  </ItemGroup>
+
 </Project>

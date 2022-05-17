@@ -35,6 +35,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public virtual List<ContactPhoneNumber> PhoneNumbers { get; set; }
         public virtual List<ContactComment> Comments { get; set; }
         public virtual List<Contact_Tag> Tags { get; set; }
+        public virtual List<Contact_Favorite> Favorites { get; set; }
 
         [ForeignKey("StatusID")]
         public virtual ContactStatus Status { get; set; }

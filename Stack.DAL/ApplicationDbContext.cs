@@ -6,7 +6,6 @@ using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.Channel;
 using Stack.Entities.Models.Modules.Channels;
 using Stack.Entities.Models.Modules.Common;
-using Stack.Entities.Models.Modules.CustomerRequest;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Hierarchy;
 using Stack.Entities.Models.Modules.Interest;
@@ -115,21 +114,6 @@ namespace Stack.DAL
             modelBuilder.Entity<ProcessFlow>()
             .Property<bool>("IsDeleted");
 
-            modelBuilder.Entity<CustomerRequest>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<CRType>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<CRSection>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<CRSectionQuestion>()
-            .Property<bool>("IsDeleted");
-
-            modelBuilder.Entity<CRSectionQuestionOption>()
-            .Property<bool>("IsDeleted");
-
             modelBuilder.Entity<Tag>()
             .Property<bool>("IsDeleted");
 
@@ -220,24 +204,6 @@ namespace Stack.DAL
             modelBuilder.Entity<ProcessFlow>()
              .HasQueryFilter(ProcessFlow => EF.Property<bool>(ProcessFlow, "IsDeleted") == false);
 
-            modelBuilder.Entity<CustomerRequest>()
-              .HasQueryFilter(CustomerRequest => EF.Property<bool>(CustomerRequest, "IsDeleted") == false);
-
-            modelBuilder.Entity<CRType>()
-              .HasQueryFilter(CRType => EF.Property<bool>(CRType, "IsDeleted") == false);
-
-            modelBuilder.Entity<CRSection>()
-             .HasQueryFilter(CRSection => EF.Property<bool>(CRSection, "IsDeleted") == false);
-
-            modelBuilder.Entity<CRSectionQuestion>()
-             .HasQueryFilter(CRSectionQuestion => EF.Property<bool>(CRSectionQuestion, "IsDeleted") == false);
-
-            modelBuilder.Entity<CRSectionQuestionAnswer>()
-             .HasQueryFilter(CRSectionQuestionAnswer => EF.Property<bool>(CRSectionQuestionAnswer, "IsDeleted") == false);
-
-            modelBuilder.Entity<CRSectionQuestionOption>()
-             .HasQueryFilter(CRSectionQuestionOption => EF.Property<bool>(CRSectionQuestionOption, "IsDeleted") == false);
-
 
             modelBuilder.Entity<Tag>()
              .HasQueryFilter(Tag => EF.Property<bool>(Tag, "IsDeleted") == false);
@@ -297,6 +263,55 @@ namespace Stack.DAL
             .WithMany(p => p.CustomerTags)
             .HasForeignKey(pr => pr.TagID).OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<Contact_Favorite>().HasKey(x => new { x.ContactID, x.UserID });
+            modelBuilder.Entity<Contact_Favorite>()
+            .HasOne(pr => pr.Contact)
+            .WithMany(p => p.Favorites)
+            .HasForeignKey(pr => pr.ContactID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Contact_Favorite>()
+            .HasOne(pr => pr.User)
+            .WithMany(p => p.Contact_Favorites)
+            .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Prospect_Favorite>().HasKey(x => new { x.RecordID, x.UserID });
+            modelBuilder.Entity<Prospect_Favorite>()
+            .HasOne(pr => pr.Record)
+            .WithMany(p => p.Favorites)
+            .HasForeignKey(pr => pr.RecordID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Prospect_Favorite>()
+            .HasOne(pr => pr.User)
+            .WithMany(p => p.Prospect_Favorites)
+            .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Lead_Favorite>().HasKey(x => new { x.RecordID, x.UserID });
+            modelBuilder.Entity<Lead_Favorite>()
+            .HasOne(pr => pr.Record)
+            .WithMany(p => p.Favorites)
+            .HasForeignKey(pr => pr.RecordID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Lead_Favorite>()
+            .HasOne(pr => pr.User)
+            .WithMany(p => p.Lead_Favorites)
+            .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Opportunity_Favorite>().HasKey(x => new { x.RecordID, x.UserID });
+            modelBuilder.Entity<Opportunity_Favorite>()
+            .HasOne(pr => pr.Record)
+            .WithMany(p => p.Favorites)
+            .HasForeignKey(pr => pr.RecordID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Opportunity_Favorite>()
+            .HasOne(pr => pr.User)
+            .WithMany(p => p.Opportunity_Favorites)
+            .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DoneDeal_Favorite>().HasKey(x => new { x.RecordID, x.UserID });
+            modelBuilder.Entity<DoneDeal_Favorite>()
+            .HasOne(pr => pr.Record)
+            .WithMany(p => p.Favorites)
+            .HasForeignKey(pr => pr.RecordID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<DoneDeal_Favorite>()
+            .HasOne(pr => pr.User)
+            .WithMany(p => p.DoneDeal_Favorites)
+            .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<ActivitySection>()
             .HasOne(pr => pr.Activity)
@@ -316,16 +331,6 @@ namespace Stack.DAL
             .WithMany(p => p.QuestionAnswers)
             .HasForeignKey(pr => pr.QuestionID).OnDelete(DeleteBehavior.SetNull);
 
-
-
-            modelBuilder.Entity<CR_Section>()
-            .HasOne(pr => pr.CustomerRequest)
-            .WithMany(p => p.RequestSections)
-            .HasForeignKey(pr => pr.RequestID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<CR_Section>()
-            .HasOne(pr => pr.Section)
-            .WithMany(p => p.RequestSections)
-            .HasForeignKey(pr => pr.SectionID).OnDelete(DeleteBehavior.NoAction);
 
 
 
@@ -371,15 +376,6 @@ namespace Stack.DAL
         public virtual DbSet<SectionQuestionAnswer> SectionQuestionAnswers { get; set; }
         public virtual DbSet<SectionQuestionOption> SectionQuestionOptions { get; set; }
         public virtual DbSet<SelectedOption> SelectedOptions { get; set; }
-        public virtual DbSet<CustomerRequest> CustomerRequests { get; set; }
-        public virtual DbSet<CR_Section> CR_Sections { get; set; }
-        public virtual DbSet<CRSubmissionDetails> CRSubmissionDetails { get; set; }
-        public virtual DbSet<CRType> CRTypes { get; set; }
-        public virtual DbSet<CRSection> CRSections { get; set; }
-        public virtual DbSet<CRSectionQuestion> CRSectionQuestions { get; set; }
-        public virtual DbSet<CRSectionQuestionAnswer> CRSectionQuestionAnswers { get; set; }
-        public virtual DbSet<CRSectionQuestionOption> CRSectionQuestionOptions { get; set; }
-        public virtual DbSet<CRSelectedOption> CRSelectedOptions { get; set; }
         public virtual DbSet<ProcessFlow> ProcessFlows { get; set; }
         public virtual DbSet<Location_Pool> Location_Pools { get; set; }
         public virtual DbSet<Location> Locations { get; set; }
@@ -395,6 +391,12 @@ namespace Stack.DAL
         public virtual DbSet<LeadSourceName> LeadSourceNames { get; set; }
         public virtual DbSet<LeadSourceType> LeadSourceTypes { get; set; }
         public virtual DbSet<LAttribute> LAttributes { get; set; }
+        //Favorites
+        public virtual DbSet<Contact_Favorite> Contact_Favorites { get; set; }
+        public virtual DbSet<Prospect_Favorite> Prospect_Favorites { get; set; }
+        public virtual DbSet<Lead_Favorite> Lead_Favorites { get; set; }
+        public virtual DbSet<Opportunity_Favorite> Opportunity_Favorites { get; set; }
+        public virtual DbSet<DoneDeal_Favorite> DoneDeal_Favorites { get; set; }
 
     }
 

@@ -60,7 +60,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -262,7 +262,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -584,7 +584,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             ApiResponse<BulkAssignmentResponse> result = new ApiResponse<BulkAssignmentResponse>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1175,7 +1175,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             ApiResponse<CommentReponseModel> result = new ApiResponse<CommentReponseModel>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1365,7 +1365,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
         //    ApiResponse<BulkAssignmentResponse> result = new ApiResponse<BulkAssignmentResponse>();
         //    try
         //    {
-        //        var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //        var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
         //        if (userID != null)
         //        {
@@ -2438,7 +2438,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
         //    ApiResponse<bool> result = new ApiResponse<bool>();
         //    try
         //    {
-        //        var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //        var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
         //        if (userID != null)
         //        {

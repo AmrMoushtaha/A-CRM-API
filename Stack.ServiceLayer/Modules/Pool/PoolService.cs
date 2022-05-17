@@ -58,14 +58,9 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                //var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-
-                var applicationUser = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
-
                 //var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
-                var userID = applicationUser.Id;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -189,7 +184,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -411,7 +406,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -498,7 +493,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -574,7 +569,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -650,7 +645,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -725,7 +720,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<List<PoolSidebarViewModel>> result = new ApiResponse<List<PoolSidebarViewModel>>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -952,7 +947,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<PoolSidebarViewModel> result = new ApiResponse<PoolSidebarViewModel>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1098,7 +1093,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1157,7 +1152,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1287,7 +1282,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1402,7 +1397,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1466,7 +1461,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1711,7 +1706,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -1759,7 +1754,7 @@ namespace Stack.ServiceLayer.Modules.pool
             ApiResponse<bool> result = new ApiResponse<bool>();
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -2348,7 +2343,7 @@ namespace Stack.ServiceLayer.Modules.pool
             try
             {
                 //Get user pools
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -2422,7 +2417,7 @@ namespace Stack.ServiceLayer.Modules.pool
 
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -2480,7 +2475,7 @@ namespace Stack.ServiceLayer.Modules.pool
 
             try
             {
-                var userID = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
@@ -3105,6 +3100,288 @@ namespace Stack.ServiceLayer.Modules.pool
             }
         }
 
+        #endregion
+
+
+        #region Pool Records Filter
+        public async Task<ApiResponse<List<ContactListViewModel>>> FilterPoolRecords(FilterPoolRecordsModel model)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    if (model.PoolID != null)
+                    {
+                        if (model.CustomerStage == (int)CustomerStageIndicator.Contact)
+                        {
+                            var recordQuery = await unitOfWork.ContactManager.GetAsync(t => t.PoolID == model.PoolID && t.State == (int)CustomerStageState.Unassigned
+                            && (t.Address.Contains(model.Address) || t.Email.Contains(model.Email) || t.FullNameEN.Contains(model.FullNameEN) || t.FullNameAR.Contains(model.FullNameAR)
+                            || t.Occupation.Contains(model.Occupation) || t.ChannelID == model.ChannelID || t.LSTID == model.LSTID || t.LSNID == model.LSNID));
+
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Prospect)
+                        {
+                            var recordQuery = await unitOfWork.ProspectManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.State == (int)CustomerStageState.Unassigned
+                            && (t.Deal.Customer.Address.Contains(model.Address) || t.Deal.Customer.Email.Contains(model.Email) || t.Deal.Customer.FullNameEN.Contains(model.FullNameEN)
+                            || t.Deal.Customer.FullNameAR.Contains(model.FullNameAR) || t.Deal.Customer.Occupation.Contains(model.Occupation) || t.Deal.Customer.ChannelID == model.ChannelID
+                            || t.Deal.Customer.LSTID == model.LSTID || t.Deal.Customer.LSNID == model.LSNID));
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
+                        {
+                            var recordQuery = await unitOfWork.LeadManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.State == (int)CustomerStageState.Unassigned
+                            && (t.Deal.Customer.Address.Contains(model.Address) || t.Deal.Customer.Email.Contains(model.Email) || t.Deal.Customer.FullNameEN.Contains(model.FullNameEN)
+                            || t.Deal.Customer.FullNameAR.Contains(model.FullNameAR) || t.Deal.Customer.Occupation.Contains(model.Occupation) || t.Deal.Customer.ChannelID == model.ChannelID
+                            || t.Deal.Customer.LSTID == model.LSTID || t.Deal.Customer.LSNID == model.LSNID));
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            var recordQuery = await unitOfWork.OpportunityManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.State == (int)CustomerStageState.Unassigned
+                            && (t.Deal.Customer.Address.Contains(model.Address) || t.Deal.Customer.Email.Contains(model.Email) || t.Deal.Customer.FullNameEN.Contains(model.FullNameEN)
+                            || t.Deal.Customer.FullNameAR.Contains(model.FullNameAR) || t.Deal.Customer.Occupation.Contains(model.Occupation) || t.Deal.Customer.ChannelID == model.ChannelID
+                            || t.Deal.Customer.LSTID == model.LSTID || t.Deal.Customer.LSNID == model.LSNID));
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.DoneDeal)
+                        {
+                            var recordQuery = await unitOfWork.DoneDealManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID && t.State == (int)CustomerStageState.Unassigned
+                            && (t.Deal.Customer.Address.Contains(model.Address) || t.Deal.Customer.Email.Contains(model.Email) || t.Deal.Customer.FullNameEN.Contains(model.FullNameEN)
+                            || t.Deal.Customer.FullNameAR.Contains(model.FullNameAR) || t.Deal.Customer.Occupation.Contains(model.Occupation) || t.Deal.Customer.ChannelID == model.ChannelID
+                            || t.Deal.Customer.LSTID == model.LSTID || t.Deal.Customer.LSNID == model.LSNID));
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Invalid Stage");
+                            result.Errors.Add("Invalid Stage");
+                            return result;
+                        }
+                    }
+                    //Filter user assigned records
+                    else
+                    {
+                        if (model.CustomerStage == (int)CustomerStageIndicator.Contact)
+                        {
+                            var recordQuery = await unitOfWork.ContactManager.GetAsync(t => t.AssignedUserID == userID && t.State == (int)CustomerStageState.Initial
+                            && (t.Address.Contains(model.Address) || t.Email.Contains(model.Email) || t.FullNameEN.Contains(model.FullNameEN) || t.FullNameAR.Contains(model.FullNameAR)
+                            || t.Occupation.Contains(model.Occupation) || t.ChannelID == model.ChannelID || t.LSTID == model.LSTID || t.LSNID == model.LSNID));
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+
+
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Prospect)
+                        {
+                            var recordQuery = await unitOfWork.ProspectManager.GetAsync(t => t.AssignedUserID == userID && t.State == (int)CustomerStageState.Initial
+                            && (t.Deal.Customer.Address.Contains(model.Address) || t.Deal.Customer.Email.Contains(model.Email) || t.Deal.Customer.FullNameEN.Contains(model.FullNameEN)
+                            || t.Deal.Customer.FullNameAR.Contains(model.FullNameAR) || t.Deal.Customer.Occupation.Contains(model.Occupation) || t.Deal.Customer.ChannelID == model.ChannelID
+                            || t.Deal.Customer.LSTID == model.LSTID || t.Deal.Customer.LSNID == model.LSNID));
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+
+
+
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
+                        {
+                            var recordQuery = await unitOfWork.LeadManager.GetAsync(t => t.AssignedUserID == userID && t.State == (int)CustomerStageState.Initial
+                            && (t.Deal.Customer.Address.Contains(model.Address) || t.Deal.Customer.Email.Contains(model.Email) || t.Deal.Customer.FullNameEN.Contains(model.FullNameEN)
+                            || t.Deal.Customer.FullNameAR.Contains(model.FullNameAR) || t.Deal.Customer.Occupation.Contains(model.Occupation) || t.Deal.Customer.ChannelID == model.ChannelID
+                            || t.Deal.Customer.LSTID == model.LSTID || t.Deal.Customer.LSNID == model.LSNID));
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+
+
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            var recordQuery = await unitOfWork.OpportunityManager.GetAsync(t => t.AssignedUserID == userID && t.State == (int)CustomerStageState.Initial
+                            && (t.Deal.Customer.Address.Contains(model.Address) || t.Deal.Customer.Email.Contains(model.Email) || t.Deal.Customer.FullNameEN.Contains(model.FullNameEN)
+                            || t.Deal.Customer.FullNameAR.Contains(model.FullNameAR) || t.Deal.Customer.Occupation.Contains(model.Occupation) || t.Deal.Customer.ChannelID == model.ChannelID
+                            || t.Deal.Customer.LSTID == model.LSTID || t.Deal.Customer.LSNID == model.LSNID));
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.DoneDeal)
+                        {
+                            var recordQuery = await unitOfWork.DoneDealManager.GetAsync(t => t.AssignedUserID == userID && t.State == (int)CustomerStageState.Initial
+                            && (t.Deal.Customer.Address.Contains(model.Address) || t.Deal.Customer.Email.Contains(model.Email) || t.Deal.Customer.FullNameEN.Contains(model.FullNameEN)
+                            || t.Deal.Customer.FullNameAR.Contains(model.FullNameAR) || t.Deal.Customer.Occupation.Contains(model.Occupation) || t.Deal.Customer.ChannelID == model.ChannelID
+                            || t.Deal.Customer.LSTID == model.LSTID || t.Deal.Customer.LSNID == model.LSNID));
+                            var records = recordQuery.ToList();
+
+                            if (records != null)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Invalid Stage");
+                            result.Errors.Add("Invalid Stage");
+                            return result;
+                        }
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
         #endregion
 
 
