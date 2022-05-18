@@ -45,11 +45,11 @@ namespace Stack.DAL
         {
 
         }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
             base.OnModelCreating(modelBuilder);
+            //modelBuilder.SeedInitializer();
 
             modelBuilder.Entity<Contact>()
             .Property<bool>("IsDeleted");

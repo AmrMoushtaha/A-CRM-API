@@ -64,6 +64,33 @@ namespace Stack.ServiceLayer.Modules.Interest
             }
 
         }
+        public async Task<ApiResponse<LInterest>> Get_InterestByID(long ID)
+        {
+            ApiResponse<LInterest> result = new ApiResponse<LInterest>();
+            try
+            {
+                var LevelResult = await unitOfWork.LInterestManager.GetAsync(a => a.ID == ID, includeProperties: "LInterestInput");
+                LInterest LevelList = LevelResult.FirstOrDefault();
+                if (LevelList != null )
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<LInterest>(LevelList);
+                    return result;
+                }
+
+                result.Errors.Add("Failed to find interests!");
+                result.Succeeded = false;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
 
         public async Task<ApiResponse<List<LInterest>>> Get_InterestByParentID(long ParentID)
         {
