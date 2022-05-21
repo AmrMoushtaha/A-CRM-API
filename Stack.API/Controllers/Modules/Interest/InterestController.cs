@@ -26,6 +26,12 @@ namespace Stack.API.Controllers.Modules.Auth
         public async Task<IActionResult> GetInterestByLevel(int level)
         {
             return await AddItemResponseHandler(async () => await service.Get_InterestByLevel(level));
+        }   
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetInterestByID(int id)
+        {
+            return await AddItemResponseHandler(async () => await service.Get_InterestByID(id));
         }
 
        
