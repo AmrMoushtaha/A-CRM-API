@@ -6,6 +6,7 @@ using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.Channel;
 using Stack.Entities.Models.Modules.Channels;
 using Stack.Entities.Models.Modules.Common;
+using Stack.Entities.Models.Modules.CR;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Hierarchy;
 using Stack.Entities.Models.Modules.Interest;
@@ -218,6 +219,15 @@ namespace Stack.DAL
              .HasQueryFilter(LeadSourceType => EF.Property<bool>(LeadSourceType, "IsDeleted") == false);
 
 
+            modelBuilder.Entity<Deal>()
+               .HasOne(a => a.Customer)
+               .WithMany(au => au.Deals)
+               .HasForeignKey(a => a.CustomerID);
+
+            modelBuilder.Entity<Prospect>()
+               .HasOne(a => a.Deal)
+               .WithMany(au => au.Prospects)
+               .HasForeignKey(a => a.DealID);
 
             modelBuilder.Entity<Location_Pool>().HasKey(x => new { x.LocationID, x.PoolID });
             modelBuilder.Entity<Location_Pool>()
@@ -332,17 +342,16 @@ namespace Stack.DAL
             .HasForeignKey(pr => pr.QuestionID).OnDelete(DeleteBehavior.SetNull);
 
 
+            modelBuilder.Entity<CRTimeline_Phase>().HasKey(x => new { x.PhaseID, x.TimelineID });
+            modelBuilder.Entity<CRTimeline_Phase>()
+            .HasOne(pr => pr.Timeline)
+            .WithMany(p => p.Phases)
+            .HasForeignKey(pr => pr.TimelineID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<CRTimeline_Phase>()
+            .HasOne(pr => pr.Phase)
+            .WithMany(p => p.Timelines)
+            .HasForeignKey(pr => pr.PhaseID).OnDelete(DeleteBehavior.NoAction);
 
-
-            modelBuilder.Entity<Deal>()
-               .HasOne(a => a.Customer)
-               .WithMany(au => au.Deals)
-               .HasForeignKey(a => a.CustomerID);
-
-            modelBuilder.Entity<Prospect>()
-               .HasOne(a => a.Deal)
-               .WithMany(au => au.Prospects)
-               .HasForeignKey(a => a.DealID);
         }
 
 
@@ -397,6 +406,17 @@ namespace Stack.DAL
         public virtual DbSet<Lead_Favorite> Lead_Favorites { get; set; }
         public virtual DbSet<Opportunity_Favorite> Opportunity_Favorites { get; set; }
         public virtual DbSet<DoneDeal_Favorite> DoneDeal_Favorites { get; set; }
+        //Customer Request
+        public virtual DbSet<CRPhase> CRPhases { get; set; }
+        public virtual DbSet<CRPhaseInput> CRPhaseInputs { get; set; }
+        public virtual DbSet<CRPhaseInputOption> CRPhaseInputOptions { get; set; }
+        public virtual DbSet<CRPhaseTimeline> CRPhaseTimelines { get; set; }
+        public virtual DbSet<CRTimeline_Phase> CRTimeline_Phases { get; set; }
+        public virtual DbSet<CustomerRequest> CustomerRequests { get; set; }
+        public virtual DbSet<CustomerRequestInput> CustomerRequestInputs { get; set; }
+        public virtual DbSet<CustomerRequestInputOption> CustomerRequestInputOptions { get; set; }
+        public virtual DbSet<CustomerRequestType> CustomerRequestTypes { get; set; }
+
 
     }
 

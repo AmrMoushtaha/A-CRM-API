@@ -3,6 +3,7 @@ using Stack.Core.Managers.Modules.Activities;
 using Stack.Core.Managers.Modules.area;
 using Stack.Core.Managers.Modules.Auth;
 using Stack.Core.Managers.Modules.Common;
+using Stack.Core.Managers.Modules.CR;
 using Stack.Core.Managers.Modules.CustomerStage;
 using Stack.Core.Managers.Modules.Hierarchy;
 using Stack.Core.Managers.Modules.Interest;
@@ -709,6 +710,127 @@ namespace Stack.Core
                 return doneDealFavoriteManager;
             }
         }
+
+
+        private CustomerRequestTypeManager customerRequestTypeManager;
+        public CustomerRequestTypeManager CustomerRequestTypeManager
+        {
+            get
+            {
+                if (customerRequestTypeManager == null)
+                {
+                    customerRequestTypeManager = new CustomerRequestTypeManager(context);
+                }
+                return customerRequestTypeManager;
+            }
+        }
+
+        private CustomerRequestManager customerRequestManager;
+        public CustomerRequestManager CustomerRequestManager
+        {
+            get
+            {
+                if (customerRequestManager == null)
+                {
+                    customerRequestManager = new CustomerRequestManager(context);
+                }
+                return customerRequestManager;
+            }
+        }
+
+        private CustomerRequestInputManager customerRequestInputManager;
+        public CustomerRequestInputManager CustomerRequestInputManager
+        {
+            get
+            {
+                if (customerRequestInputManager == null)
+                {
+                    customerRequestInputManager = new CustomerRequestInputManager(context);
+                }
+                return customerRequestInputManager;
+            }
+        }
+
+        private CustomerRequestInputOptionManager customerRequestInputOptionManager;
+        public CustomerRequestInputOptionManager CustomerRequestInputOptionManager
+        {
+            get
+            {
+                if (customerRequestInputOptionManager == null)
+                {
+                    customerRequestInputOptionManager = new CustomerRequestInputOptionManager(context);
+                }
+                return customerRequestInputOptionManager;
+            }
+        }
+
+        private CRPhaseManager crPhaseManager;
+        public CRPhaseManager CRPhaseManager
+        {
+            get
+            {
+                if (crPhaseManager == null)
+                {
+                    crPhaseManager = new CRPhaseManager(context);
+                }
+                return crPhaseManager;
+            }
+        }
+
+        private CRPhaseInputManager crPhaseInputManager;
+        public CRPhaseInputManager CRPhaseInputManager
+        {
+            get
+            {
+                if (crPhaseInputManager == null)
+                {
+                    crPhaseInputManager = new CRPhaseInputManager(context);
+                }
+                return crPhaseInputManager;
+            }
+        }
+
+        private CRPhaseInputOptionManager crPhaseInputOptionManager;
+        public CRPhaseInputOptionManager CRPhaseInputOptionManager
+        {
+            get
+            {
+                if (crPhaseInputOptionManager == null)
+                {
+                    crPhaseInputOptionManager = new CRPhaseInputOptionManager(context);
+                }
+                return crPhaseInputOptionManager;
+            }
+        }
+
+        private CRPhaseTimelineManager crPhaseTimelineManager;
+        public CRPhaseTimelineManager CRPhaseTimelineManager
+        {
+            get
+            {
+                if (crPhaseTimelineManager == null)
+                {
+                    crPhaseTimelineManager = new CRPhaseTimelineManager(context);
+                }
+                return crPhaseTimelineManager;
+            }
+        }
+
+
+        private CRTimeline_PhaseManager crTimeline_PhaseManager;
+        public CRTimeline_PhaseManager CRTimeline_PhaseManager
+        {
+            get
+            {
+                if (crTimeline_PhaseManager == null)
+                {
+                    crTimeline_PhaseManager = new CRTimeline_PhaseManager(context);
+                }
+                return crTimeline_PhaseManager;
+            }
+        }
+
+
 
     }
 

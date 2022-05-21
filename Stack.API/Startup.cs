@@ -59,7 +59,7 @@ namespace Stack.API
 
             //Hangfire connection string
             //Local connection string
-            //services.AddHangfire(x => x.UseSqlServerStorage("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
+            services.AddHangfire(x => x.UseSqlServerStorage("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
             //services.AddHangfire(x => x.UseSqlServerStorage("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
 
             services.AddHangfireServer();
@@ -74,29 +74,29 @@ namespace Stack.API
 
 
             ////CORS Configuration . 
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy(name: AllowSpecificOrigins,
-            //                 builder =>
-            //                 {
-            //                     builder.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://localhost:4200")
-            //                        .AllowAnyMethod()
-            //                        .AllowAnyHeader()
-            //                        .AllowCredentials();
-            //                 });
-            //});
-
             services.AddCors(options =>
             {
                 options.AddPolicy(name: AllowSpecificOrigins,
                              builder =>
                              {
-                                 builder.WithOrigins("https://crm.app-blender.com", "http://crm.app-blender.com")
+                                 builder.WithOrigins("http://localhost:4200", "http://localhost:4201", "https://localhost:4200")
                                     .AllowAnyMethod()
                                     .AllowAnyHeader()
                                     .AllowCredentials();
                              });
             });
+
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy(name: AllowSpecificOrigins,
+            //                 builder =>
+            //                 {
+            //                     builder.WithOrigins("https://crm.app-blender.com", "http://crm.app-blender.com")
+            //                        .AllowAnyMethod()
+            //                        .AllowAnyHeader()
+            //                        .AllowCredentials();
+            //                 });
+            //});
 
             //Configure Auto Mapper .
             services.AddAutoMapper(typeof(AutoMapperProfile));
