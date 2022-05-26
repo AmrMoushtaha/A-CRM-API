@@ -127,8 +127,37 @@ namespace Stack.DAL
             modelBuilder.Entity<LeadSourceType>()
             .Property<bool>("IsDeleted");
 
-            //Soft delete query filters . 
+            modelBuilder.Entity<CustomerRequestType>()
+            .Property<bool>("IsDeleted");
 
+            modelBuilder.Entity<CustomerRequest>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRTimeline>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRPhase>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRPhaseInput>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRPhaseInputOption>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CR_Timeline>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRTimeline_Phase>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CR_Timeline_Phase>()
+            .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<CRPhaseInputAnswer>()
+            .Property<bool>("IsDeleted");
+
+            //Soft delete query filters . 
 
             modelBuilder.Entity<Contact>()
                 .HasQueryFilter(Contact => EF.Property<bool>(Contact, "IsDeleted") == false);
@@ -218,11 +247,78 @@ namespace Stack.DAL
             modelBuilder.Entity<LeadSourceType>()
              .HasQueryFilter(LeadSourceType => EF.Property<bool>(LeadSourceType, "IsDeleted") == false);
 
+            modelBuilder.Entity<CustomerRequestType>()
+            .HasQueryFilter(CustomerRequestType => EF.Property<bool>(CustomerRequestType, "IsDeleted") == false);
+
+            modelBuilder.Entity<CustomerRequest>()
+            .HasQueryFilter(CustomerRequest => EF.Property<bool>(CustomerRequest, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRTimeline>()
+            .HasQueryFilter(CRTimeline => EF.Property<bool>(CRTimeline, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRPhase>()
+            .HasQueryFilter(CRPhase => EF.Property<bool>(CRPhase, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRPhaseInput>()
+            .HasQueryFilter(CRPhaseInput => EF.Property<bool>(CRPhaseInput, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRPhaseInputOption>()
+            .HasQueryFilter(CRPhaseInputOption => EF.Property<bool>(CRPhaseInputOption, "IsDeleted") == false);
+
+            modelBuilder.Entity<CR_Timeline>()
+            .HasQueryFilter(CR_Timeline => EF.Property<bool>(CR_Timeline, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRTimeline_Phase>()
+            .HasQueryFilter(CRTimeline_Phase => EF.Property<bool>(CRTimeline_Phase, "IsDeleted") == false);
+
+            modelBuilder.Entity<CR_Timeline_Phase>()
+            .HasQueryFilter(CR_Timeline_Phase => EF.Property<bool>(CR_Timeline_Phase, "IsDeleted") == false);
+
+            modelBuilder.Entity<CRPhaseInputAnswer>()
+            .HasQueryFilter(CRPhaseInputAnswer => EF.Property<bool>(CRPhaseInputAnswer, "IsDeleted") == false);
+
 
             modelBuilder.Entity<Deal>()
                .HasOne(a => a.Customer)
                .WithMany(au => au.Deals)
                .HasForeignKey(a => a.CustomerID);
+
+            //modelBuilder.Entity<CR_Timeline>()
+            //    .HasKey(a => a.ID);
+
+            modelBuilder.Entity<CR_Timeline>()
+               .HasOne(a => a.Timeline)
+               .WithMany(a => a.CustomerRequests)
+               .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<CR_Timeline>()
+               .HasOne(a => a.CustomerRequest)
+               .WithMany(a => a.Timeline)
+               .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<CRTimeline_Phase>()
+               .HasOne(a => a.Timeline)
+               .WithMany(a => a.Phases)
+               .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<CRTimeline_Phase>()
+               .HasOne(a => a.Phase)
+               .WithMany(a => a.Timelines)
+               .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<CR_Timeline_Phase>()
+               .HasOne(a => a.Timeline_Phase)
+               .WithMany(a => a.RequestTimelinePhaseDetails)
+               .OnDelete(DeleteBehavior.NoAction);
+
+
+            modelBuilder.Entity<CRPhaseInputAnswer>()
+            .HasOne(a => a.RequestPhase)
+            .WithMany(a => a.Answers)
+            .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<CRPhaseInputAnswer>()
+            .HasOne(a => a.Input)
+            .WithMany(a => a.Answers)
+            .OnDelete(DeleteBehavior.NoAction);
+
 
             modelBuilder.Entity<Prospect>()
                .HasOne(a => a.Deal)
@@ -342,16 +438,6 @@ namespace Stack.DAL
             .HasForeignKey(pr => pr.QuestionID).OnDelete(DeleteBehavior.SetNull);
 
 
-            modelBuilder.Entity<CRTimeline_Phase>().HasKey(x => new { x.PhaseID, x.TimelineID });
-            modelBuilder.Entity<CRTimeline_Phase>()
-            .HasOne(pr => pr.Timeline)
-            .WithMany(p => p.Phases)
-            .HasForeignKey(pr => pr.TimelineID).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<CRTimeline_Phase>()
-            .HasOne(pr => pr.Phase)
-            .WithMany(p => p.Timelines)
-            .HasForeignKey(pr => pr.PhaseID).OnDelete(DeleteBehavior.NoAction);
-
         }
 
 
@@ -406,16 +492,18 @@ namespace Stack.DAL
         public virtual DbSet<Lead_Favorite> Lead_Favorites { get; set; }
         public virtual DbSet<Opportunity_Favorite> Opportunity_Favorites { get; set; }
         public virtual DbSet<DoneDeal_Favorite> DoneDeal_Favorites { get; set; }
+
         //Customer Request
+        public virtual DbSet<CustomerRequestType> CustomerRequestTypes { get; set; }
+        public virtual DbSet<CustomerRequest> CustomerRequests { get; set; }
+        public virtual DbSet<CRTimeline> CRTimelines { get; set; }
         public virtual DbSet<CRPhase> CRPhases { get; set; }
         public virtual DbSet<CRPhaseInput> CRPhaseInputs { get; set; }
         public virtual DbSet<CRPhaseInputOption> CRPhaseInputOptions { get; set; }
-        public virtual DbSet<CRPhaseTimeline> CRPhaseTimelines { get; set; }
+        public virtual DbSet<CR_Timeline> CR_Timelines { get; set; }
         public virtual DbSet<CRTimeline_Phase> CRTimeline_Phases { get; set; }
-        public virtual DbSet<CustomerRequest> CustomerRequests { get; set; }
-        public virtual DbSet<CustomerRequestInput> CustomerRequestInputs { get; set; }
-        public virtual DbSet<CustomerRequestInputOption> CustomerRequestInputOptions { get; set; }
-        public virtual DbSet<CustomerRequestType> CustomerRequestTypes { get; set; }
+        public virtual DbSet<CR_Timeline_Phase> CR_Timeline_Phases { get; set; }
+        public virtual DbSet<CRPhaseInputAnswer> CRPhaseInputAnswers { get; set; }
 
 
     }

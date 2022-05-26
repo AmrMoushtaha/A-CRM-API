@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220524043203_cr-type-description")]
+    partial class crtypedescription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -756,34 +758,6 @@ namespace Stack.DAL.Migrations
                     b.ToTable("CRPhaseInputs");
                 });
 
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CRPhaseInputAnswer", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Answer")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("InputID")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("RequestPhaseID")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("InputID");
-
-                    b.HasIndex("RequestPhaseID");
-
-                    b.ToTable("CRPhaseInputAnswers");
-                });
-
             modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CRPhaseInputOption", b =>
                 {
                     b.Property<long>("ID")
@@ -938,23 +912,20 @@ namespace Stack.DAL.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CreatorName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<long?>("DealID")
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<long>("RequestTypeID")
+                    b.Property<long?>("RequestTypeID")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<long>("TimelineID")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("ID");
 
@@ -994,9 +965,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<string>("NameEN")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.Property<long>("TimelineID")
                         .HasColumnType("bigint");
@@ -2324,21 +2292,6 @@ namespace Stack.DAL.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CRPhaseInputAnswer", b =>
-                {
-                    b.HasOne("Stack.Entities.Models.Modules.CR.CRPhaseInput", "Input")
-                        .WithMany("Answers")
-                        .HasForeignKey("InputID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Stack.Entities.Models.Modules.CR.CR_Timeline_Phase", "RequestPhase")
-                        .WithMany("Answers")
-                        .HasForeignKey("RequestPhaseID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CRPhaseInputOption", b =>
                 {
                     b.HasOne("Stack.Entities.Models.Modules.CR.CRPhaseInput", "PhaseInput")
@@ -2390,18 +2343,16 @@ namespace Stack.DAL.Migrations
             modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CustomerRequest", b =>
                 {
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
-                        .WithMany("CustomerRequests")
+                        .WithMany()
                         .HasForeignKey("ContactID");
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Deal", "Deal")
-                        .WithMany("CustomerRequests")
+                        .WithMany()
                         .HasForeignKey("DealID");
 
                     b.HasOne("Stack.Entities.Models.Modules.CR.CustomerRequestType", "RequestType")
                         .WithMany("CustomerRequests")
-                        .HasForeignKey("RequestTypeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RequestTypeID");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CustomerRequestType", b =>

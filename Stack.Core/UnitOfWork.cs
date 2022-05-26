@@ -738,32 +738,6 @@ namespace Stack.Core
             }
         }
 
-        private CustomerRequestInputManager customerRequestInputManager;
-        public CustomerRequestInputManager CustomerRequestInputManager
-        {
-            get
-            {
-                if (customerRequestInputManager == null)
-                {
-                    customerRequestInputManager = new CustomerRequestInputManager(context);
-                }
-                return customerRequestInputManager;
-            }
-        }
-
-        private CustomerRequestInputOptionManager customerRequestInputOptionManager;
-        public CustomerRequestInputOptionManager CustomerRequestInputOptionManager
-        {
-            get
-            {
-                if (customerRequestInputOptionManager == null)
-                {
-                    customerRequestInputOptionManager = new CustomerRequestInputOptionManager(context);
-                }
-                return customerRequestInputOptionManager;
-            }
-        }
-
         private CRPhaseManager crPhaseManager;
         public CRPhaseManager CRPhaseManager
         {
@@ -831,6 +805,44 @@ namespace Stack.Core
         }
 
 
+        private CR_TimelineManager cr_TimelineManager;
+        public CR_TimelineManager CR_TimelineManager
+        {
+            get
+            {
+                if (cr_TimelineManager == null)
+                {
+                    cr_TimelineManager = new CR_TimelineManager(context);
+                }
+                return cr_TimelineManager;
+            }
+        }
+
+        private CR_Timeline_PhaseManager cr_Timeline_PhaseManager;
+        public CR_Timeline_PhaseManager CR_Timeline_PhaseManager
+        {
+            get
+            {
+                if (cr_Timeline_PhaseManager == null)
+                {
+                    cr_Timeline_PhaseManager = new CR_Timeline_PhaseManager(context);
+                }
+                return cr_Timeline_PhaseManager;
+            }
+        }
+
+        private CRPhaseInputAnswerManager crPhaseInputAnswerManager;
+        public CRPhaseInputAnswerManager CRPhaseInputAnswerManager
+        {
+            get
+            {
+                if (crPhaseInputAnswerManager == null)
+                {
+                    crPhaseInputAnswerManager = new CRPhaseInputAnswerManager(context);
+                }
+                return crPhaseInputAnswerManager;
+            }
+        }
 
     }
 

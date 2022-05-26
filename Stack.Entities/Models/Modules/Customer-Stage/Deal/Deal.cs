@@ -1,4 +1,5 @@
 ﻿using Stack.Entities.Models.Modules.Activities;
+using Stack.Entities.Models.Modules.CR;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -19,10 +20,11 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public virtual List<Lead> Leads { get; set; }
         public virtual List<Opportunity> Opportunities { get; set; }
         public virtual List<DoneDeal> DoneDeals { get; set; }
+        public virtual List<CustomerRequest> CustomerRequests { get; set; }
 
         [ForeignKey("CustomerID")]
         public virtual Customer Customer { get; set; }
-        
+
         public virtual ProcessFlow ProcessFlow { get; set; }
     }
 

@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Stack.Entities.Enums.Modules.CustomerStage
 {
-    public enum PhaseStatuses
+    public enum CRStatus
     {
         Active,
-        Cancelled,
         Completed,
-        Disabled
+        Cancelled,
+
     }
 
 }

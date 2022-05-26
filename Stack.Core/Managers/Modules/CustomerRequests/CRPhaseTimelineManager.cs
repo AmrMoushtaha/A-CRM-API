@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace Stack.Core.Managers.Modules.CR
 {
-    public class CRPhaseTimelineManager : Repository<CRPhaseTimeline, ApplicationDbContext>
+    public class CRPhaseTimelineManager : Repository<CRTimeline, ApplicationDbContext>
     {
-        public DbSet<CRPhaseTimeline> dbSet;
+        public DbSet<CRTimeline> dbSet;
         public ApplicationDbContext context;
 
         public CRPhaseTimelineManager(ApplicationDbContext _context) : base(_context)
         {
-            dbSet = _context.Set<CRPhaseTimeline>();
+            dbSet = _context.Set<CRTimeline>();
             context = _context;
         }
 

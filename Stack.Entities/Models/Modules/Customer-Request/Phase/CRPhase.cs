@@ -11,13 +11,11 @@ namespace Stack.Entities.Models.Modules.CR
         public long ID { get; set; }
         public string TitleAR { get; set; }
         public string TitleEN { get; set; }
-        //public string DescriptionAR { get; set; }
-        //public string DescriptionEN { get; set; }
         public DateTime CreationDate { get; set; }
         public int Status { get; set; }
-        public List<CRPhaseInput> Inputs { get; set; }
+        public virtual List<CRPhaseInput> Inputs { get; set; }
+        public virtual List<CRTimeline_Phase> Timelines { get; set; }
 
-        public List<CRTimeline_Phase> Timelines { get; set; }
     }
 
 }
