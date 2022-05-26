@@ -236,6 +236,7 @@ namespace Stack.API
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<RecordLockHub>("/recordLockHub");
+                endpoints.MapHub<ChatHub>("/chatHub");
             });
 
             app.UseHangfireDashboard("/mydashboard");

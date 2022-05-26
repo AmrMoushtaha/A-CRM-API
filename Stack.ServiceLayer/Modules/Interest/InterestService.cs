@@ -34,8 +34,6 @@ namespace Stack.ServiceLayer.Modules.Interest
 
         }
         
-        
-        #region  Interest
 
         public async Task<ApiResponse<List<LInterest>>> Get_InterestByLevel(long Level)
         {
@@ -237,10 +235,92 @@ namespace Stack.ServiceLayer.Modules.Interest
             }
 
         }
-        #endregion
 
 
-        #region Interest-Input
+        public async Task<ApiResponse<bool>> Edit_Interest(LInterestToEdit LInterestToAdd)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+
+                if (LInterestToAdd.IsSeparate && LInterestToAdd.OwnerID != null)
+                {
+                    var OwnerResult = await unitOfWork.CustomerManager.GetByIdAsync(LInterestToAdd.OwnerID);
+                    if (OwnerResult != null)
+                    {
+                        return await Save_update_Interest(LInterestToAdd);
+                    }
+                    else
+                    {
+                        result.Errors.Add("Failed to update Interest with selected owner");
+                        result.Succeeded = false;
+                        return result;
+                    }
+                }
+                else if (LInterestToAdd.IsSeparate && (LInterestToAdd.OwnerID == null || LInterestToAdd.OwnerID == 0))
+                {
+                    result.Errors.Add("Interest cannot be sepearated without owner");
+                    result.Succeeded = false;
+                    return result;
+                }
+
+                return await Save_update_Interest(LInterestToAdd);
+
+
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<bool>> Save_update_Interest(LInterestToEdit LInterestToAdd)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                LInterest LInterestToupdate = mapper.Map<LInterest>(LInterestToAdd);
+            
+                LInterestToupdate.LocationID = LInterestToAdd.LocationID == 0 ? null : LInterestToupdate.LocationID;
+                LInterestToupdate.ParentLInterestID = LInterestToAdd.ParentLInterestID == 0 ? null : LInterestToupdate.ParentLInterestID;
+                LInterestToupdate.OwnerID = LInterestToAdd.OwnerID == 0 ? null : LInterestToupdate.OwnerID;
+
+                var createLevelResult = await unitOfWork.LInterestManager.UpdateAsync(LInterestToupdate);
+                var SaveResult = await unitOfWork.SaveChangesAsync();
+
+                if (SaveResult)
+                {
+                    var Create_LInterestInputResult = await Create_LInterestInput(mapper.Map<List<LInterestInputToAdd>>(LInterestToAdd.LInterestInputs.FindAll(a => a.InputID == 0)), LInterestToupdate.ID);
+
+                    if (Create_LInterestInputResult.Succeeded)
+                        return await Edit_LInterestInput(LInterestToAdd.LInterestInputs.FindAll(a => a.InputID != 0), LInterestToupdate.ID);
+                    else
+                        return Create_LInterestInputResult;
+                }
+                else
+                {
+                    result.Errors.Add("Failed to create Interest");
+                    result.Succeeded = false;
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+
         public async Task<ApiResponse<bool>> Create_LInterestInput(List<LInterestInputToAdd> LInterestInputs,long interestID)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -288,7 +368,52 @@ namespace Stack.ServiceLayer.Modules.Interest
 
         }
 
+        public async Task<ApiResponse<bool>> Edit_LInterestInput(List<LInterestInputToEdit> LInterestInputs, long interestID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var errors = 0;
+                for (var i = 0; i < LInterestInputs.Count; i++)
+                {
+                    var LInterestInputToAdd = LInterestInputs[i];
+                    LInterestInput InputToCreate = mapper.Map<LInterestInput>(LInterestInputToAdd);
+                    InputToCreate.LInterestID = interestID;
+                    if ((InputToCreate.Attachment != "" && InputToCreate.Attachment != null) ||
+                        (InputToCreate.SelectedAttributeID != 0 && InputToCreate.SelectedAttributeID != null))
+                    {
+                        var createInputResult = await unitOfWork.LInterestInputManager.UpdateAsync(InputToCreate);
+                        var saveResult = await unitOfWork.SaveChangesAsync();
+                        if (!saveResult)
+                        {
+                            result.Errors.Add("Failed to update Interest Input for input " + LInterestInputToAdd.ID);
+                            errors++;
+                        }
+                    }
 
+                }
+                if (errors == 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = true;
+                    return result;
+                }
+                else
+                {
+                    result.Errors.Add("Failed to create Interest Input");
+                    result.Succeeded = false;
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
 
         //public async Task<ApiResponse<List<LInterest>>> Get_LInterestByInputID(long InputID)
         //{
@@ -330,7 +455,8 @@ namespace Stack.ServiceLayer.Modules.Interest
 
         //}
 
-        #endregion
+
+
 
 
     }

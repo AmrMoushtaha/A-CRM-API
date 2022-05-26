@@ -47,8 +47,13 @@ namespace Stack.API.Controllers.Modules.Auth
         {
             return await AddItemResponseHandler(async () => await service.Create_Interest(interestToAdd));
         }
+        [HttpPost]
+        public async Task<IActionResult> EditInterest(LInterestToEdit interestToAdd)
+        {
+            return await AddItemResponseHandler(async () => await service.Edit_Interest(interestToAdd));
+        }
 
-       
+
         [HttpGet("{ID}")]
         public async Task<IActionResult> DeleteInterest(long ID)
         {
