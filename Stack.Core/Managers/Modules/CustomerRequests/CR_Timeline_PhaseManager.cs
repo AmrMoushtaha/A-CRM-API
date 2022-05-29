@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace Stack.Core.Managers.Modules.CR
 {
-    public class CustomerRequestInputManager : Repository<CustomerRequestInput, ApplicationDbContext>
+    public class CR_Timeline_PhaseManager : Repository<CR_Timeline_Phase, ApplicationDbContext>
     {
-        public DbSet<CustomerRequestInput> dbSet;
+        public DbSet<CR_Timeline_Phase> dbSet;
         public ApplicationDbContext context;
 
-        public CustomerRequestInputManager(ApplicationDbContext _context) : base(_context)
+        public CR_Timeline_PhaseManager(ApplicationDbContext _context) : base(_context)
         {
-            dbSet = _context.Set<CustomerRequestInput>();
+            dbSet = _context.Set<CR_Timeline_Phase>();
             context = _context;
         }
 

@@ -12,17 +12,18 @@ namespace Stack.Entities.Models.Modules.CR
         public long ID { get; set; }
         public string NameEN { get; set; }
         public string NameAR { get; set; }
+        public string DescriptionEN { get; set; }
+        public string DescriptionAR { get; set; }
         public int Type { get; set; }
+        public int Status { get; set; }
         public long TimelineID { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreationDate { get; set; }
 
-
         [ForeignKey("TimelineID")]
-        public CRPhaseTimeline PhasesTimeline { get; set; }
+        public virtual CRTimeline PhasesTimeline { get; set; }
 
-        public string InputsTemplate { get; set; } //Json Stringfied template model
-        public List<CustomerRequest> CustomerRequests { get; set; }
+        public virtual List<CustomerRequest> CustomerRequests { get; set; }
     }
 
 }

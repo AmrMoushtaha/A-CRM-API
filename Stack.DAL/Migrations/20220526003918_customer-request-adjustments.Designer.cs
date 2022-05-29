@@ -10,8 +10,8 @@ using Stack.DAL;
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220521024217_customer-request-update")]
-    partial class customerrequestupdate
+    [Migration("20220526003918_customer-request-adjustments")]
+    partial class customerrequestadjustments
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -712,6 +712,9 @@ namespace Stack.DAL.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -732,6 +735,9 @@ namespace Stack.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<long>("PhaseID")
                         .HasColumnType("bigint");
@@ -762,6 +768,9 @@ namespace Stack.DAL.Migrations
                     b.Property<long>("InputID")
                         .HasColumnType("bigint");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("TitleAR")
                         .HasColumnType("nvarchar(max)");
 
@@ -775,7 +784,7 @@ namespace Stack.DAL.Migrations
                     b.ToTable("CRPhaseInputOptions");
                 });
 
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CRPhaseTimeline", b =>
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CRTimeline", b =>
                 {
                     b.Property<long>("ID")
                         .ValueGeneratedOnAdd()
@@ -788,36 +797,103 @@ namespace Stack.DAL.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TitleAR")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TitleEN")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
 
-                    b.ToTable("CRPhaseTimelines");
+                    b.ToTable("CRTimelines");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CRTimeline_Phase", b =>
                 {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long?>("ParentPhaseID")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("PhaseID")
                         .HasColumnType("bigint");
 
                     b.Property<long>("TimelineID")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                    b.HasKey("ID");
 
-                    b.Property<long?>("ParentPhaseID")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("PhaseID", "TimelineID");
+                    b.HasIndex("PhaseID");
 
                     b.HasIndex("TimelineID");
 
                     b.ToTable("CRTimeline_Phases");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CR_Timeline", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("RequestID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TimelineID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("RequestID");
+
+                    b.HasIndex("TimelineID");
+
+                    b.ToTable("CR_Timelines");
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CR_Timeline_Phase", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("RequestID")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("TimelinePhaseID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("TimelinePhaseID");
+
+                    b.ToTable("CR_Timeline_Phases");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CustomerRequest", b =>
@@ -827,7 +903,7 @@ namespace Stack.DAL.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long>("ContactID")
+                    b.Property<long?>("ContactID")
                         .HasColumnType("bigint");
 
                     b.Property<string>("CreatedBy")
@@ -836,17 +912,23 @@ namespace Stack.DAL.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("DealID")
+                    b.Property<string>("CreatorName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("DealID")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("RequestTypeID")
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("RequestTypeID")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<long>("TimelineID")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
 
                     b.HasKey("ID");
 
@@ -856,58 +938,7 @@ namespace Stack.DAL.Migrations
 
                     b.HasIndex("RequestTypeID");
 
-                    b.HasIndex("TimelineID");
-
                     b.ToTable("CustomerRequests");
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CustomerRequestInput", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<long>("RequestID")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("TitleAR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TitleEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("RequestID");
-
-                    b.ToTable("CustomerRequestInputs");
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CustomerRequestInputOption", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<long>("InputID")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("TitleAR")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TitleEN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("InputID");
-
-                    b.ToTable("CustomerRequestInputOptions");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CustomerRequestType", b =>
@@ -923,14 +954,23 @@ namespace Stack.DAL.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("InputsTemplate")
+                    b.Property<string>("DescriptionAR")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DescriptionEN")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("NameAR")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameEN")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<long>("TimelineID")
                         .HasColumnType("bigint");
@@ -2275,9 +2315,33 @@ namespace Stack.DAL.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Stack.Entities.Models.Modules.CR.CRPhaseTimeline", "Timeline")
+                    b.HasOne("Stack.Entities.Models.Modules.CR.CRTimeline", "Timeline")
                         .WithMany("Phases")
                         .HasForeignKey("TimelineID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CR_Timeline", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CR.CustomerRequest", "CustomerRequest")
+                        .WithMany("Timeline")
+                        .HasForeignKey("RequestID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Stack.Entities.Models.Modules.CR.CRTimeline", "Timeline")
+                        .WithMany("CustomerRequests")
+                        .HasForeignKey("TimelineID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CR_Timeline_Phase", b =>
+                {
+                    b.HasOne("Stack.Entities.Models.Modules.CR.CRTimeline_Phase", "Timeline_Phase")
+                        .WithMany("RequestTimelinePhaseDetails")
+                        .HasForeignKey("TimelinePhaseID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
@@ -2286,49 +2350,23 @@ namespace Stack.DAL.Migrations
                 {
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Contact", "Contact")
                         .WithMany()
-                        .HasForeignKey("ContactID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ContactID");
 
                     b.HasOne("Stack.Entities.Models.Modules.CustomerStage.Deal", "Deal")
                         .WithMany()
-                        .HasForeignKey("DealID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DealID");
 
                     b.HasOne("Stack.Entities.Models.Modules.CR.CustomerRequestType", "RequestType")
                         .WithMany("CustomerRequests")
-                        .HasForeignKey("RequestTypeID");
-
-                    b.HasOne("Stack.Entities.Models.Modules.CR.CRPhaseTimeline", "PhasesTimeline")
-                        .WithMany("CustomerRequests")
-                        .HasForeignKey("TimelineID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CustomerRequestInput", b =>
-                {
-                    b.HasOne("Stack.Entities.Models.Modules.CR.CustomerRequest", "CustomerRequest")
-                        .WithMany("RequestInputs")
-                        .HasForeignKey("RequestID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CustomerRequestInputOption", b =>
-                {
-                    b.HasOne("Stack.Entities.Models.Modules.CR.CustomerRequestInput", "CustomerRequestInput")
-                        .WithMany("Options")
-                        .HasForeignKey("InputID")
+                        .HasForeignKey("RequestTypeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CustomerRequestType", b =>
                 {
-                    b.HasOne("Stack.Entities.Models.Modules.CR.CRPhaseTimeline", "PhasesTimeline")
-                        .WithMany()
+                    b.HasOne("Stack.Entities.Models.Modules.CR.CRTimeline", "PhasesTimeline")
+                        .WithMany("CustomerRequestTypes")
                         .HasForeignKey("TimelineID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

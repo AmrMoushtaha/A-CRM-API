@@ -2,22 +2,22 @@
 
 namespace Stack.DAL.Migrations
 {
-    public partial class UpdateInputt : Migration
+    public partial class phaseinputanswerupdate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "Order",
-                table: "Inputs",
+            migrationBuilder.AddColumn<bool>(
+                name: "IsDeleted",
+                table: "CRPhaseInputAnswer",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Order",
-                table: "Inputs");
+                name: "IsDeleted",
+                table: "CRPhaseInputAnswer");
         }
     }
 }

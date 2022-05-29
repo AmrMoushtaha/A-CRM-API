@@ -1,5 +1,6 @@
 ﻿using Stack.Entities.Models.Modules.Activities;
 using Stack.Entities.Models.Modules.Auth;
+using Stack.Entities.Models.Modules.CR;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -36,6 +37,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public virtual List<ContactComment> Comments { get; set; }
         public virtual List<Contact_Tag> Tags { get; set; }
         public virtual List<Contact_Favorite> Favorites { get; set; }
+        public virtual List<CustomerRequest> CustomerRequests { get; set; }
 
         [ForeignKey("StatusID")]
         public virtual ContactStatus Status { get; set; }

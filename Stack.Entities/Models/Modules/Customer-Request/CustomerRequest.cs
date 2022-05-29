@@ -11,27 +11,26 @@ namespace Stack.Entities.Models.Modules.CR
     {
         //Details
         public long ID { get; set; }
-        public int Type { get; set; }
-        public long DealID { get; set; }
-        public long ContactID { get; set; }
+        public long? DealID { get; set; }
+        public long? ContactID { get; set; }
         public long TimelineID { get; set; }
+        public long RequestTypeID { get; set; }
         public string CreatedBy { get; set; }
+        public string CreatorName { get; set; }
         public DateTime CreationDate { get; set; }
+        public int Status { get; set; }
 
         [ForeignKey("RequestTypeID")]
-        public CustomerRequestType RequestType { get; set; }
+        public virtual CustomerRequestType RequestType { get; set; }
 
         [ForeignKey("DealID")]
-        public Deal Deal { get; set; }
+        public virtual Deal Deal { get; set; }
 
         [ForeignKey("ContactID")]
-        public Contact Contact { get; set; }
+        public virtual Contact Contact { get; set; }
 
-        [ForeignKey("TimelineID")]
-        public CRPhaseTimeline PhasesTimeline { get; set; }
+        public virtual List<CR_Timeline> Timeline { get; set; }
 
-        public List<CustomerRequestInput> RequestInputs { get; set; }
-        //public List<CustomerRequestInputAnswer> Answers { get; set; }
     }
 
 }

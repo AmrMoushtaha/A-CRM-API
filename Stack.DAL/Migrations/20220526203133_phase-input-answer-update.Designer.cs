@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220526203133_phase-input-answer-update")]
+    partial class phaseinputanswerupdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -781,7 +783,7 @@ namespace Stack.DAL.Migrations
 
                     b.HasIndex("RequestPhaseID");
 
-                    b.ToTable("CRPhaseInputAnswers");
+                    b.ToTable("CRPhaseInputAnswer");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.CR.CRPhaseInputOption", b =>

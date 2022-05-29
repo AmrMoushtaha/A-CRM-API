@@ -14,7 +14,8 @@ namespace Stack.Entities.Models.Modules.CR
         public string TitleAR { get; set; }
 
         [ForeignKey("InputID")]
-        public CRPhaseInput PhaseInput { get; set; }
+        public virtual CRPhaseInput PhaseInput { get; set; }
+
     }
 
 }

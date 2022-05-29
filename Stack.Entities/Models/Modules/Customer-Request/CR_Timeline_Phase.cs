@@ -6,18 +6,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Stack.Entities.Models.Modules.CR
 {
-    public class CRPhaseInput
+    public class CR_Timeline_Phase
     {
         public long ID { get; set; }
-        public long PhaseID { get; set; }
-        public int Type { get; set; }
-        public string TitleAR { get; set; }
-        public string TitleEN { get; set; }
+        public long RequestID { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
-        [ForeignKey("PhaseID")]
-        public virtual CRPhase Phase { get; set; }
+        public long TimelinePhaseID { get; set; }
 
-        public virtual List<CRPhaseInputOption> Options { get; set; }
+        [ForeignKey("TimelinePhaseID")]
+        public virtual CRTimeline_Phase Timeline_Phase { get; set; }
+
         public virtual List<CRPhaseInputAnswer> Answers { get; set; }
 
     }
