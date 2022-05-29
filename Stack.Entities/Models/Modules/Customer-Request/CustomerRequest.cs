@@ -13,8 +13,11 @@ namespace Stack.Entities.Models.Modules.CR
         public long ID { get; set; }
         public long? DealID { get; set; }
         public long? ContactID { get; set; }
+        public long? InterestID { get; set; }
         public long TimelineID { get; set; }
         public long RequestTypeID { get; set; }
+        public int TypeIndex { get; set; }
+
         public string CreatedBy { get; set; }
         public string CreatorName { get; set; }
         public DateTime CreationDate { get; set; }

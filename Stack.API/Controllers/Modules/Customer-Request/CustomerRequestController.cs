@@ -153,6 +153,13 @@ namespace Stack.API.Controllers.Modules.CR
         {
             return await AddItemResponseHandler(async () => await service.CreateCustomerRequest(model));
         }
+
+        [AllowAnonymous]
+        [HttpPost("UpdateCustomerRequestPhase")]
+        public async Task<IActionResult> UpdateCustomerRequestPhase(CRUpdatePhaseModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.UpdateCustomerRequestPhase(model));
+        }
         #endregion
         #endregion
 

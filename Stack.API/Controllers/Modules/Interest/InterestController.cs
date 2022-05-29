@@ -21,27 +21,27 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
         #region  Interest 
-       
+
         [HttpGet("{level}")]
         public async Task<IActionResult> GetInterestByLevel(int level)
         {
-            return await AddItemResponseHandler(async () => await service.Get_InterestByLevel(level));
-        }   
-        
+            return await GetResponseHandler(async () => await service.Get_InterestByLevel(level));
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetInterestByID(int id)
         {
             return await AddItemResponseHandler(async () => await service.Get_InterestByID(id));
         }
 
-       
+
         [HttpGet("{ID}")]
         public async Task<IActionResult> GetInterestByParentID(int ID)
         {
             return await AddItemResponseHandler(async () => await service.Get_InterestByParentID(ID));
         }
 
-       
+
         [HttpPost]
         public async Task<IActionResult> CreateInterest(LInterestToAdd interestToAdd)
         {

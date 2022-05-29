@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220528222808_interest-link-w-cr")]
+    partial class interestlinkwcr
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1129,69 +1131,6 @@ namespace Stack.DAL.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Channels");
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.Chat.Conversation", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Conversations");
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.Chat.Message", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("ConversationID")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("Seen")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SenderID")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("ConversationID");
-
-                    b.ToTable("Messages");
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.Chat.UsersConversations", b =>
-                {
-                    b.Property<long>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("ApplicationUserID")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long>("ConversationID")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("ApplicationUserID");
-
-                    b.HasIndex("ConversationID");
-
-                    b.ToTable("UsersConversations");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Common.PoolConnectionID", b =>
@@ -2500,28 +2439,6 @@ namespace Stack.DAL.Migrations
                     b.HasOne("Stack.Entities.Models.Modules.Channels.Channel", null)
                         .WithMany("LeadSourceType")
                         .HasForeignKey("ChannelID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.Chat.Message", b =>
-                {
-                    b.HasOne("Stack.Entities.Models.Modules.Chat.Conversation", "Conversation")
-                        .WithMany("Messages")
-                        .HasForeignKey("ConversationID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Stack.Entities.Models.Modules.Chat.UsersConversations", b =>
-                {
-                    b.HasOne("Stack.Entities.Models.Modules.Auth.ApplicationUser", "User")
-                        .WithMany("UsersConversations")
-                        .HasForeignKey("ApplicationUserID");
-
-                    b.HasOne("Stack.Entities.Models.Modules.Chat.Conversation", "Conversation")
-                        .WithMany("UsersConversations")
-                        .HasForeignKey("ConversationID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

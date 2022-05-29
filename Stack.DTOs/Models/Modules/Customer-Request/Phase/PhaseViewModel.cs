@@ -9,6 +9,7 @@ namespace Stack.DTOs.Models.Modules.CR
         public long ID { get; set; }
         public string TitleAR { get; set; }
         public string TitleEN { get; set; }
+        public int Status { get; set; }
         public long? ParentPhaseID { get; set; }
         public long PhaseID { get; set; }
         public List<PhaseInputViewModel> Inputs { get; set; }

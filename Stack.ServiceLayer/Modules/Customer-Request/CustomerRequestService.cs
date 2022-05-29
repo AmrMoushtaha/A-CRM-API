@@ -436,12 +436,12 @@ namespace Stack.ServiceLayer.Modules.CR
                 var requestTypeQ = await unitOfWork.CustomerRequestTypeManager.GetAsync(t => t.ID == ID,
                     includeProperties: "PhasesTimeline,PhasesTimeline.Phases,PhasesTimeline.Phases.Phase," +
                     "PhasesTimeline.Phases.Phase.Inputs,PhasesTimeline.Phases.Phase.Inputs.Options");
-                var types = requestTypeQ.FirstOrDefault();
+                var type = requestTypeQ.FirstOrDefault();
 
-                if (types != null)
+                if (type != null)
                 {
                     result.Succeeded = true;
-                    result.Data = mapper.Map<CRTypeViewModel>(types);
+                    result.Data = mapper.Map<CRTypeViewModel>(type);
                     return result;
                 }
                 else
@@ -612,76 +612,7 @@ namespace Stack.ServiceLayer.Modules.CR
             }
 
         }
-        public async Task<ApiResponse<CRTypeViewModel>> GetCustomerRequestByID(long requestID)
-        {
-            ApiResponse<CRTypeViewModel> result = new ApiResponse<CRTypeViewModel>();
-            try
-            {
 
-                var requestsQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.ID == requestID,
-                    includeProperties: "RequestType");
-
-                var request = requestsQ.FirstOrDefault();
-
-                if (request != null)
-                {
-                    var requestTimelineQ = await unitOfWork.CR_TimelineManager.GetAsync(t => t.RequestID == request.ID && t.TimelineID == request.TimelineID,
-                        includeProperties: "Timeline,Timeline.Phases,Timeline.Phases.Phase," +
-                    "Timeline.Phases.Phase.Inputs,Timeline.Phases.Phase.Inputs.Options");
-                    var requestTimeline = requestTimelineQ.FirstOrDefault();
-                    if (requestTimeline != null)
-                    {
-                        request.Timeline[0] = requestTimeline;
-                    }
-
-                    for (int i = 0; i < request.Timeline[0].Timeline.Phases.Count; i++)
-                    {
-                        var phase = request.Timeline[0].Timeline.Phases[i];
-
-                        //Get request timeline phase
-                        var cr_timeline_phaseQ = await unitOfWork.CR_Timeline_PhaseManager.GetAsync(t => t.TimelinePhaseID == phase.ID);
-                        var cr_timeline_phase = cr_timeline_phaseQ.FirstOrDefault();
-
-                        if (cr_timeline_phase != null)
-                        {
-                            //Get phase input answers
-                            for (int j = 0; j < phase.Phase.Inputs.Count; j++)
-                            {
-                                var input = phase.Phase.Inputs[j];
-
-                                var answersQ = await unitOfWork.CRPhaseInputAnswerManager.GetAsync(t => t.InputID == input.ID && t.RequestPhaseID == cr_timeline_phase.ID);
-                                var answers = answersQ.ToList();
-                                if (answers != null && answers.Count > 0)
-                                {
-                                    input.Answers = new List<CRPhaseInputAnswer>();
-                                    input.Answers.AddRange(answers);
-                                }
-                            }
-                        }
-
-                    }
-
-                    result.Succeeded = true;
-                    result.Data = mapper.Map<CRTypeViewModel>(request);
-                    return result;
-                }
-                else
-                {
-                    result.Succeeded = false;
-                    result.Errors.Add("No requests found");
-                    result.Errors.Add("لم يتم العثور على ");
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                result.Succeeded = false;
-                result.Errors.Add(ex.Message);
-                result.ErrorType = ErrorType.SystemError;
-                return result;
-            }
-
-        }
 
         public async Task<ApiResponse<List<CRQuickViewModel>>> GetCustomerRequestsByContactID(long ID)
         {
@@ -749,6 +680,106 @@ namespace Stack.ServiceLayer.Modules.CR
 
         }
 
+        public async Task<ApiResponse<CRTypeViewModel>> GetCustomerRequestByID(long requestID)
+        {
+            ApiResponse<CRTypeViewModel> result = new ApiResponse<CRTypeViewModel>();
+            try
+            {
+
+                var requestsQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.ID == requestID,
+                    includeProperties: "RequestType");
+
+                var request = requestsQ.FirstOrDefault();
+
+                if (request != null)
+                {
+                    //Get related data via type
+                    if (request.RequestType.Type == (int)CustomerRequestTypes.InterestBased)
+                    {
+
+                    }
+                    else if (request.RequestType.Type == (int)CustomerRequestTypes.Resale)
+                    {
+
+                    }
+
+                    //Get request timeline
+                    var requestTimelineQ = await unitOfWork.CR_TimelineManager.GetAsync(t => t.RequestID == request.ID && t.TimelineID == request.TimelineID,
+                        includeProperties: "Timeline,Timeline.Phases,Timeline.Phases.Phase," +
+                    "Timeline.Phases.Phase.Inputs,Timeline.Phases.Phase.Inputs.Options");
+                    var requestTimeline = requestTimelineQ.FirstOrDefault();
+
+                    if (requestTimeline != null)
+                    {
+                        request.Timeline[0] = requestTimeline;
+                    }
+
+                    //Get phase input answers
+                    for (int i = 0; i < request.Timeline[0].Timeline.Phases.Count; i++)
+                    {
+                        var phase = request.Timeline[0].Timeline.Phases[i];
+
+                        //Get request timeline phase
+                        var cr_timeline_phaseQ = await unitOfWork.CR_Timeline_PhaseManager.GetAsync(t => t.TimelinePhaseID == phase.ID);
+                        var cr_timeline_phase = cr_timeline_phaseQ.FirstOrDefault();
+
+                        if (cr_timeline_phase != null)
+                        {
+                            //Get phase input answers
+                            for (int j = 0; j < phase.Phase.Inputs.Count; j++)
+                            {
+                                var input = phase.Phase.Inputs[j];
+
+                                var answersQ = await unitOfWork.CRPhaseInputAnswerManager.GetAsync(t => t.InputID == input.ID && t.RequestPhaseID == cr_timeline_phase.ID);
+                                var answers = answersQ.ToList();
+                                if (answers != null && answers.Count > 0)
+                                {
+                                    input.Answers = new List<CRPhaseInputAnswer>();
+                                    input.Answers.AddRange(answers);
+                                }
+                            }
+                        }
+
+                    }
+
+
+
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<CRTypeViewModel>(request);
+
+                    //Get Request Interest
+                    if (request.InterestID != null)
+                    {
+                        var interestQ = await unitOfWork.LInterestManager.GetAsync(t => t.ID == request.InterestID);
+                        var interest = interestQ.FirstOrDefault();
+
+                        if (interest != null)
+                        {
+                            result.Data.InterestDescriptionEN = interest.DescriptionEN;
+                            result.Data.InterestDescriptionAR = interest.DescriptionAR;
+                        }
+                    }
+
+                    return result;
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("No requests found");
+                    result.Errors.Add("لم يتم العثور على ");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
         public async Task<ApiResponse<bool>> CreateCustomerRequest(CustomerRequestCreationModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -769,7 +800,9 @@ namespace Stack.ServiceLayer.Modules.CR
                             RequestTypeID = model.RequestTypeID,
                             CreatedBy = userID,
                             CreationDate = await HelperFunctions.GetEgyptsCurrentLocalTime(),
-                            TimelineID = customerRequestType.TimelineID
+                            TimelineID = customerRequestType.TimelineID,
+                            InterestID = model.InterestID,
+                            TypeIndex = model.TypeIndex
                         };
 
                         if (model.CustomerStage > 0)
@@ -901,52 +934,48 @@ namespace Stack.ServiceLayer.Modules.CR
             }
         }
 
-        //Agent customer request creation
-        //public async Task<ApiResponse<bool>> CreateCustomerRequest( model)
-        //{
-        //    ApiResponse<bool> result = new ApiResponse<bool>();
-        //    try
-        //    {
-        //        CustomerRequestType creationModel = new CustomerRequestType
-        //        {
-        //            NameAR = model.NameAR,
-        //            NameEN = model.NameEN,
-        //            DescriptionAR = model.DescriptionAR,
-        //            DescriptionEN = model.DescriptionEN,
-        //            CreatedBy = await HelperFunctions.GetUserID(_httpContextAccessor),
-        //            CreationDate = await HelperFunctions.GetEgyptsCurrentLocalTime(),
-        //            TimelineID = model.TimelineID,
-        //            Type = model.Type,
-        //        };
 
-        //        var creationRes = await unitOfWork.CustomerRequestTypeManager.CreateAsync(creationModel);
+        public async Task<ApiResponse<bool>> UpdateCustomerRequestPhase(CRUpdatePhaseModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+                if (userID != null)
+                {
+                    var CRPhaseInputAnswerQ = await unitOfWork.CRPhaseInputAnswerManager.GetAsync(t => t.ID == model.PhaseID);
+                    var CRPhaseInputAnswer = CRPhaseInputAnswerQ.FirstOrDefault();
+                    if (CRPhaseInputAnswer != null)
+                    {
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Request Type not found");
+                        result.Errors.Add("Request Type not found");
+                        return result;
+                    }
 
-        //        if (creationRes != null)
-        //        {
-        //            await unitOfWork.SaveChangesAsync();
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.ErrorCode = ErrorCode.A500;
+                    result.Errors.Add("Not Authorized");
+                    result.Errors.Add("Not Authorized");
+                    return result;
+                }
 
-        //            result.Succeeded = true;
-        //            return result;
-        //        }
-        //        else
-        //        {
-        //            result.Succeeded = false;
-        //            result.Errors.Add("No timelines found");
-        //            result.Errors.Add("لم يتم العثور على ");
-        //            return result;
-        //        }
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        result.Succeeded = false;
-        //        result.Errors.Add(ex.Message);
-        //        result.ErrorType = ErrorType.SystemError;
-        //        return result;
-        //    }
-
-        //}
-
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
         #endregion
 
         #endregion

@@ -8,7 +8,10 @@ namespace Stack.DTOs.Models.Modules.CR
     {
         public long RequestTypeID { get; set; }
         public long RecordID { get; set; }
+        public long? InterestID { get; set; }
         public int CustomerStage { get; set; }
+
+        public int TypeIndex { get; set; }
         public List<CustomerRequestPhaseFulfillmentModel> Phases { get; set; }
     }
 
