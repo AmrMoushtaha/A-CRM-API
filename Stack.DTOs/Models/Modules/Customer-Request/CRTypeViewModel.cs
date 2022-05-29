@@ -11,7 +11,11 @@ namespace Stack.DTOs.Models.Modules.CR
         public string NameAR { get; set; }
         public string DescriptionEN { get; set; }
         public string DescriptionAR { get; set; }
+        public string InterestDescriptionEN { get; set; }
+        public string InterestDescriptionAR { get; set; }
         public int Type { get; set; }
+        public long? InterestID { get; set; }
+        public int TypeIndex { get; set; }
         public long TimelineID { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreationDate { get; set; }
