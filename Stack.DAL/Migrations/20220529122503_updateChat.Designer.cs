@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220529122503_updateChat")]
+    partial class updateChat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1134,7 +1136,7 @@ namespace Stack.DAL.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Conversations");
+                    b.ToTable("Conversation");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Chat.Message", b =>
@@ -1163,7 +1165,7 @@ namespace Stack.DAL.Migrations
 
                     b.HasIndex("ConversationID");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Message");
                 });
 
             modelBuilder.Entity("Stack.Entities.Models.Modules.Chat.UsersConversations", b =>

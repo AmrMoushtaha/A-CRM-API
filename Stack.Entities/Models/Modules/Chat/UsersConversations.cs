@@ -15,7 +15,7 @@ namespace Stack.Entities.Models.Modules.Chat
         [ForeignKey("ConversationID")]
         public virtual Conversation Conversation { get; set; }
 
-        public long ApplicationUserID { get; set; }
+        public string ApplicationUserID { get; set; }
         [ForeignKey("ApplicationUserID")]
         public virtual ApplicationUser User { get; set; }
     }

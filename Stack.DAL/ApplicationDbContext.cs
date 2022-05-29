@@ -5,6 +5,7 @@ using Stack.Entities.Models.Modules.Areas;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.Channel;
 using Stack.Entities.Models.Modules.Channels;
+using Stack.Entities.Models.Modules.Chat;
 using Stack.Entities.Models.Modules.Common;
 using Stack.Entities.Models.Modules.CR;
 using Stack.Entities.Models.Modules.CustomerStage;
@@ -504,6 +505,13 @@ namespace Stack.DAL
         public virtual DbSet<CRTimeline_Phase> CRTimeline_Phases { get; set; }
         public virtual DbSet<CR_Timeline_Phase> CR_Timeline_Phases { get; set; }
         public virtual DbSet<CRPhaseInputAnswer> CRPhaseInputAnswers { get; set; }
+
+        //chat
+        public virtual DbSet<Message> Messages { get; set; }
+        public virtual DbSet<Conversation> Conversations { get; set; }
+        public virtual DbSet<UsersConversations> UsersConversations { get; set; }
+
+
 
 
     }
