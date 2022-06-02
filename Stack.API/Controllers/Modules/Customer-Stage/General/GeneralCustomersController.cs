@@ -87,6 +87,13 @@ namespace Stack.API.Controllers.Modules.Auth
             return await AddItemResponseHandler(async () => await service.GetUserFavorites(model));
         }
 
+        [AllowAnonymous]
+        [HttpPost("CreateNewDeal")]
+        public async Task<IActionResult> CreateNewDeal(NewDealCreationModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.CreateNewDeal(model));
+        }
+
     }
 
 

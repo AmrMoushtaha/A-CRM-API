@@ -47,8 +47,8 @@ namespace Stack.API
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             //Live server connection string
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd;"));
-            //services.AddHangfire(x => x.UseSqlServerStorage("Server=64.112.57.179; Database = CRMDB; User Id = sa; Password = P@ssw0rd;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=tcp:64.112.57.179,1433; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
+            //services.AddHangfire(x => x.UseSqlServerStorage("Server=tcp:64.112.57.179,1433; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
 
 
             //Local server connection string
@@ -93,7 +93,7 @@ namespace Stack.API
             //    options.AddPolicy(name: AllowSpecificOrigins,
             //                 builder =>
             //                 {
-            //                     builder.WithOrigins("https://crm.app-blender.com", "http://crm.app-blender.com")
+            //                     builder.WithOrigins("https://crm-dev.app-blender.com", "http://crm-dev.app-blender.com")
             //                        .AllowAnyMethod()
             //                        .AllowAnyHeader()
             //                        .AllowCredentials();

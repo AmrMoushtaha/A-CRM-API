@@ -2412,6 +2412,414 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 return result;
             }
         }
+
+        //Create new deal for contact/customer
+        public async Task<ApiResponse<bool>> CreateNewDeal(NewDealCreationModel creationModel)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    //Create new deal for customer
+                    if (creationModel.CustomerID != null)
+                    {
+                        //Get customer
+                        var customerQ = await unitOfWork.CustomerManager.GetAsync(t => t.ID == creationModel.CustomerID, includeProperties: "Contact");
+                        var customer = customerQ.FirstOrDefault();
+
+                        if (customer != null)
+                        {
+                            //Create deal
+                            Deal deal = new Deal
+                            {
+                                CustomerID = customer.ID,
+                                PoolID = customer.PoolID,
+                                ActiveStageType = creationModel.RecordType
+                            };
+
+                            var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
+
+                            if (dealCreationRes != null)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+
+                                //Create related record
+                                if (creationModel.RecordType == (int)CustomerStageIndicator.Lead)
+                                {
+                                    Lead record = new Lead
+                                    {
+                                        AssignedUserID = customer.AssignedUserID,
+                                        DealID = dealCreationRes.ID,
+                                        IsFresh = true,
+                                        State = (int)CustomerStageState.Initial,
+                                        StatusID = creationModel.StatusID,
+                                    };
+
+                                    var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
+                                    if (recordCreationRes != null)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+
+                                        dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                        var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                        await unitOfWork.SaveChangesAsync();
+
+                                        result.Succeeded = true;
+                                        return result;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Error creating record, please try again");
+                                        result.Errors.Add("Error creating record, please try again");
+                                        return result;
+                                    }
+                                }
+                                else if (creationModel.RecordType == (int)CustomerStageIndicator.Prospect)
+                                {
+                                    Prospect record = new Prospect
+                                    {
+                                        AssignedUserID = customer.AssignedUserID,
+                                        DealID = dealCreationRes.ID,
+                                        IsFresh = true,
+                                        State = (int)CustomerStageState.Initial,
+                                        StatusID = creationModel.StatusID,
+                                    };
+                                    var recordCreationRes = await unitOfWork.ProspectManager.CreateAsync(record);
+                                    if (recordCreationRes != null)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+
+                                        dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                        var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                        await unitOfWork.SaveChangesAsync();
+
+                                        result.Succeeded = true;
+                                        return result;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Error creating record, please try again");
+                                        result.Errors.Add("Error creating record, please try again");
+                                        return result;
+                                    }
+                                }
+                                else if (creationModel.RecordType == (int)CustomerStageIndicator.Opportunity)
+                                {
+                                    Opportunity record = new Opportunity
+                                    {
+                                        AssignedUserID = customer.AssignedUserID,
+                                        DealID = dealCreationRes.ID,
+                                        IsFresh = true,
+                                        State = (int)CustomerStageState.Initial,
+                                        StatusID = creationModel.StatusID,
+                                    };
+                                    var recordCreationRes = await unitOfWork.OpportunityManager.CreateAsync(record);
+                                    if (recordCreationRes != null)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+
+                                        dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                        var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                        await unitOfWork.SaveChangesAsync();
+
+                                        result.Succeeded = true;
+                                        return result;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Error creating record, please try again");
+                                        result.Errors.Add("Error creating record, please try again");
+                                        return result;
+                                    }
+                                }
+                                else if (creationModel.RecordType == (int)CustomerStageIndicator.DoneDeal)
+                                {
+                                    DoneDeal record = new DoneDeal
+                                    {
+                                        AssignedUserID = customer.AssignedUserID,
+                                        DealID = dealCreationRes.ID,
+                                        State = (int)CustomerStageState.Initial,
+
+                                    };
+                                    var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
+                                    if (recordCreationRes != null)
+                                    {
+                                        await unitOfWork.SaveChangesAsync();
+
+                                        dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                        var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                        customer.Contact.IsFinalized = true;
+                                        var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(customer.Contact);
+
+                                        await unitOfWork.SaveChangesAsync();
+
+                                        result.Succeeded = true;
+                                        return result;
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Error creating record, please try again");
+                                        result.Errors.Add("Error creating record, please try again");
+                                        return result;
+                                    }
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Invalid Customer Stage");
+                                    result.Errors.Add("Invalid Customer Stage");
+                                    return result;
+                                }
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error creating record, please try again");
+                                result.Errors.Add("Error creating record, please try again");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Customer Profile not found");
+                            return result;
+                        }
+                    }
+                    //Convert contact to chosen stage in a new deal
+                    else
+                    {
+                        //Get customer
+                        var contactQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == creationModel.ContactID, includeProperties: "Contact");
+                        var contact = contactQ.FirstOrDefault();
+
+                        if (contact != null)
+                        {
+
+                            //Create new Customer
+                            Customer customer = new Customer
+                            {
+                                FullNameEN = contact.FullNameEN,
+                                FullNameAR = contact.FullNameAR,
+                                Address = contact.Address,
+                                AssignedUserID = contact.AssignedUserID,
+                                Email = contact.Email,
+                                PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
+                                Occupation = contact.Occupation,
+                                ChannelID = contact.ChannelID,
+                                LSTID = contact.LSTID,
+                                LSNID = contact.LSNID,
+                            };
+
+                            var customerCreationRes = await unitOfWork.CustomerManager.CreateAsync(customer);
+                            if (customerCreationRes != null)
+                            {
+                                await unitOfWork.SaveChangesAsync();
+
+                                contact.CustomerID = customerCreationRes.ID;
+                                var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(contact);
+                                //Create deal
+                                Deal deal = new Deal
+                                {
+                                    CustomerID = customer.ID,
+                                    PoolID = customer.PoolID,
+                                    ActiveStageType = creationModel.RecordType
+                                };
+
+                                var dealCreationRes = await unitOfWork.DealManager.CreateAsync(deal);
+
+                                if (dealCreationRes != null)
+                                {
+                                    await unitOfWork.SaveChangesAsync();
+
+                                    //Create related record
+                                    if (creationModel.RecordType == (int)CustomerStageIndicator.Lead)
+                                    {
+                                        Lead record = new Lead
+                                        {
+                                            AssignedUserID = customer.AssignedUserID,
+                                            DealID = dealCreationRes.ID,
+                                            IsFresh = true,
+                                            State = (int)CustomerStageState.Initial,
+                                            StatusID = creationModel.StatusID,
+                                        };
+
+                                        var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
+                                        if (recordCreationRes != null)
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+
+                                            dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                            var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                            await unitOfWork.SaveChangesAsync();
+
+                                            result.Succeeded = true;
+                                            return result;
+                                        }
+                                        else
+                                        {
+                                            result.Succeeded = false;
+                                            result.Errors.Add("Error creating record, please try again");
+                                            result.Errors.Add("Error creating record, please try again");
+                                            return result;
+                                        }
+                                    }
+                                    else if (creationModel.RecordType == (int)CustomerStageIndicator.Prospect)
+                                    {
+                                        Prospect record = new Prospect
+                                        {
+                                            AssignedUserID = customer.AssignedUserID,
+                                            DealID = dealCreationRes.ID,
+                                            IsFresh = true,
+                                            State = (int)CustomerStageState.Initial,
+                                            StatusID = creationModel.StatusID,
+                                        };
+                                        var recordCreationRes = await unitOfWork.ProspectManager.CreateAsync(record);
+                                        if (recordCreationRes != null)
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+
+                                            dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                            var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                            await unitOfWork.SaveChangesAsync();
+
+                                            result.Succeeded = true;
+                                            return result;
+                                        }
+                                        else
+                                        {
+                                            result.Succeeded = false;
+                                            result.Errors.Add("Error creating record, please try again");
+                                            result.Errors.Add("Error creating record, please try again");
+                                            return result;
+                                        }
+                                    }
+                                    else if (creationModel.RecordType == (int)CustomerStageIndicator.Opportunity)
+                                    {
+                                        Opportunity record = new Opportunity
+                                        {
+                                            AssignedUserID = customer.AssignedUserID,
+                                            DealID = dealCreationRes.ID,
+                                            IsFresh = true,
+                                            State = (int)CustomerStageState.Initial,
+                                            StatusID = creationModel.StatusID,
+                                        };
+                                        var recordCreationRes = await unitOfWork.OpportunityManager.CreateAsync(record);
+                                        if (recordCreationRes != null)
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+
+                                            dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                            var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                            await unitOfWork.SaveChangesAsync();
+
+                                            result.Succeeded = true;
+                                            return result;
+                                        }
+                                        else
+                                        {
+                                            result.Succeeded = false;
+                                            result.Errors.Add("Error creating record, please try again");
+                                            result.Errors.Add("Error creating record, please try again");
+                                            return result;
+                                        }
+                                    }
+                                    else if (creationModel.RecordType == (int)CustomerStageIndicator.DoneDeal)
+                                    {
+                                        DoneDeal record = new DoneDeal
+                                        {
+                                            AssignedUserID = customer.AssignedUserID,
+                                            DealID = dealCreationRes.ID,
+                                            State = (int)CustomerStageState.Initial,
+
+                                        };
+                                        var recordCreationRes = await unitOfWork.DoneDealManager.CreateAsync(record);
+                                        if (recordCreationRes != null)
+                                        {
+                                            await unitOfWork.SaveChangesAsync();
+
+                                            dealCreationRes.ActiveStageID = recordCreationRes.ID;
+                                            var updateDealRes = await unitOfWork.DealManager.UpdateAsync(dealCreationRes);
+
+                                            customer.Contact.IsFinalized = true;
+                                            var finalizeContactRes = await unitOfWork.ContactManager.UpdateAsync(customer.Contact);
+
+                                            await unitOfWork.SaveChangesAsync();
+
+                                            result.Succeeded = true;
+                                            return result;
+                                        }
+                                        else
+                                        {
+                                            result.Succeeded = false;
+                                            result.Errors.Add("Error creating record, please try again");
+                                            result.Errors.Add("Error creating record, please try again");
+                                            return result;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        result.Succeeded = false;
+                                        result.Errors.Add("Invalid Customer Stage");
+                                        result.Errors.Add("Invalid Customer Stage");
+                                        return result;
+                                    }
+                                }
+                                else
+                                {
+                                    result.Succeeded = false;
+                                    result.Errors.Add("Error creating record, please try again");
+                                    result.Errors.Add("Error creating record, please try again");
+                                    return result;
+                                }
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("Error creating record, please try again");
+                                result.Errors.Add("Error creating record, please try again");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Contact Profile not found");
+                            return result;
+                        }
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
         #endregion
 
 
@@ -2965,7 +3373,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     {
                         if (model.CustomerStage == (int)CustomerStageIndicator.Contact)
                         {
-                            var favoritesQ = await unitOfWork.ContactFavoriteManager.GetAsync(t => t.UserID == userID && t.Contact.PoolID == model.PoolID && t.Contact.State == (int)CustomerStageState.Unassigned, includeProperties:"Contact");
+                            var favoritesQ = await unitOfWork.ContactFavoriteManager.GetAsync(t => t.UserID == userID && t.Contact.PoolID == model.PoolID && t.Contact.State == (int)CustomerStageState.Unassigned, includeProperties: "Contact");
                             var favorites = favoritesQ.ToList();
 
                             if (favorites != null)
