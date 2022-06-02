@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220529123718_updateChatt")]
+    partial class updateChatt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -944,9 +946,6 @@ namespace Stack.DAL.Migrations
                     b.Property<long?>("DealID")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("InterestID")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -958,9 +957,6 @@ namespace Stack.DAL.Migrations
 
                     b.Property<long>("TimelineID")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("TypeIndex")
-                        .HasColumnType("int");
 
                     b.HasKey("ID");
 
@@ -2170,23 +2166,14 @@ namespace Stack.DAL.Migrations
                     b.Property<string>("Attachment")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("AttributeID")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("InputID")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("InputType")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<long>("LInterestID")
                         .HasColumnType("bigint");
-
-                    b.Property<int?>("PredefinedInputType")
-                        .HasColumnType("int");
 
                     b.Property<long?>("SelectedAttributeID")
                         .HasColumnType("bigint");

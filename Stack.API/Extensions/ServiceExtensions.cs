@@ -39,6 +39,7 @@ namespace Stack.API.Extensions
             caller.AddScoped<GeneralCustomersService>();
             caller.AddScoped<ChannelsService>();
             caller.AddScoped<CustomerRequestService>();
+            caller.AddScoped<ChatService>();
         }
 
     }

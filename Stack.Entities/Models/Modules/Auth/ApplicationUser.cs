@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using Stack.DTOs.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.Activities;
+using Stack.Entities.Models.Modules.Chat;
 using Stack.Entities.Models.Modules.Common;
 using Stack.Entities.Models.Modules.CustomerStage;
 using System;
@@ -43,6 +44,7 @@ namespace Stack.Entities.Models.Modules.Auth
         public virtual List<Lead_Favorite> Lead_Favorites { get; set; }
         public virtual List<Opportunity_Favorite> Opportunity_Favorites { get; set; }
         public virtual List<DoneDeal_Favorite> DoneDeal_Favorites { get; set; }
+        public virtual List<UsersConversations> UsersConversations { get; set; }
 
         public AuthorizationsModel GetAuthModel()
         {

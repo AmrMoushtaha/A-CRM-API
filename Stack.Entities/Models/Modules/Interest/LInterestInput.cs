@@ -17,13 +17,14 @@ namespace Stack.Entities.Models.Modules.Interest
         public virtual LInterest LInterest { get; set; }
 
         // input properties
+        public int InputType { get; set; }
+        public int? PredefinedInputType { get; set; }
+        public long? AttributeID { get; set; }
+
         //public string LabelAR { get; set; }
         //public string LabelEN { get; set; }
-        //public int Type { get; set; } 
-        //public int? PredefinedInputType { get; set; }  
         //public bool IsRequired { get; set; }
         //public long SectionID { get; set; }
-        //public long? AttributeID { get; set; }
         // end 
     }
 

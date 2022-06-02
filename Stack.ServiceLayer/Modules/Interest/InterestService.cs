@@ -330,17 +330,25 @@ namespace Stack.ServiceLayer.Modules.Interest
                 for (var i = 0; i < LInterestInputs.Count; i++)
                 {
                     var LInterestInputToAdd = LInterestInputs[i];
-                    LInterestInput InputToCreate = mapper.Map<LInterestInput>(LInterestInputToAdd);
-                    InputToCreate.LInterestID = interestID;
-                    if ((InputToCreate.Attachment != "" && InputToCreate.Attachment != null) ||
-                        (InputToCreate.SelectedAttributeID != 0 && InputToCreate.SelectedAttributeID != null))
+                    var inputResult = await unitOfWork.LInputManager.GetByIdAsync(LInterestInputToAdd.InputID);
+                    if (inputResult != null)
                     {
-                        var createInputResult = await unitOfWork.LInterestInputManager.CreateAsync(InputToCreate);
-                        var saveResult = await unitOfWork.SaveChangesAsync();
-                        if (!saveResult)
+                        LInterestInput InputToCreate = mapper.Map<LInterestInput>(LInterestInputToAdd);
+                        InputToCreate.LInterestID = interestID;
+                        InputToCreate.InputType = inputResult.Type;
+                        InputToCreate.PredefinedInputType = inputResult.PredefinedInputType;
+                        InputToCreate.AttributeID = inputResult.AttributeID;
+
+                        if ((InputToCreate.Attachment != "" && InputToCreate.Attachment != null) ||
+                            (InputToCreate.SelectedAttributeID != 0 && InputToCreate.SelectedAttributeID != null))
                         {
-                            result.Errors.Add("Failed to create Interest Input for input " + LInterestInputToAdd.InputID);
-                            errors++;
+                            var createInputResult = await unitOfWork.LInterestInputManager.CreateAsync(InputToCreate);
+                            var saveResult = await unitOfWork.SaveChangesAsync();
+                            if (!saveResult)
+                            {
+                                result.Errors.Add("Failed to create Interest Input for input " + LInterestInputToAdd.InputID);
+                                errors++;
+                            }
                         }
                     }
 
