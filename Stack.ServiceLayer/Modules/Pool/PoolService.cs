@@ -1099,8 +1099,8 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        //---------------------------- Pool Records List ----------------------------//
-        //Pool Contacts list
+        #region Pool Records List
+
         public async Task<ApiResponse<List<ContactListViewModel>>> GetPoolContacts(long poolID)
         {
             ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
@@ -1117,6 +1117,65 @@ namespace Stack.ServiceLayer.Modules.pool
                     if (userPool != null)
                     {
                         var poolContacts = await unitOfWork.PoolUserManager.GetPoolContacts(poolID, userID);
+
+                        if (poolContacts != null)
+                        {
+                            result.Succeeded = true;
+                            result.Data = poolContacts;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Data = null;
+                            result.Errors.Add("No contacts found");
+                            result.Errors.Add("No contacts found");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+
+                        result.Succeeded = false;
+                        result.Errors.Add("Unauthorized");
+                        result.Errors.Add("غير مصرح");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetPoolFreshContacts(long poolID)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    //Verify user pool permissions
+                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
+                    var userPool = userPoolQuery.FirstOrDefault();
+
+                    if (userPool != null)
+                    {
+                        var poolContacts = await unitOfWork.PoolUserManager.GetPoolFreshContacts(poolID, userID);
 
                         if (poolContacts != null)
                         {
@@ -1289,7 +1348,115 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        //Get User Assigned Pool Records
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetPoolFreshRecords(GetPoolRecordsModel model)
+        {
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    //Verify user pool permissions
+                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == model.PoolID && t.UserID == userID, includeProperties: "Pool");
+                    var userPool = userPoolQuery.FirstOrDefault();
+
+                    if (userPool != null)
+                    {
+                        //var poolRecords = await unitOfWork.PoolUserManager.GetPoolRecords(poolID, userID);
+
+                        if (model.RecordType == (int)CustomerStageIndicator.Prospect)
+                        {
+                            var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID
+                            && t.State == (int)CustomerStageState.Unassigned && t.IsFresh == true, includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.RecordType == (int)CustomerStageIndicator.Lead)
+                        {
+                            var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID
+                            && t.State == (int)CustomerStageState.Unassigned && t.IsFresh == true, includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else if (model.RecordType == (int)CustomerStageIndicator.Opportunity)
+                        {
+                            var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.Deal.Customer.PoolID == model.PoolID
+                            && t.State == (int)CustomerStageState.Unassigned && t.IsFresh == true, includeProperties: "Deal,Deal.Customer");
+                            var records = recordsQ.ToList();
+
+                            if (records != null && records.Count > 0)
+                            {
+                                result.Succeeded = true;
+                                result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No records found");
+                                result.Errors.Add("No records found");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
+                        }
+                    }
+                    else
+                    {
+
+                        result.Succeeded = false;
+                        result.Errors.Add("Unauthorized");
+                        result.Errors.Add("غير مصرح");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
         public async Task<ApiResponse<List<ContactListViewModel>>> GetUserAssignedRecords(GetPoolRecordsModel model)
         {
             ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
@@ -1404,7 +1571,6 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        //Update Users Capacity
         public async Task<ApiResponse<bool>> UpdateUsersCapacity(UpatePoolUsersCapacityModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -1465,10 +1631,12 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        //----------------------------- Pool record Verification and lock ----------------------------//
+        #endregion
+
+
+        #region Pool Record Verification & Lock
 
         //Verify record before viewing for capacity related pool configuration / authorization
-        //Verify locked records for assigned users
         public async Task<ApiResponse<bool>> ViewRecord_VerifyUser(VerifyRecordModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -2208,8 +2376,9 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
+        #endregion
 
-        #region Pool Transfer Section
+        #region Pool Transfers
 
         public async Task<ApiResponse<bool>> RequestTransfer(RequestTransferModel model)
         {

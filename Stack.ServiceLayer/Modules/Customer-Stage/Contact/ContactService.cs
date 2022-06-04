@@ -401,7 +401,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 Occupation = creationModel.Occupation,
                                                 PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                                 StatusID = creationModel.StatusID,
-                                                IsFinalized = false
+                                                IsFinalized = false,
+                                                IsFresh = true
                                             };
 
                                             modelToCreate.State = (int)CustomerStageState.Initial;
@@ -438,7 +439,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                                 StatusID = creationModel.StatusID,
                                                 State = (int)CustomerStageState.Initial,
-                                                IsFinalized = false
+                                                IsFinalized = false,
+                                                IsFresh = true
                                             };
 
                                             var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
@@ -473,7 +475,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 Occupation = creationModel.Occupation,
                                                 PrimaryPhoneNumber = creationModel.PrimaryPhoneNumber,
                                                 State = (int)CustomerStageState.Unassigned,
-                                                StatusID = creationModel.StatusID
+                                                StatusID = creationModel.StatusID,
+                                                IsFresh = true
                                             };
 
                                             var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
@@ -688,6 +691,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                             State = (int)CustomerStageState.Initial,
                                                             IsFinalized = false,
                                                             CapacityCalculated = false,
+                                                            IsFresh = true
                                                         };
 
                                                         var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
@@ -724,6 +728,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                                     StatusID = currentRation.StatusID,
                                                                     State = (int)CustomerStageState.Initial,
                                                                     IsFinalized = false,
+                                                                    IsFresh = true,
                                                                     CapacityCalculated = false,
                                                                 };
 
@@ -779,6 +784,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                                 State = (int)CustomerStageState.Initial,
                                                                 IsFinalized = false,
                                                                 CapacityCalculated = false,
+                                                                IsFresh = true
                                                             };
 
                                                             var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
@@ -838,7 +844,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                             StatusID = currentRation.StatusID,
                                                             State = (int)CustomerStageState.Initial,
                                                             IsFinalized = false,
-                                                            CapacityCalculated = false
+                                                            CapacityCalculated = false,
+                                                            IsFresh = true
                                                         };
 
                                                         var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
@@ -875,7 +882,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                                     StatusID = currentRation.StatusID,
                                                                     State = (int)CustomerStageState.Initial,
                                                                     IsFinalized = false,
-                                                                    CapacityCalculated = false
+                                                                    CapacityCalculated = false,
+                                                                    IsFresh = true
                                                                 };
 
                                                                 var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
@@ -929,7 +937,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                                 StatusID = currentRation.StatusID,
                                                                 State = (int)CustomerStageState.Initial,
                                                                 IsFinalized = false,
-                                                                CapacityCalculated = false
+                                                                CapacityCalculated = false,
+                                                                IsFresh = true
                                                             };
 
                                                             var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
@@ -975,7 +984,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 StatusID = contact.StatusID,
                                                 State = (int)CustomerStageState.Initial,
                                                 IsFinalized = false,
-                                                CapacityCalculated = false
+                                                CapacityCalculated = false,
+                                                IsFresh = true
                                             };
 
                                             modelToCreate.State = (int)CustomerStageState.Initial;
@@ -1030,7 +1040,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         StatusID = currentRation.StatusID,
                                                         State = (int)CustomerStageState.Initial,
                                                         IsFinalized = false,
-                                                        CapacityCalculated = false
+                                                        CapacityCalculated = false,
+                                                        IsFresh = true
                                                     };
 
                                                     var creationRes = await unitOfWork.ContactManager.CreateAsync(recordCreationModel);
@@ -1073,7 +1084,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 StatusID = contact.StatusID,
                                                 State = (int)CustomerStageState.Initial,
                                                 IsFinalized = false,
-                                                CapacityCalculated = false
+                                                CapacityCalculated = false,
+                                                IsFresh = true
                                             };
 
                                             modelToCreate.State = (int)CustomerStageState.Initial;
@@ -1112,7 +1124,8 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                 StatusID = contact.StatusID,
                                                 State = (int)CustomerStageState.Unassigned,
                                                 IsFinalized = false,
-                                                CapacityCalculated = false
+                                                CapacityCalculated = false,
+                                                IsFresh = true
                                             };
 
                                             var creationModelResult = await unitOfWork.ContactManager.CreateAsync(modelToCreate);
