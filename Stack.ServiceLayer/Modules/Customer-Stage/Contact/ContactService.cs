@@ -385,7 +385,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                     {
 
                                         //Can assign to others
-                                        if (canAssignToOther && creationModel.AssigneeID != null)
+                                        if (canAssignToOther && creationModel.AssigneeID != null && creationModel.AssigneeID != userID)
                                         {
                                             var modelToCreate = new Contact
                                             {
@@ -421,7 +421,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             }
                                         }
                                         //Can assign to self
-                                        else if (canAssignToSelf)
+                                        else if (canAssignToSelf && creationModel.AssigneeID == userID)
                                         {
                                             var modelToCreate = new Contact
                                             {

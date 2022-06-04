@@ -76,8 +76,14 @@ namespace Stack.ServiceLayer.Modules.pool
                             NameAR = model.NameAR,
                             DescriptionEN = model.DescriptionEN,
                             DescriptionAR = model.DescriptionAR,
-                            ConfigurationType = (int)PoolConfigurationTypes.Default
+                            ConfigurationType = model.ConfigurationType
                         };
+
+                        if (creationModel.ConfigurationType == (int)PoolConfigurationTypes.Capacity ||
+                            (creationModel.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity))
+                        {
+                            creationModel.Capacity = model.Capacity;
+                        }
 
                         var creationResult = await unitOfWork.PoolManager.CreateAsync(creationModel);
                         if (creationResult != null)
@@ -91,6 +97,13 @@ namespace Stack.ServiceLayer.Modules.pool
                                 UserID = userID,
                                 IsAdmin = true
                             };
+
+                            if (creationModel.ConfigurationType == (int)PoolConfigurationTypes.Capacity ||
+                                (creationModel.ConfigurationType == (int)PoolConfigurationTypes.AutoAssignmentCapacity))
+                            {
+                                poolAdmin.Capacity = model.Capacity;
+                            }
+
 
                             var adminAssignmentResult = await unitOfWork.PoolUserManager.CreateAsync(poolAdmin);
                             if (adminAssignmentResult != null)

@@ -388,7 +388,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 ProcessFlow referenceProcessFlow = processFlowsResult.FirstOrDefault();
 
-                ApplicationUser referenceUser = await unitOfWork.UserManager.FindByNameAsync(this._httpContextAccessor.HttpContext.User.Identity.Name);
+                ApplicationUser referenceUser = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
 
 
                 if (referenceActivity != null && referenceProcessFlow != null && referenceUser != null)
@@ -1266,7 +1266,8 @@ namespace Stack.ServiceLayer.Modules.Activities
 
 
                 //Get the current user and contact record . 
-                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+                var userResult = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
+
 
                 var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == model.ContactID);
 
@@ -1508,7 +1509,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
 
                 //Get the current user and deal record . 
-                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+                var userResult = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
 
                 var dealsResult = await unitOfWork.DealManager.GetAsync(a => a.ID == model.DealID, includeProperties: "Customer");
 
@@ -1736,7 +1737,7 @@ namespace Stack.ServiceLayer.Modules.Activities
             {
 
                 //Get the current user and contact record . 
-                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+                var userResult = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
 
                 var dealsResult = await unitOfWork.DealManager.GetAsync(a => a.ID == ID, includeProperties: "Customer");
 
@@ -1934,7 +1935,7 @@ namespace Stack.ServiceLayer.Modules.Activities
             try
             {
                 //Get the current user and contact record . 
-                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+                var userResult = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
 
                 var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == ID);
 
@@ -2680,7 +2681,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     detailsModel.ActivitySections = new List<ActivitySectionDetailsDTO>();
 
-                    for(int i = 0; i < referenceActivity.ActivitySections.Count; i++)
+                    for (int i = 0; i < referenceActivity.ActivitySections.Count; i++)
                     {
 
                         ActivitySectionDetailsDTO sectionDetail = new ActivitySectionDetailsDTO();
@@ -2689,7 +2690,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                         sectionDetail.QuestionAnswers = new List<SectionQuestionAnswerDetailsDTO>();
 
-                        if(referenceActivity.ActivitySections[i].QuestionAnswers != null)
+                        if (referenceActivity.ActivitySections[i].QuestionAnswers != null)
                         {
 
                             for (int j = 0; j < referenceActivity.ActivitySections[i].QuestionAnswers.Count; j++)
@@ -2728,7 +2729,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                         }
 
                         detailsModel.ActivitySections.Add(sectionDetail);
-                  
+
                     }
 
 

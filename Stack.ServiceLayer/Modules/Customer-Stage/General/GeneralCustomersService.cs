@@ -2157,6 +2157,106 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             }
         }
 
+        public async Task<ApiResponse<bool>> CreateSingleStageRecord_Unassigned(RecordCreationModel creationModel)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+
+                    //Verify record creator's ID
+                    var user = await unitOfWork.UserManager.GetUserById(userID);
+                    if (user != null)
+                    {
+                        //Get Designated Pool for assigned user
+                        var poolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == creationModel.PoolID && t.UserID == userID, includeProperties: "Pool");
+                        var poolUser = poolQuery.FirstOrDefault();
+
+                        if (poolUser != null)
+                        {
+                            Pool pool = poolUser.Pool;
+
+                            //Verify record duplication
+                            var recordDuplicationCheckQ = await unitOfWork.ContactManager.GetAsync(t => t.PrimaryPhoneNumber == creationModel.PrimaryPhoneNumber);
+                            var recordDuplicationCheck = recordDuplicationCheckQ.FirstOrDefault();
+
+                            //Phone number not duplicated       
+                            if (recordDuplicationCheck == null)
+                            {
+                                Pool_User userModel = new Pool_User
+                                {
+                                    UserID = null
+                                };
+
+                                //Create and assign record immediatly
+                                var creationResult = await CreateSingleRecord(creationModel, userModel);
+
+                                result.Succeeded = true;
+                                return result;
+                            }
+                            //Duplicate Contact found
+                            else
+                            {
+                                //Create new deal
+                                NewDealCreationModel newDealModel = new NewDealCreationModel
+                                {
+                                    ContactID = null,
+                                    CustomerID = null,
+                                    RecordType = creationModel.RecordType,
+                                    StatusID = creationModel.StatusID,
+                                };
+
+                                if (recordDuplicationCheck.CustomerID == null)
+                                {
+                                    newDealModel.ContactID = recordDuplicationCheck.ID;
+                                }
+                                else
+                                {
+                                    newDealModel.CustomerID = recordDuplicationCheck.CustomerID;
+                                }
+
+                                var creationRes = await CreateNewDeal(newDealModel);
+
+                                return creationRes;
+
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Pool does not exist");
+                            result.Errors.Add("Pool does not exist");
+                            return result;
+                        }
+                    }
+                    else // user not found
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Unauthorized");
+                        return result;
+                    }
+                }
+                else //Invalid user token
+                {
+                    result.Succeeded = false;
+                    result.ErrorCode = ErrorCode.A500;
+                    result.Errors.Add("Unauthorized");
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
         //Create record 
         public async Task<ApiResponse<RecordCreationResponse>> CreateSingleRecord(RecordCreationModel creationModel, Pool_User PoolUser)
         {
@@ -2201,6 +2301,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                         Occupation = creationModel.Occupation,
                         ChannelID = contactCreationRes.ChannelID,
                         LSTID = contactCreationRes.LSTID,
+                        PoolID = contactCreationRes.PoolID,
                         LSNID = contactCreationRes.LSNID,
                     };
 
@@ -2239,6 +2340,11 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                     StatusID = creationModel.StatusID,
                                 };
 
+                                if (record.AssignedUserID == null)
+                                {
+                                    record.State = (int)CustomerStageState.Unassigned;
+                                }
+
                                 var recordCreationRes = await unitOfWork.LeadManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
@@ -2274,6 +2380,13 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                     State = (int)CustomerStageState.Initial,
                                     StatusID = creationModel.StatusID,
                                 };
+
+
+                                if (record.AssignedUserID == null)
+                                {
+                                    record.State = (int)CustomerStageState.Unassigned;
+                                }
+
                                 var recordCreationRes = await unitOfWork.ProspectManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
@@ -2309,6 +2422,13 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                     State = (int)CustomerStageState.Initial,
                                     StatusID = creationModel.StatusID,
                                 };
+
+
+                                if (record.AssignedUserID == null)
+                                {
+                                    record.State = (int)CustomerStageState.Unassigned;
+                                }
+
                                 var recordCreationRes = await unitOfWork.OpportunityManager.CreateAsync(record);
                                 if (recordCreationRes != null)
                                 {
@@ -2615,6 +2735,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 Address = contact.Address,
                                 AssignedUserID = contact.AssignedUserID,
                                 Email = contact.Email,
+                                PoolID = contact.PoolID,
                                 PrimaryPhoneNumber = contact.PrimaryPhoneNumber,
                                 Occupation = contact.Occupation,
                                 ChannelID = contact.ChannelID,
@@ -2821,7 +2942,6 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
         }
         #endregion
-
 
         #region Get Shared Records
         public async Task<ApiResponse<ContactViewModel>> GetCurrentStageRecord(GetPoolRecordsModel model)
