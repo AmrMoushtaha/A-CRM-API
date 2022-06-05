@@ -115,6 +115,13 @@ namespace Stack.API.Controllers.Modules.Pool
         }
 
         [AllowAnonymous]
+        [HttpPost("GetUserAssignedFreshRecords")]
+        public async Task<IActionResult> GetUserAssignedFreshRecords(GetPoolRecordsModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetUserAssignedFreshRecords(model));
+        }
+
+        [AllowAnonymous]
         [HttpPost("GetPoolAssignedUsersCapacity")]
         public async Task<IActionResult> GetPoolAssignedUsersCapacity(GetPoolAssignedUsersCapacityModel model)
         {

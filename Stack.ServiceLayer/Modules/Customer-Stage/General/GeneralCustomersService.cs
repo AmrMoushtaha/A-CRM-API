@@ -453,6 +453,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                 var record_PoolUserQ = await unitOfWork.PoolUserManager.GetAsync(t => t.UserID == creationModel.AssigneeID
                                 && t.PoolID == recordDuplicationCheck.PoolID, includeProperties: "Pool");
                                 var record_PoolUser = record_PoolUserQ.FirstOrDefault();
+
                                 //User is in the same pool as the record
                                 if (record_PoolUser != null)
                                 {
@@ -547,7 +548,50 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                                                         if (customerCreationRes != null)
                                                         {
+
                                                             await unitOfWork.SaveChangesAsync();
+
+                                                            //create customer tags and comments
+
+                                                            var contactCommentsQ = await unitOfWork.ContactCommentManager.GetAsync(t => t.ContactID == recordDuplicationCheck.ID);
+                                                            var contactComments = contactCommentsQ.ToList();
+
+                                                            if (contactComments != null && contactComments.Count > 0)
+                                                            {
+                                                                for (int i = 0; i < contactComments.Count; i++)
+                                                                {
+                                                                    var contactComment = contactComments[i];
+
+                                                                    CustomerComment customerComment = new CustomerComment
+                                                                    {
+                                                                        CustomerID = customerCreationRes.ID,
+                                                                        CreationDate = contactComment.CreationDate,
+                                                                        CreatedBy = contactComment.CreatedBy,
+                                                                        Comment = contactComment.Comment,
+                                                                    };
+
+                                                                    var customerCommentCreationRes = await unitOfWork.CustomerCommentManager.CreateAsync(customerComment);
+                                                                }
+                                                            }
+
+                                                            var contactTagsQ = await unitOfWork.ContactTagManager.GetAsync(t => t.ContactID == recordDuplicationCheck.ID);
+                                                            var contactTags = contactTagsQ.ToList();
+
+                                                            if (contactTags != null && contactTags.Count > 0)
+                                                            {
+                                                                for (int i = 0; i < contactTags.Count; i++)
+                                                                {
+                                                                    var contactTag = contactTags[i];
+
+                                                                    Customer_Tag customerTag = new Customer_Tag
+                                                                    {
+                                                                        CustomerID = customerCreationRes.ID,
+                                                                        TagID = contactTag.TagID,
+                                                                    };
+
+                                                                    var customerTagCreationRes = await unitOfWork.CustomerTagManager.CreateAsync(customerTag);
+                                                                }
+                                                            }
 
                                                             recordDuplicationCheck.CustomerID = customerCreationRes.ID;
                                                             recordDuplicationCheck.State = (int)CustomerStageState.Converted;
@@ -1017,6 +1061,49 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             {
                                                 await unitOfWork.SaveChangesAsync();
 
+                                                //create customer tags and comments
+
+                                                var contactCommentsQ = await unitOfWork.ContactCommentManager.GetAsync(t => t.ContactID == recordDuplicationCheck.ID);
+                                                var contactComments = contactCommentsQ.ToList();
+
+                                                if (contactComments != null && contactComments.Count > 0)
+                                                {
+                                                    for (int i = 0; i < contactComments.Count; i++)
+                                                    {
+                                                        var contactComment = contactComments[i];
+
+                                                        CustomerComment customerComment = new CustomerComment
+                                                        {
+                                                            CustomerID = customerCreationRes.ID,
+                                                            CreationDate = contactComment.CreationDate,
+                                                            CreatedBy = contactComment.CreatedBy,
+                                                            Comment = contactComment.Comment,
+                                                        };
+
+                                                        var customerCommentCreationRes = await unitOfWork.CustomerCommentManager.CreateAsync(customerComment);
+                                                    }
+                                                }
+
+                                                var contactTagsQ = await unitOfWork.ContactTagManager.GetAsync(t => t.ContactID == recordDuplicationCheck.ID);
+                                                var contactTags = contactTagsQ.ToList();
+
+                                                if (contactTags != null && contactTags.Count > 0)
+                                                {
+                                                    for (int i = 0; i < contactTags.Count; i++)
+                                                    {
+                                                        var contactTag = contactTags[i];
+
+                                                        Customer_Tag customerTag = new Customer_Tag
+                                                        {
+                                                            CustomerID = customerCreationRes.ID,
+                                                            TagID = contactTag.TagID,
+                                                        };
+
+                                                        var customerTagCreationRes = await unitOfWork.CustomerTagManager.CreateAsync(customerTag);
+                                                    }
+                                                }
+
+
                                                 recordDuplicationCheck.CustomerID = customerCreationRes.ID;
                                                 recordDuplicationCheck.State = (int)CustomerStageState.Converted;
                                                 var updateContactRes = await unitOfWork.ContactManager.UpdateAsync(recordDuplicationCheck);
@@ -1406,6 +1493,49 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                                         if (customerCreationRes != null)
                                                         {
                                                             await unitOfWork.SaveChangesAsync();
+
+                                                            //create customer tags and comments
+
+                                                            var contactCommentsQ = await unitOfWork.ContactCommentManager.GetAsync(t => t.ContactID == recordDuplicationCheck.ID);
+                                                            var contactComments = contactCommentsQ.ToList();
+
+                                                            if (contactComments != null && contactComments.Count > 0)
+                                                            {
+                                                                for (int i = 0; i < contactComments.Count; i++)
+                                                                {
+                                                                    var contactComment = contactComments[i];
+
+                                                                    CustomerComment customerComment = new CustomerComment
+                                                                    {
+                                                                        CustomerID = customerCreationRes.ID,
+                                                                        CreationDate = contactComment.CreationDate,
+                                                                        CreatedBy = contactComment.CreatedBy,
+                                                                        Comment = contactComment.Comment,
+                                                                    };
+
+                                                                    var customerCommentCreationRes = await unitOfWork.CustomerCommentManager.CreateAsync(customerComment);
+                                                                }
+                                                            }
+
+                                                            var contactTagsQ = await unitOfWork.ContactTagManager.GetAsync(t => t.ContactID == recordDuplicationCheck.ID);
+                                                            var contactTags = contactTagsQ.ToList();
+
+                                                            if (contactTags != null && contactTags.Count > 0)
+                                                            {
+                                                                for (int i = 0; i < contactTags.Count; i++)
+                                                                {
+                                                                    var contactTag = contactTags[i];
+
+                                                                    Customer_Tag customerTag = new Customer_Tag
+                                                                    {
+                                                                        CustomerID = customerCreationRes.ID,
+                                                                        TagID = contactTag.TagID,
+                                                                    };
+
+                                                                    var customerTagCreationRes = await unitOfWork.CustomerTagManager.CreateAsync(customerTag);
+                                                                }
+                                                            }
+
 
                                                             recordDuplicationCheck.CustomerID = customerCreationRes.ID;
                                                             recordDuplicationCheck.State = (int)CustomerStageState.Converted;
@@ -1874,6 +2004,49 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                                             if (customerCreationRes != null)
                                             {
                                                 await unitOfWork.SaveChangesAsync();
+
+                                                //create customer tags and comments
+
+                                                var contactCommentsQ = await unitOfWork.ContactCommentManager.GetAsync(t => t.ContactID == recordDuplicationCheck.ID);
+                                                var contactComments = contactCommentsQ.ToList();
+
+                                                if (contactComments != null && contactComments.Count > 0)
+                                                {
+                                                    for (int i = 0; i < contactComments.Count; i++)
+                                                    {
+                                                        var contactComment = contactComments[i];
+
+                                                        CustomerComment customerComment = new CustomerComment
+                                                        {
+                                                            CustomerID = customerCreationRes.ID,
+                                                            CreationDate = contactComment.CreationDate,
+                                                            CreatedBy = contactComment.CreatedBy,
+                                                            Comment = contactComment.Comment,
+                                                        };
+
+                                                        var customerCommentCreationRes = await unitOfWork.CustomerCommentManager.CreateAsync(customerComment);
+                                                    }
+                                                }
+
+                                                var contactTagsQ = await unitOfWork.ContactTagManager.GetAsync(t => t.ContactID == recordDuplicationCheck.ID);
+                                                var contactTags = contactTagsQ.ToList();
+
+                                                if (contactTags != null && contactTags.Count > 0)
+                                                {
+                                                    for (int i = 0; i < contactTags.Count; i++)
+                                                    {
+                                                        var contactTag = contactTags[i];
+
+                                                        Customer_Tag customerTag = new Customer_Tag
+                                                        {
+                                                            CustomerID = customerCreationRes.ID,
+                                                            TagID = contactTag.TagID,
+                                                        };
+
+                                                        var customerTagCreationRes = await unitOfWork.CustomerTagManager.CreateAsync(customerTag);
+                                                    }
+                                                }
+
 
                                                 recordDuplicationCheck.CustomerID = customerCreationRes.ID;
                                                 recordDuplicationCheck.State = (int)CustomerStageState.Converted;
@@ -2721,7 +2894,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     else
                     {
                         //Get customer
-                        var contactQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == creationModel.ContactID, includeProperties: "Contact");
+                        var contactQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == creationModel.ContactID);
                         var contact = contactQ.FirstOrDefault();
 
                         if (contact != null)
@@ -2943,7 +3116,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
         }
         #endregion
 
-        #region Get Shared Records
+
+        #region Get Records
+
+        //Get record by id (PoolID == recordID)
         public async Task<ApiResponse<ContactViewModel>> GetCurrentStageRecord(GetPoolRecordsModel model)
         {
             ApiResponse<ContactViewModel> result = new ApiResponse<ContactViewModel>();
@@ -2955,7 +3131,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 {
                     if (model.RecordType == (int)CustomerStageIndicator.Prospect)
                     {
-                        var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Comments,Deal.Customer.Tags,Deal.Customer.Contact,Status");
                         var records = recordsQ.FirstOrDefault();
 
                         if (records != null)
@@ -2981,7 +3157,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     }
                     else if (model.RecordType == (int)CustomerStageIndicator.Lead)
                     {
-                        var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Comments,Deal.Customer.Tags,Deal.Customer.Contact,Status");
                         var records = recordsQ.FirstOrDefault();
 
                         if (records != null)
@@ -3007,7 +3183,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     }
                     else if (model.RecordType == (int)CustomerStageIndicator.Opportunity)
                     {
-                        var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Comments,Deal.Customer.Tags,Deal.Customer.Contact,Status");
                         var records = recordsQ.FirstOrDefault();
 
                         if (records != null)
@@ -3032,7 +3208,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                     }
                     else if (model.RecordType == (int)CustomerStageIndicator.DoneDeal)
                     {
-                        var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact,Status");
+                        var recordsQ = await unitOfWork.DoneDealManager.GetAsync(t => t.ID == model.PoolID, includeProperties: "Deal,Deal.Customer,Deal.Customer.Comments,Deal.Customer.Tags,Deal.Customer.Contact,Status");
                         var records = recordsQ.FirstOrDefault();
 
                         if (records != null)

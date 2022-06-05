@@ -10,6 +10,8 @@ namespace Stack.DTOs.Requests.Modules.CustomerStage
         public long ReferenceID { get; set; }
         public string Comment { get; set; }
 
+        public int RecordType { get; set; }
+
     }
 
 }

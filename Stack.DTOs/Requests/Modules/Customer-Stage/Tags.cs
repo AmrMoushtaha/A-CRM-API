@@ -16,6 +16,7 @@ namespace Stack.DTOs.Requests.Modules.CustomerStage
     {
         public long ReferenceID { get; set; }
         public long TagID { get; set; }
+        public int RecordType { get; set; }
     }
 
 }

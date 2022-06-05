@@ -42,28 +42,6 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.GetDealPossibleStages());
         }
 
-        [AllowAnonymous]
-        [HttpPost("CreateSingleStageRecord_AssignToUser")]
-        public async Task<IActionResult> CreateSingleStageRecord_AssignToUser(RecordCreationModel model)
-        {
-            return await GetResponseHandler(async () => await service.CreateSingleStageRecord_AssignToUser(model));
-        }
-
-        [AllowAnonymous]
-        [HttpPost("CreateSingleStageRecord_AssignToSelf")]
-        public async Task<IActionResult> CreateSingleStageRecord_AssignToSelf(RecordCreationModel model)
-        {
-            return await GetResponseHandler(async () => await service.CreateSingleStageRecord_AssignToSelf(model));
-        }
-        
-        [AllowAnonymous]
-        [HttpPost("CreateSingleStageRecord_Unassigned")]
-        public async Task<IActionResult> CreateSingleStageRecord_Unassigned(RecordCreationModel model)
-        {
-            return await GetResponseHandler(async () => await service.CreateSingleStageRecord_Unassigned(model));
-        }
-
-
 
         [AllowAnonymous]
         [HttpGet("GetAllJunkedRecords/{customerStage}")]
@@ -80,13 +58,39 @@ namespace Stack.API.Controllers.Modules.Auth
             return await GetResponseHandler(async () => await service.GetAllNotInterestedRecords(customerStage));
         }
 
+        #region Creation
+
         [AllowAnonymous]
-        [HttpPost("SetRecordFavorite")]
-        public async Task<IActionResult> SetRecordFavorite(SetRecordFavoriteModel model)
+        [HttpPost("CreateNewDeal")]
+        public async Task<IActionResult> CreateNewDeal(NewDealCreationModel model)
         {
-            return await AddItemResponseHandler(async () => await service.SetRecordFavorite(model));
+            return await AddItemResponseHandler(async () => await service.CreateNewDeal(model));
         }
 
+        [AllowAnonymous]
+        [HttpPost("CreateSingleStageRecord_AssignToUser")]
+        public async Task<IActionResult> CreateSingleStageRecord_AssignToUser(RecordCreationModel model)
+        {
+            return await GetResponseHandler(async () => await service.CreateSingleStageRecord_AssignToUser(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("CreateSingleStageRecord_AssignToSelf")]
+        public async Task<IActionResult> CreateSingleStageRecord_AssignToSelf(RecordCreationModel model)
+        {
+            return await GetResponseHandler(async () => await service.CreateSingleStageRecord_AssignToSelf(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("CreateSingleStageRecord_Unassigned")]
+        public async Task<IActionResult> CreateSingleStageRecord_Unassigned(RecordCreationModel model)
+        {
+            return await GetResponseHandler(async () => await service.CreateSingleStageRecord_Unassigned(model));
+        }
+        #endregion
+
+
+        #region Favorites
         [AllowAnonymous]
         [HttpPost("GetUserFavorites")]
         public async Task<IActionResult> GetUserFavorites(GetFavoritesModel model)
@@ -95,11 +99,12 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
         [AllowAnonymous]
-        [HttpPost("CreateNewDeal")]
-        public async Task<IActionResult> CreateNewDeal(NewDealCreationModel model)
+        [HttpPost("SetRecordFavorite")]
+        public async Task<IActionResult> SetRecordFavorite(SetRecordFavoriteModel model)
         {
-            return await AddItemResponseHandler(async () => await service.CreateNewDeal(model));
+            return await AddItemResponseHandler(async () => await service.SetRecordFavorite(model));
         }
+        #endregion
 
     }
 

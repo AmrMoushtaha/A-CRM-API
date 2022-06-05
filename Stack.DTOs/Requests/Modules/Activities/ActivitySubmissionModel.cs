@@ -25,6 +25,8 @@ namespace Stack.DTOs.Requests.Modules.Activities
 
         public DateTime? ScheduledActivityDate { get; set; }
 
+        public int? DiscardOption { get; set; }
+
     }
 
 

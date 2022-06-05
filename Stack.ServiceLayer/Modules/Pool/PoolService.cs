@@ -50,7 +50,6 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-
         #region Creation
         //Create pool with default configuration
         public async Task<ApiResponse<bool>> CreatePool(PoolCreationModel model)
@@ -399,6 +398,66 @@ namespace Stack.ServiceLayer.Modules.pool
                     result.Succeeded = false;
                     result.Errors.Add("pool not found");
                     result.Errors.Add("pool not found");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<bool>> UpdateUsersCapacity(UpatePoolUsersCapacityModel model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    //Verify user pool permissions
+                    var poolUsersQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == model.PoolID, includeProperties: "Pool");
+                    var poolUsers = poolUsersQuery.ToList();
+
+                    if (poolUsers != null)
+                    {
+                        for (int i = 0; i < model.Users.Count; i++)
+                        {
+                            var updatedUser = model.Users[i];
+                            var user = poolUsers.Where(t => t.UserID == updatedUser.UserID).FirstOrDefault();
+
+                            if (user != null)
+                            {
+                                user.Capacity = updatedUser.Capacity;
+
+                                var updateRes = await unitOfWork.PoolUserManager.UpdateAsync(user);
+                            }
+                        }
+
+                        await unitOfWork.SaveChangesAsync();
+                        result.Succeeded = true;
+                        result.Data = true;
+                        return result;
+                    }
+                    else
+                    {
+
+                        result.Succeeded = false;
+                        result.Errors.Add("Error fetching space users");
+                        result.Errors.Add("Error fetching space users");
+                        return result;
+                    }
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
                     return result;
                 }
             }
@@ -951,9 +1010,6 @@ namespace Stack.ServiceLayer.Modules.pool
         }
         #endregion
 
-
-
-
         //Pool view - Get main pool details
         public async Task<ApiResponse<PoolSidebarViewModel>> GetPoolDetails(long poolID)
         {
@@ -1000,10 +1056,6 @@ namespace Stack.ServiceLayer.Modules.pool
             }
 
         }
-
-
-
-
 
         public async Task<ApiResponse<List<PoolConfigurationModel>>> GetSystemPools()
         {
@@ -1099,7 +1151,7 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        #region Pool Records List
+        #region Pool Records Listing
 
         public async Task<ApiResponse<List<ContactListViewModel>>> GetPoolContacts(long poolID)
         {
@@ -1571,46 +1623,80 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
 
-        public async Task<ApiResponse<bool>> UpdateUsersCapacity(UpatePoolUsersCapacityModel model)
+        public async Task<ApiResponse<List<ContactListViewModel>>> GetUserAssignedFreshRecords(GetPoolRecordsModel model)
         {
-            ApiResponse<bool> result = new ApiResponse<bool>();
+            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
             try
             {
                 var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
 
                 if (userID != null)
                 {
-                    //Verify user pool permissions
-                    var poolUsersQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == model.PoolID, includeProperties: "Pool");
-                    var poolUsers = poolUsersQuery.ToList();
+                    //var poolRecords = await unitOfWork.PoolUserManager.GetPoolRecords(poolID, userID);
 
-                    if (poolUsers != null)
+                    if (model.RecordType == (int)CustomerStageIndicator.Prospect)
                     {
-                        for (int i = 0; i < model.Users.Count; i++)
+                        var recordsQ = await unitOfWork.ProspectManager.GetAsync(t => t.AssignedUserID == userID &&
+                        (t.State == (int)CustomerStageState.Initial) && t.IsFresh == true, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact");
+                        var records = recordsQ.ToList();
+
+                        if (records != null && records.Count > 0)
                         {
-                            var updatedUser = model.Users[i];
-                            var user = poolUsers.Where(t => t.UserID == updatedUser.UserID).FirstOrDefault();
-
-                            if (user != null)
-                            {
-                                user.Capacity = updatedUser.Capacity;
-
-                                var updateRes = await unitOfWork.PoolUserManager.UpdateAsync(user);
-                            }
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                            return result;
                         }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.Lead)
+                    {
+                        var recordsQ = await unitOfWork.LeadManager.GetAsync(t => t.AssignedUserID == userID &&
+                        (t.State == (int)CustomerStageState.Initial) && t.IsFresh == true, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact");
+                        var records = recordsQ.ToList();
 
-                        await unitOfWork.SaveChangesAsync();
-                        result.Succeeded = true;
-                        result.Data = true;
-                        return result;
+                        if (records != null && records.Count > 0)
+                        {
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
+                    }
+                    else if (model.RecordType == (int)CustomerStageIndicator.Opportunity)
+                    {
+                        var recordsQ = await unitOfWork.OpportunityManager.GetAsync(t => t.AssignedUserID == userID &&
+                        (t.State == (int)CustomerStageState.Initial) && t.IsFresh == true, includeProperties: "Deal,Deal.Customer,Deal.Customer.Contact");
+                        var records = recordsQ.ToList();
+
+                        if (records != null && records.Count > 0)
+                        {
+                            result.Succeeded = true;
+                            result.Data = mapper.Map<List<ContactListViewModel>>(records);
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("No records found");
+                            result.Errors.Add("No records found");
+                            return result;
+                        }
                     }
                     else
                     {
-
-                        result.Succeeded = false;
-                        result.Errors.Add("Error fetching space users");
-                        result.Errors.Add("Error fetching space users");
-                        return result;
+                        throw new NotImplementedException();
                     }
                 }
                 else
@@ -1632,7 +1718,6 @@ namespace Stack.ServiceLayer.Modules.pool
         }
 
         #endregion
-
 
         #region Pool Record Verification & Lock
 
@@ -3284,7 +3369,6 @@ namespace Stack.ServiceLayer.Modules.pool
 
         #endregion
 
-
         #region Pool Records Filter
         public async Task<ApiResponse<List<ContactListViewModel>>> FilterPoolRecords(FilterPoolRecordsModel model)
         {
@@ -3565,9 +3649,6 @@ namespace Stack.ServiceLayer.Modules.pool
 
         }
         #endregion
-
-
-
     }
 
 }
