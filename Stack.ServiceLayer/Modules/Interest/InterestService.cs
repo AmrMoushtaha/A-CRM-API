@@ -11,6 +11,7 @@ using Stack.Entities.Models.Modules.Interest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -41,6 +42,43 @@ namespace Stack.ServiceLayer.Modules.Interest
             try
             {
                 var LevelResult = await unitOfWork.LInterestManager.GetAsync(a => a.LevelID == Level,includeProperties: "LInterestInput");
+                List<LInterest> LevelList = LevelResult.ToList();
+                if (LevelList != null && LevelList.Count != 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<LInterest>>(LevelList);
+                    return result;
+                }
+
+                result.Errors.Add("Failed to find interests!");
+                result.Succeeded = false;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<LInterest>>> Get_FilteredInterests(FilterInterests FilterInterests)
+        {
+            ApiResponse<List<LInterest>> result = new ApiResponse<List<LInterest>>();
+            try
+            {
+                Expression<Func<LInterest, bool>> filter = x => !x.IsDeleted
+                 && (string.IsNullOrEmpty(FilterInterests.DescriptionAR) || x.DescriptionAR.Contains(FilterInterests.DescriptionAR.Trim()))
+                 && (string.IsNullOrEmpty(FilterInterests.DescriptionEN) || x.DescriptionEN.Contains(FilterInterests.DescriptionEN.Trim()))
+                 && FilterInterests.LevelID==0 || x.LevelID.Equals(FilterInterests.LevelID)
+                 && FilterInterests.OwnerID==0 || x.OwnerID.Equals(FilterInterests.OwnerID)
+                 && FilterInterests.ParentLInterestID == 0 || x.ParentLInterestID.Equals(FilterInterests.ParentLInterestID)
+                 && x.IsSeparate.Equals(FilterInterests.IsSeparate);
+
+
+                var LevelResult = await unitOfWork.LInterestManager.GetAsync(filter, includeProperties: "LInterestInput");
                 List<LInterest> LevelList = LevelResult.ToList();
                 if (LevelList != null && LevelList.Count != 0)
                 {

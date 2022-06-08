@@ -12,7 +12,7 @@ namespace Stack.API.Controllers.Modules.Auth
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize] // Require Authorization to access API endpoints . 
+    // [Authorize] // Require Authorization to access API endpoints . 
     public class InterestController : BaseResultHandlerController<InterestService>
     {
         public InterestController(InterestService _service) : base(_service)
@@ -51,6 +51,11 @@ namespace Stack.API.Controllers.Modules.Auth
         public async Task<IActionResult> EditInterest(LInterestToEdit interestToAdd)
         {
             return await AddItemResponseHandler(async () => await service.Edit_Interest(interestToAdd));
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetFilteredInterests(FilterInterests FilterInterests)
+        {
+            return await AddItemResponseHandler(async () => await service.Get_FilteredInterests(FilterInterests));
         }
 
 
