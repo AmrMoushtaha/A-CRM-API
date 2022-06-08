@@ -12,6 +12,10 @@ namespace Stack.DTOs.Requests.Modules.Pool
         public string DescriptionEN { get; set; }
         public string DescriptionAR { get; set; }
 
+        public int ConfigurationType { get; set; }
+
+        public int? Capacity { get; set; }
+
     }
 
 }

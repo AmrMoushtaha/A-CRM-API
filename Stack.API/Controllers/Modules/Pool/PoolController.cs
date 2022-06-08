@@ -79,10 +79,25 @@ namespace Stack.API.Controllers.Modules.Pool
         }
 
         [AllowAnonymous]
+        [HttpGet("GetPoolFreshContacts/{poolID}")]
+        public async Task<IActionResult> GetPoolFreshContacts(long poolID)
+        {
+            return await GetResponseHandler(async () => await service.GetPoolFreshContacts(poolID));
+        }
+
+
+        [AllowAnonymous]
         [HttpPost("GetPoolRecords")]
         public async Task<IActionResult> GetPoolRecords(GetPoolRecordsModel model)
         {
             return await AddItemResponseHandler(async () => await service.GetPoolRecords(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("GetPoolFreshRecords")]
+        public async Task<IActionResult> GetPoolFreshRecords(GetPoolRecordsModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetPoolFreshRecords(model));
         }
 
         [AllowAnonymous]
@@ -97,6 +112,13 @@ namespace Stack.API.Controllers.Modules.Pool
         public async Task<IActionResult> GetUserAssignedRecords(GetPoolRecordsModel model)
         {
             return await AddItemResponseHandler(async () => await service.GetUserAssignedRecords(model));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("GetUserAssignedFreshRecords")]
+        public async Task<IActionResult> GetUserAssignedFreshRecords(GetPoolRecordsModel model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetUserAssignedFreshRecords(model));
         }
 
         [AllowAnonymous]

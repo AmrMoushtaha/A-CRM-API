@@ -82,6 +82,48 @@ namespace Stack.Core.Managers.Modules.Pools
             });
         }
 
+        public async Task<List<ContactListViewModel>> GetPoolFreshContacts(long poolID, string userID)
+        {
+
+            return await Task.Run(() =>
+            {
+                var enumerable = context.Pool_Users.Where(t => t.PoolID == poolID && t.UserID == userID)
+                            .Select(a => new
+                            {
+                                ID = a.PoolID,
+                                filteredContacts = a.Pool.Contacts.Where(t => t.State == (int)CustomerStageState.Unassigned && t.IsFresh == true)
+                            })
+                            .SelectMany(a => a.
+                            filteredContacts.Select(p => new ContactListViewModel
+                            {
+                                ID = p.ID,
+                                FullNameAR = p.FullNameAR,
+                                FullNameEN = p.FullNameEN,
+                                PrimaryPhoneNumber = p.PrimaryPhoneNumber,
+                                IsLocked = p.IsLocked
+                            })).ToList();
+
+                List<ContactListViewModel> asList = new List<ContactListViewModel>();
+
+                foreach (var item in enumerable)
+                {
+
+                    asList.Add(item);
+                };
+
+                var contacts = enumerable.ToList();
+                if (contacts != null && contacts.Count > 0)
+                {
+                    return contacts;
+                }
+                else
+                {
+                    return null;
+                }
+            });
+        }
+
+
     }
 
 }

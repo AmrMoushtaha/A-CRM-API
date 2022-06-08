@@ -388,7 +388,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                 ProcessFlow referenceProcessFlow = processFlowsResult.FirstOrDefault();
 
-                ApplicationUser referenceUser = await unitOfWork.UserManager.FindByNameAsync(this._httpContextAccessor.HttpContext.User.Identity.Name);
+                ApplicationUser referenceUser = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
 
 
                 if (referenceActivity != null && referenceProcessFlow != null && referenceUser != null)
@@ -410,6 +410,11 @@ namespace Stack.ServiceLayer.Modules.Activities
                             referenceContact.AssignedUserID = referenceUser.Id;
 
                             referenceContact.State = (int)CustomerStageState.Converted;
+
+                            if (referenceContact.IsFresh)
+                            {
+                                referenceContact.IsFresh = false;
+                            }
 
                             var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
 
@@ -451,6 +456,48 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 referenceContact.CustomerID = newCustomer.ID;
 
                                 var updateReferenceContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
+
+                                //create customer tags and comments
+
+                                var contactCommentsQ = await unitOfWork.ContactCommentManager.GetAsync(t => t.ContactID == referenceContact.ID);
+                                var contactComments = contactCommentsQ.ToList();
+
+                                if (contactComments != null && contactComments.Count > 0)
+                                {
+                                    for (int i = 0; i < contactComments.Count; i++)
+                                    {
+                                        var contactComment = contactComments[i];
+
+                                        CustomerComment customerComment = new CustomerComment
+                                        {
+                                            CustomerID = newCustomer.ID,
+                                            CreationDate = contactComment.CreationDate,
+                                            CreatedBy = contactComment.CreatedBy,
+                                            Comment = contactComment.Comment,
+                                        };
+
+                                        var customerCommentCreationRes = await unitOfWork.CustomerCommentManager.CreateAsync(customerComment);
+                                    }
+                                }
+
+                                var contactTagsQ = await unitOfWork.ContactTagManager.GetAsync(t => t.ContactID == referenceContact.ID);
+                                var contactTags = contactTagsQ.ToList();
+
+                                if (contactTags != null && contactTags.Count > 0)
+                                {
+                                    for (int i = 0; i < contactTags.Count; i++)
+                                    {
+                                        var contactTag = contactTags[i];
+
+                                        Customer_Tag customerTag = new Customer_Tag
+                                        {
+                                            CustomerID = newCustomer.ID,
+                                            TagID = contactTag.TagID,
+                                        };
+
+                                        var customerTagCreationRes = await unitOfWork.CustomerTagManager.CreateAsync(customerTag);
+                                    }
+                                }
 
                                 newDeal.CustomerID = createCustomerResult.ID;
 
@@ -501,6 +548,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 newStageRecord.AssignedUserID = referenceUser.Id;
 
                                 newStageRecord.DealID = newDeal.ID;
+
 
                                 var createNewStageRecordResult = await unitOfWork.ProspectManager.CreateAsync(newStageRecord);
 
@@ -581,6 +629,8 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 referenceDealID = referenceProspect.DealID;
 
+                                referenceProspect.IsFresh = false;
+
                                 var updateProspectResutlt = await unitOfWork.ProspectManager.UpdateAsync(referenceProspect);
 
                             }
@@ -593,6 +643,9 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 Lead referenceLead = leadsResult.FirstOrDefault();
 
                                 referenceLead.State = (int)CustomerStageState.Converted;
+
+                                referenceLead.IsFresh = false;
+
 
                                 referenceDealID = referenceLead.DealID;
 
@@ -608,6 +661,8 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 Opportunity referenceOpportunity = opportunitiesResult.FirstOrDefault();
 
                                 referenceOpportunity.State = (int)CustomerStageState.Converted;
+
+                                referenceOpportunity.IsFresh = false;
 
                                 referenceDealID = referenceOpportunity.DealID;
 
@@ -761,6 +816,8 @@ namespace Stack.ServiceLayer.Modules.Activities
                     activitySubmissionDetails.Comment = model.Comment;
 
 
+
+
                     //If the stage has been changed . 
                     if (model.CurrentStage != model.NewStage && model.NewStage != null)
                     {
@@ -784,6 +841,19 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                             referenceContact.IsFresh = false;
 
+                            //Check discard option
+                            if (model.DiscardOption != null)
+                            {
+                                if (model.DiscardOption == (int)CustomerDiscardOptions.NotInterested)
+                                {
+                                    referenceContact.State = (int)CustomerStageState.NotInterested;
+                                }
+                                else if (model.DiscardOption == (int)CustomerDiscardOptions.Junked)
+                                {
+                                    referenceContact.State = (int)CustomerStageState.Junked;
+                                }
+                            }
+
                             var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
 
                         }
@@ -796,6 +866,19 @@ namespace Stack.ServiceLayer.Modules.Activities
                             Prospect referenceProspect = prospectsResult.FirstOrDefault();
 
                             referenceProspect.IsFresh = false;
+
+                            //Check discard option
+                            if (model.DiscardOption != null)
+                            {
+                                if (model.DiscardOption == (int)CustomerDiscardOptions.NotInterested)
+                                {
+                                    referenceProspect.State = (int)CustomerStageState.NotInterested;
+                                }
+                                else if (model.DiscardOption == (int)CustomerDiscardOptions.Junked)
+                                {
+                                    referenceProspect.State = (int)CustomerStageState.Junked;
+                                }
+                            }
 
                             var updateProspectResutlt = await unitOfWork.ProspectManager.UpdateAsync(referenceProspect);
 
@@ -810,6 +893,19 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                             referenceLead.IsFresh = false;
 
+                            //Check discard option
+                            if (model.DiscardOption != null)
+                            {
+                                if (model.DiscardOption == (int)CustomerDiscardOptions.NotInterested)
+                                {
+                                    referenceLead.State = (int)CustomerStageState.NotInterested;
+                                }
+                                else if (model.DiscardOption == (int)CustomerDiscardOptions.Junked)
+                                {
+                                    referenceLead.State = (int)CustomerStageState.Junked;
+                                }
+                            }
+
                             var updateLeadResult = await unitOfWork.LeadManager.UpdateAsync(referenceLead);
 
                         }
@@ -822,6 +918,19 @@ namespace Stack.ServiceLayer.Modules.Activities
                             Opportunity referenceOpportunity = opportunitiesResult.FirstOrDefault();
 
                             referenceOpportunity.IsFresh = false;
+
+                            //Check discard option
+                            if (model.DiscardOption != null)
+                            {
+                                if (model.DiscardOption == (int)CustomerDiscardOptions.NotInterested)
+                                {
+                                    referenceOpportunity.State = (int)CustomerStageState.NotInterested;
+                                }
+                                else if (model.DiscardOption == (int)CustomerDiscardOptions.Junked)
+                                {
+                                    referenceOpportunity.State = (int)CustomerStageState.Junked;
+                                }
+                            }
 
                             var updateProspectResutlt = await unitOfWork.OpportunityManager.UpdateAsync(referenceOpportunity);
 
@@ -1266,7 +1375,8 @@ namespace Stack.ServiceLayer.Modules.Activities
 
 
                 //Get the current user and contact record . 
-                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+                var userResult = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
+
 
                 var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == model.ContactID);
 
@@ -1508,7 +1618,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
 
                 //Get the current user and deal record . 
-                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+                var userResult = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
 
                 var dealsResult = await unitOfWork.DealManager.GetAsync(a => a.ID == model.DealID, includeProperties: "Customer");
 
@@ -1736,7 +1846,7 @@ namespace Stack.ServiceLayer.Modules.Activities
             {
 
                 //Get the current user and contact record . 
-                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+                var userResult = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
 
                 var dealsResult = await unitOfWork.DealManager.GetAsync(a => a.ID == ID, includeProperties: "Customer");
 
@@ -1934,7 +2044,7 @@ namespace Stack.ServiceLayer.Modules.Activities
             try
             {
                 //Get the current user and contact record . 
-                var userResult = await unitOfWork.UserManager.FindByNameAsync(_httpContextAccessor.HttpContext.User.Identity.Name);
+                var userResult = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
 
                 var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == ID);
 
@@ -2680,7 +2790,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     detailsModel.ActivitySections = new List<ActivitySectionDetailsDTO>();
 
-                    for(int i = 0; i < referenceActivity.ActivitySections.Count; i++)
+                    for (int i = 0; i < referenceActivity.ActivitySections.Count; i++)
                     {
 
                         ActivitySectionDetailsDTO sectionDetail = new ActivitySectionDetailsDTO();
@@ -2689,7 +2799,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                         sectionDetail.QuestionAnswers = new List<SectionQuestionAnswerDetailsDTO>();
 
-                        if(referenceActivity.ActivitySections[i].QuestionAnswers != null)
+                        if (referenceActivity.ActivitySections[i].QuestionAnswers != null)
                         {
 
                             for (int j = 0; j < referenceActivity.ActivitySections[i].QuestionAnswers.Count; j++)
@@ -2728,7 +2838,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                         }
 
                         detailsModel.ActivitySections.Add(sectionDetail);
-                  
+
                     }
 
 

@@ -104,6 +104,22 @@ namespace Stack.Core.Managers.Modules.Materials
 
             });
         }
+
+        public async Task<List<ContactListViewModel>> GetAssignedFreshContacts(string userID)
+        {
+            return await Task.Run(() =>
+            {
+                return context.Contacts.Where(t => t.AssignedUserID == userID && t.State == (int)CustomerStageState.Initial && t.IsFresh == true)
+                   .Select(p => new ContactListViewModel
+                   {
+                       ID = p.ID,
+                       FullNameEN = p.FullNameEN,
+                       FullNameAR = p.FullNameAR,
+                       PrimaryPhoneNumber = p.PrimaryPhoneNumber,
+                   }).ToList();
+
+            });
+        }
     }
 
 }

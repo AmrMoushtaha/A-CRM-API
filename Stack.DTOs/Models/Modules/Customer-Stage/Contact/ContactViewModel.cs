@@ -8,6 +8,7 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
     public class ContactViewModel
     {
         public long ID { get; set; }
+        public long? CustomerID { get; set; }
 
         public string FullNameEN { get; set; }
         public string FullNameAR { get; set; }
