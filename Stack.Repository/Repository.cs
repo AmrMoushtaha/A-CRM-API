@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Stack.DTOs.Enums;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -75,6 +76,36 @@ namespace Stack.Repository
             });
         }
 
+        public async Task<List<TEntity>> GetPageAsync<TKey>(int PageNumeber=0, int PageSize=0, Expression<Func<TEntity, bool>> filter=null, Expression<Func<TEntity, TKey>> sortingExpression = null, SortDirection sortDir = SortDirection.Ascending, string includeProperties = "")
+        {
+            IQueryable<TEntity> query = context.Set<TEntity>();
+            int skipCount = (PageNumeber - 1) * PageSize;
+
+            if (filter != null)
+                query = query.Where(filter);
+
+            query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
+
+            switch (sortDir)
+            {
+                case SortDirection.Ascending:
+                    if (skipCount == 0)
+                        query = query.OrderBy<TEntity, TKey>(sortingExpression).Take(PageSize);
+                    else
+                        query = query.OrderBy<TEntity, TKey>(sortingExpression).Skip(skipCount).Take(PageSize);
+                    break;
+                case SortDirection.Descending:
+                    if (skipCount == 0)
+                        query = query.OrderByDescending<TEntity, TKey>(sortingExpression).Take(PageSize);
+                    else
+                        query = query.OrderByDescending<TEntity, TKey>(sortingExpression).Skip(skipCount).Take(PageSize);
+                    break;
+                default:
+                    break;
+            }
+            return await query.AsNoTracking().ToListAsync();
+        }
         public virtual async Task<IQueryable<TEntity>> GetIgnoreQueryFilterAsync(
            int pageNumber = 0,
            int itemsPerPage = 0,

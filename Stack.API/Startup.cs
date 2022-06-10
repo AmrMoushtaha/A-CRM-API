@@ -47,7 +47,7 @@ namespace Stack.API
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             //Live server connection string
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=tcp:64.112.57.179,1433; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
+            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=tcp:64.112.57.179,1433; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
             services.AddHangfire(x => x.UseSqlServerStorage("Server=tcp:64.112.57.179,1433; Database = CRMDB; User Id = sa; Password = P@ssw0rd$$.;"));
 
 
@@ -55,7 +55,7 @@ namespace Stack.API
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=NaderHosny; Database=CRMDB;User ID=sa;Password=P@ssw0rd$$.;"));
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server=Amr\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
             //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= B-YASMIN-GHAZY\\SQLEXPRESS; Database = CRMDB; User Id = SA; Password = P@ssw0rd;"));
-            //services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= DESKTOP-HH8V8OH; Database = CRMDB;Integrated Security =true;MultipleActiveResultSets=True; "));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer("Server= DESKTOP-HH8V8OH; Database = CRMDB;Integrated Security =true;MultipleActiveResultSets=True; "));
 
 
             //Hangfire connection string

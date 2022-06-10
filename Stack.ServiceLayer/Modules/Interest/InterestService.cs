@@ -72,14 +72,21 @@ namespace Stack.ServiceLayer.Modules.Interest
                 Expression<Func<LInterest, bool>> filter = x => !x.IsDeleted
                  && (string.IsNullOrEmpty(FilterInterests.DescriptionAR) || x.DescriptionAR.Contains(FilterInterests.DescriptionAR.Trim()))
                  && (string.IsNullOrEmpty(FilterInterests.DescriptionEN) || x.DescriptionEN.Contains(FilterInterests.DescriptionEN.Trim()))
-                 && FilterInterests.LevelID==0 || x.LevelID.Equals(FilterInterests.LevelID)
-                 && FilterInterests.OwnerID==0 || x.OwnerID.Equals(FilterInterests.OwnerID)
-                 && FilterInterests.ParentLInterestID == 0 || x.ParentLInterestID.Equals(FilterInterests.ParentLInterestID)
+                 && (FilterInterests.LevelID==0 || x.LevelID.Equals(FilterInterests.LevelID))
+                 && (FilterInterests.OwnerID.Count == 0 || FilterInterests.OwnerID.Contains((long)x.OwnerID))
+                 && (FilterInterests.ParentLInterestID.Count == 0 || FilterInterests.ParentLInterestID.Contains((long)x.ParentLInterestID))
+                 //&& (string.IsNullOrEmpty(FilterInterests.DescriptionEN) || x.LInterestInput.Exists(a=>a.AttributeID==5)
                  && x.IsSeparate.Equals(FilterInterests.IsSeparate);
 
-
+                Expression<Func<LInterest, string>> sorting = null;
                 var LevelResult = await unitOfWork.LInterestManager.GetAsync(filter, includeProperties: "LInterestInput");
-                List<LInterest> LevelList = LevelResult.ToList();
+               
+                switch (FilterInterests.SortingAttribute ==0)
+                {
+                    default: sorting = s => s.ID.ToString(); break;
+                }
+
+                List<LInterest> LevelList = LevelResult.OrderBy(sorting).ToList();
                 if (LevelList != null && LevelList.Count != 0)
                 {
                     result.Succeeded = true;
@@ -211,7 +218,7 @@ namespace Stack.ServiceLayer.Modules.Interest
                 LevelToCreate.LocationID = LInterestToAdd.LocationID == 0 ?null: LevelToCreate.LocationID;
                 LevelToCreate.ParentLInterestID = LInterestToAdd.ParentLInterestID == 0 ?null: LevelToCreate.ParentLInterestID;
                 LevelToCreate.OwnerID = LInterestToAdd.OwnerID == 0 ?null: LevelToCreate.OwnerID;
-
+                LevelToCreate.CreatedAt =DateTime.Now;
                 var createLevelResult = await unitOfWork.LInterestManager.CreateAsync(LevelToCreate);
                 var SaveResult = await unitOfWork.SaveChangesAsync();
 
