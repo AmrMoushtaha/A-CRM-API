@@ -6,8 +6,8 @@ namespace Stack.DTOs.Requests.Modules.Interest
 {
     public class FilterInterests
     {
-        public SortDirection SortingDirection { get; set; }
-        public int SortingAttribute { get; set; }
+        public string SortingDirection { get; set; }
+        public string SortingAttribute { get; set; }
 
         public string DescriptionEN { get; set; }
         public string DescriptionAR { get; set; }
@@ -20,7 +20,7 @@ namespace Stack.DTOs.Requests.Modules.Interest
         public long LocationID { get; set; }
 
         public List<long> ParentLInterestID { get; set; }
-        public List<long> AttributeID { get; set; }
+        public List<long?> AttributeID { get; set; }
 
 
 

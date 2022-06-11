@@ -72,21 +72,46 @@ namespace Stack.ServiceLayer.Modules.Interest
                 Expression<Func<LInterest, bool>> filter = x => !x.IsDeleted
                  && (string.IsNullOrEmpty(FilterInterests.DescriptionAR) || x.DescriptionAR.Contains(FilterInterests.DescriptionAR.Trim()))
                  && (string.IsNullOrEmpty(FilterInterests.DescriptionEN) || x.DescriptionEN.Contains(FilterInterests.DescriptionEN.Trim()))
-                 && (FilterInterests.LevelID==0 || x.LevelID.Equals(FilterInterests.LevelID))
+                 && (FilterInterests.LevelID == 0 || x.LevelID.Equals(FilterInterests.LevelID))
                  && (FilterInterests.OwnerID.Count == 0 || FilterInterests.OwnerID.Contains((long)x.OwnerID))
                  && (FilterInterests.ParentLInterestID.Count == 0 || FilterInterests.ParentLInterestID.Contains((long)x.ParentLInterestID))
-                 //&& (string.IsNullOrEmpty(FilterInterests.DescriptionEN) || x.LInterestInput.Exists(a=>a.AttributeID==5)
+                 && (FilterInterests.AttributeID.Count == 0
+                 || x.LInterestInput.Any(a => FilterInterests.AttributeID.Any(x => x == a.SelectedAttributeID)))
                  && x.IsSeparate.Equals(FilterInterests.IsSeparate);
 
-                Expression<Func<LInterest, string>> sorting = null;
                 var LevelResult = await unitOfWork.LInterestManager.GetAsync(filter, includeProperties: "LInterestInput");
-               
-                switch (FilterInterests.SortingAttribute ==0)
+
+                List<LInterest> LevelList = LevelResult.ToList();
+                //LevelList = LevelList.Where(L => L.LInterestInput.Any(a =>  FilterInterests.AttributeID.Any(x=>x== a.SelectedAttributeID))).ToList();
+
+                var sortOrder = FilterInterests.SortingDirection == "Ascending" ?
+                      FilterInterests.SortingAttribute : FilterInterests.SortingAttribute + "_" + FilterInterests.SortingDirection;
+           
+                switch (sortOrder)
                 {
-                    default: sorting = s => s.ID.ToString(); break;
+                    case "Date":
+                        LevelList = LevelList.OrderBy(s => s.CreatedAt).ToList();
+                        break;
+                    case "Date_Descending":
+                        LevelList = LevelList.OrderByDescending(s => s.CreatedAt).ToList();
+                        break;
+                    case "alphabeticalAR":
+                        LevelList = LevelList.OrderBy(s => s.DescriptionAR).ToList();
+                        break;
+                    case "alphabeticalAR_Descending":
+                        LevelList = LevelList.OrderByDescending(s => s.DescriptionAR).ToList();
+                        break;
+                    case "alphabeticalEN":
+                        LevelList = LevelList.OrderBy(s => s.DescriptionEN).ToList();
+                        break;
+                    case "alphabeticalEN_Descending":
+                        LevelList = LevelList.OrderByDescending(s => s.DescriptionEN).ToList();
+                        break;
+                    default:
+                        LevelList = LevelList.OrderBy(s => s.ID).ToList();
+                        break;
                 }
 
-                List<LInterest> LevelList = LevelResult.OrderBy(sorting).ToList();
                 if (LevelList != null && LevelList.Count != 0)
                 {
                     result.Succeeded = true;
