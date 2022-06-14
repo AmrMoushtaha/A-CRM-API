@@ -6,7 +6,6 @@ using Stack.Core;
 using Stack.DTOs;
 using Stack.DTOs.Enums;
 using Stack.DTOs.Requests.Modules.Interest;
-using Stack.Entities.Models.Modules.Hierarchy;
 using Stack.Entities.Models.Modules.Interest;
 using System;
 using System.Collections.Generic;
@@ -75,8 +74,7 @@ namespace Stack.ServiceLayer.Modules.Interest
                  && (FilterInterests.LevelID == 0 || x.LevelID.Equals(FilterInterests.LevelID))
                  && (FilterInterests.OwnerID.Count == 0 || FilterInterests.OwnerID.Contains((long)x.OwnerID))
                  && (FilterInterests.ParentLInterestID.Count == 0 || FilterInterests.ParentLInterestID.Contains((long)x.ParentLInterestID))
-                 && (FilterInterests.AttributeID.Count == 0
-                 || x.LInterestInput.Any(a => FilterInterests.AttributeID.Any(x => x == a.SelectedAttributeID)))
+                 && (FilterInterests.AttributeID.Count == 0|| x.LInterestInput.Any(a => FilterInterests.AttributeID.Any(x => x == a.SelectedAttributeID)))
                  && x.IsSeparate.Equals(FilterInterests.IsSeparate);
 
                 var LevelResult = await unitOfWork.LInterestManager.GetAsync(filter, includeProperties: "LInterestInput");
@@ -243,6 +241,7 @@ namespace Stack.ServiceLayer.Modules.Interest
                 LevelToCreate.LocationID = LInterestToAdd.LocationID == 0 ?null: LevelToCreate.LocationID;
                 LevelToCreate.ParentLInterestID = LInterestToAdd.ParentLInterestID == 0 ?null: LevelToCreate.ParentLInterestID;
                 LevelToCreate.OwnerID = LInterestToAdd.OwnerID == 0 ?null: LevelToCreate.OwnerID;
+                LevelToCreate.OwnerType = LInterestToAdd.OwnerID == 0 ?null: LevelToCreate.OwnerType;
                 LevelToCreate.CreatedAt =DateTime.Now;
                 var createLevelResult = await unitOfWork.LInterestManager.CreateAsync(LevelToCreate);
                 var SaveResult = await unitOfWork.SaveChangesAsync();
@@ -355,29 +354,53 @@ namespace Stack.ServiceLayer.Modules.Interest
             try
             {
                 LInterest LInterestToupdate = mapper.Map<LInterest>(LInterestToAdd);
-            
+
                 LInterestToupdate.LocationID = LInterestToAdd.LocationID == 0 ? null : LInterestToupdate.LocationID;
                 LInterestToupdate.ParentLInterestID = LInterestToAdd.ParentLInterestID == 0 ? null : LInterestToupdate.ParentLInterestID;
                 LInterestToupdate.OwnerID = LInterestToAdd.OwnerID == 0 ? null : LInterestToupdate.OwnerID;
+                LInterestToupdate.OwnerType = LInterestToAdd.OwnerID == 0 ? null : LInterestToupdate.OwnerType;
 
                 var createLevelResult = await unitOfWork.LInterestManager.UpdateAsync(LInterestToupdate);
                 var SaveResult = await unitOfWork.SaveChangesAsync();
+                var LinteretInputs = (await unitOfWork.LInterestInputManager.GetAsync(a => a.LInterestID == LInterestToupdate.ID)).ToList();
 
-                if (SaveResult)
-                {
-                    var Create_LInterestInputResult = await Create_LInterestInput(mapper.Map<List<LInterestInputToAdd>>(LInterestToAdd.LInterestInputs.FindAll(a => a.InputID == 0)), LInterestToupdate.ID);
 
-                    if (Create_LInterestInputResult.Succeeded)
-                        return await Edit_LInterestInput(LInterestToAdd.LInterestInputs.FindAll(a => a.InputID != 0), LInterestToupdate.ID);
-                    else
-                        return Create_LInterestInputResult;
-                }
-                else
+                var LinterestInputsToEdit = LInterestToAdd.LInterestInputs.FindAll(a => a.InputType != 8 && a.InputType != 9 && a.InputType != 1
+                && a.PredefinedInputType != 1 && a.PredefinedInputType != 2);
+
+                var Create_LInterestInputResult = await Create_LInterestInput(mapper.Map<List<LInterestInputToEdit>>(LinterestInputsToEdit.FindAll(a => a.ID == 0)), LInterestToupdate.ID);
+
+
+                var Edit_LInterestInputResult = await Edit_LInterestInput(LinterestInputsToEdit.FindAll(a => a.ID != 0), LInterestToupdate.ID);
+
+
+                var MultiLinteretInputs = (await unitOfWork.LInterestInputManager.GetAsync(a => a.LInterestID == LInterestToupdate.ID && (a.InputType == 8 || a.InputType == 9 || a.InputType == 1
+                    || a.PredefinedInputType == 1 || a.PredefinedInputType == 2))).ToList();
+
+
+                //filter  (gallery 8 / multiselect 1 / checkbox 9 / pre. multiselect /pre. checkbox)
+                var multiLinterestInputsToEdit = LInterestToAdd.LInterestInputs.FindAll(a => a.InputType == 8 || a.InputType == 9 || a.InputType == 1
+                || a.PredefinedInputType == 1 || a.PredefinedInputType == 2);
+
+                if (multiLinterestInputsToEdit.Count != 0)
                 {
-                    result.Errors.Add("Failed to create Interest");
-                    result.Succeeded = false;
-                    return result;
+                    var multiLinterestInputsToCreate = multiLinterestInputsToEdit.Where(m => !LinteretInputs.Exists(l => (l.Attachment == m.Attachment && !string.IsNullOrEmpty(m.Attachment))
+                    || (l.SelectedAttributeID == m.SelectedAttributeID && m.SelectedAttributeID != 0 && m.SelectedAttributeID != null))).ToList();
+
+                    var Create_multiLinterestInputsToCreate = await Create_LInterestInput(mapper.Map<List<LInterestInputToEdit>>(multiLinterestInputsToCreate), LInterestToupdate.ID);
+
+
+                    var multiLinterestInputsToRemove = MultiLinteretInputs.Where(m => !multiLinterestInputsToEdit.Exists(l => (l.Attachment == m.Attachment && !string.IsNullOrEmpty(m.Attachment))
+                    || (l.SelectedAttributeID == m.SelectedAttributeID && m.SelectedAttributeID != 0 && m.SelectedAttributeID != null))).ToList();
+
+                    var Remove_multiLinterestInputs = await Remove_LInterestInput(multiLinterestInputsToRemove, LInterestToupdate.ID);
+
                 }
+
+
+                result.Succeeded = true;
+                return result;
+
 
             }
             catch (Exception ex)
@@ -390,7 +413,60 @@ namespace Stack.ServiceLayer.Modules.Interest
 
         }
 
+        public async Task<ApiResponse<bool>> Create_LInterestInput(List<LInterestInputToEdit> LInterestInputs, long interestID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var errors = 0;
+                for (var i = 0; i < LInterestInputs.Count; i++)
+                {
+                    var LInterestInputToAdd = LInterestInputs[i];
+                    var inputResult = await unitOfWork.LInputManager.GetByIdAsync(LInterestInputToAdd.InputID);
+                    if (inputResult != null)
+                    {
+                        LInterestInput InputToCreate = mapper.Map<LInterestInput>(LInterestInputToAdd);
+                        InputToCreate.LInterestID = interestID;
+                        InputToCreate.InputType = inputResult.Type;
+                        InputToCreate.PredefinedInputType = inputResult.PredefinedInputType;
+                        InputToCreate.AttributeID = inputResult.AttributeID;
+                        InputToCreate.ID = 0;
+                        if ((InputToCreate.Attachment != "" && InputToCreate.Attachment != null) ||
+                            (InputToCreate.SelectedAttributeID != 0 && InputToCreate.SelectedAttributeID != null))
+                        {
+                            var createInputResult = await unitOfWork.LInterestInputManager.CreateAsync(InputToCreate);
+                            var saveResult = await unitOfWork.SaveChangesAsync();
+                            if (!saveResult)
+                            {
+                                result.Errors.Add("Failed to create Interest Input for input " + LInterestInputToAdd.InputID);
+                                errors++;
+                            }
+                        }
+                    }
 
+                }
+                if (errors == 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = true;
+                    return result;
+                }
+                else
+                {
+                    result.Errors.Add("Failed to create Interest Input");
+                    result.Succeeded = false;
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
         public async Task<ApiResponse<bool>> Create_LInterestInput(List<LInterestInputToAdd> LInterestInputs,long interestID)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -446,6 +522,46 @@ namespace Stack.ServiceLayer.Modules.Interest
 
         }
 
+        public async Task<ApiResponse<bool>> Remove_LInterestInput(List<LInterestInput> LInterestInputs, long interestID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var errors = 0;
+                for (var i = 0; i < LInterestInputs.Count; i++)
+                {
+
+                    var createInputResult = await unitOfWork.LInterestInputManager.RemoveAsync(LInterestInputs[i]);
+                    var saveResult = await unitOfWork.SaveChangesAsync();
+                    if (!saveResult)
+                    {
+                        result.Errors.Add("Failed to delete Interest Input for input " + LInterestInputs[i].ID);
+                        errors++;
+                    }
+
+                }
+                if (errors == 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = true;
+                    return result;
+                }
+                else
+                {
+                    result.Errors.Add("Failed to create Interest Input");
+                    result.Succeeded = false;
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
         public async Task<ApiResponse<bool>> Edit_LInterestInput(List<LInterestInputToEdit> LInterestInputs, long interestID)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -455,14 +571,17 @@ namespace Stack.ServiceLayer.Modules.Interest
                 for (var i = 0; i < LInterestInputs.Count; i++)
                 {
                     var LInterestInputToAdd = LInterestInputs[i];
-                    LInterestInput InputToCreate = mapper.Map<LInterestInput>(LInterestInputToAdd);
-                    InputToCreate.LInterestID = interestID;
-                    if ((InputToCreate.Attachment != "" && InputToCreate.Attachment != null) ||
-                        (InputToCreate.SelectedAttributeID != 0 && InputToCreate.SelectedAttributeID != null))
+                    var LinteretInput = await unitOfWork.LInterestInputManager.GetByIdAsync( LInterestInputToAdd.ID);
+
+                   // LinteretInput = mapper.Map<LInterestInput>(LInterestInputToAdd);
+                    LinteretInput.Attachment = LInterestInputToAdd.Attachment;
+                    LinteretInput.SelectedAttributeID = LInterestInputToAdd.SelectedAttributeID;
+
+                    if ((LinteretInput.Attachment != "" && LinteretInput.Attachment != null) ||
+                        (LinteretInput.SelectedAttributeID != 0 && LinteretInput.SelectedAttributeID != null))
                     {
-                        var createInputResult = await unitOfWork.LInterestInputManager.UpdateAsync(InputToCreate);
-                        var saveResult = await unitOfWork.SaveChangesAsync();
-                        if (!saveResult)
+                        var createInputResult = await unitOfWork.LInterestInputManager.UpdateAsync(LinteretInput);
+                        if (!createInputResult)
                         {
                             result.Errors.Add("Failed to update Interest Input for input " + LInterestInputToAdd.ID);
                             errors++;
@@ -470,6 +589,7 @@ namespace Stack.ServiceLayer.Modules.Interest
                     }
 
                 }
+                 await unitOfWork.SaveChangesAsync();
                 if (errors == 0)
                 {
                     result.Succeeded = true;

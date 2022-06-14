@@ -16,6 +16,8 @@ namespace Stack.Entities.Models.Modules.Interest
         [ForeignKey("LevelID")]
         public virtual Level Level { get; set; }
 
+        public int? OwnerType { get; set; } //customer /contact enum 
+
         public long? OwnerID { get; set; } //if Separated
         [ForeignKey("OwnerID")]
         public virtual Customer Owner { get; set; }

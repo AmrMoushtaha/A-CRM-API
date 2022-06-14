@@ -53,6 +53,33 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
         }
 
+        public async Task<ApiResponse<List<Customer>>> Get_Contacts()
+        {
+            ApiResponse<List<Customer>> result = new ApiResponse<List<Customer>>();
+            try
+            {
+                var CustomerResult = (await unitOfWork.ContactManager.GetAsync()).ToList();
+                if (CustomerResult.Count != 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<Customer>>(CustomerResult);
+                    return result;
+                }
+
+                result.Errors.Add("Failed to find Contacts!");
+                result.Succeeded = false;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
         #region Assigned
         public async Task<ApiResponse<List<ContactListViewModel>>> GetAssignedContacts()
         {

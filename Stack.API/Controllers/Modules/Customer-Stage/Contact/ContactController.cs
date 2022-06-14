@@ -20,6 +20,12 @@ namespace Stack.API.Controllers.Modules.Auth
 
 
         [AllowAnonymous]
+        [HttpGet("GetContacts")]
+        public async Task<IActionResult> GetContacts()
+        {
+            return await GetResponseHandler(async () => await service.Get_Contacts());
+        }
+        [AllowAnonymous]
         [HttpGet("GetContactDetails/{id}")]
         public async Task<IActionResult> GetContactDetails(long id)
         {

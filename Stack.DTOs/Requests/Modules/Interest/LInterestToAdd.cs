@@ -10,6 +10,7 @@ namespace Stack.DTOs.Requests.Modules.Interest
         public bool IsSeparate { get; set; } // is resale
 
         public long LevelID { get; set; }
+        public int? OwnerType { get; set; } //customer /contact enum 
         public long? OwnerID { get; set; } //if Separated
         public long? LocationID { get; set; }
 

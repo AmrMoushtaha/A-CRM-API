@@ -44,6 +44,32 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
             this.mapper = mapper;
 
         }
+        public async Task<ApiResponse<List<Customer>>> Get_Customers( )
+        {
+            ApiResponse<List<Customer>> result = new ApiResponse<List<Customer>>();
+            try
+            {
+                var CustomerResult =( await unitOfWork.CustomerManager.GetAsync()).ToList();
+                if ( CustomerResult.Count != 0)
+                {
+                    result.Succeeded = true;
+                    result.Data = mapper.Map<List<Customer>>(CustomerResult);
+                    return result;
+                }
+
+                result.Errors.Add("Failed to find Customers!");
+                result.Succeeded = false;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
 
 
     }

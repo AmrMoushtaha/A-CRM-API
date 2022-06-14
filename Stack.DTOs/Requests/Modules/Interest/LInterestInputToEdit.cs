@@ -9,6 +9,8 @@ namespace Stack.DTOs.Requests.Modules.Interest
         public string Attachment { get; set; }
         public long? SelectedAttributeID { get; set; }
         public long InputID { get; set; }
+        public long InputType { get; set; }
+        public long PredefinedInputType { get; set; }
 
     }
 

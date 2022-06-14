@@ -18,7 +18,12 @@ namespace Stack.API.Controllers.Modules.Auth
 
         }
 
-  
+        [AllowAnonymous]
+        [HttpGet("GetCustomers")]
+        public async Task<IActionResult> GetCustomers()
+        {
+            return await GetResponseHandler(async () => await service.Get_Customers());
+        }
     }
 
 }
