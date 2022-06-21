@@ -32,15 +32,12 @@ namespace Stack.ServiceLayer.Modules.Chat
         private readonly IConfiguration config;
         private readonly IMapper mapper;
 
-        private readonly ChatHub ChatHub;
-        public ChatService(UnitOfWork unitOfWork, IConfiguration config, IMapper mapper, IHttpContextAccessor httpContextAccessor, ChatHub ChatHub)
+        public ChatService(UnitOfWork unitOfWork, IConfiguration config, IMapper mapper, IHttpContextAccessor httpContextAccessor )
         {
             this.unitOfWork = unitOfWork;
             _httpContextAccessor = httpContextAccessor;
             this.config = config;
             this.mapper = mapper;
-            this.ChatHub = ChatHub;
-
 
         }
 

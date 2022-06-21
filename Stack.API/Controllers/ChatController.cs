@@ -14,9 +14,9 @@ using Stack.ServiceLayer.Modules.Chat;
 
 namespace Public_Chat.Controllers
 {
-    [Route("api/chat")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
-
+    //[Authorize] // Require Authorization to access API endpoints . 
 
     public class ChatController : BaseResultHandlerController<ChatService>
     {
@@ -33,24 +33,10 @@ namespace Public_Chat.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost]
-        public async Task<IActionResult> CreateConversation(ConversationToCreate model)
-        {
-            return await AddItemResponseHandler(async () => await service.Create_Conversation(model));
-        }
-
-        [AllowAnonymous]
         [HttpGet("{ID}")]
         public async Task<IActionResult> DeleteConversation(long ID)
         {
             return await GetResponseHandler(async () => await service.Delete_Conversation(ID));
-        }
-
-        [AllowAnonymous]
-        [HttpGet("{ID}")]
-        public async Task<IActionResult> GetConversationMessages(long ID)
-        {
-            return await GetResponseHandler(async () => await service.Get_ConversationMessages(ID));
         }
 
         [AllowAnonymous]
@@ -59,6 +45,24 @@ namespace Public_Chat.Controllers
         {
             return await GetResponseHandler(async () => await service.Get_UserConversations());
         }
+
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> CreateConversation(ConversationToCreate model)
+        {
+            return await AddItemResponseHandler(async () => await service.Create_Conversation(model));
+        }
+
+
+
+        [AllowAnonymous]
+        [HttpGet("{ID}")]
+        public async Task<IActionResult> GetConversationMessages(long ID)
+        {
+            return await GetResponseHandler(async () => await service.Get_ConversationMessages(ID));
+        }
+
         [AllowAnonymous]
         [HttpGet("{ID}")]
         public async Task<IActionResult> GetUsersConversation(long ID)
