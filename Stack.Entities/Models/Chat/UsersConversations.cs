@@ -7,20 +7,16 @@ using System.Text;
 
 namespace Stack.Entities.Models.Modules.Chat
 {
-    public class Message
+    public class UsersConversations :BaseEntity
     {
 
-        public long ID { get; set; }
-        public string SenderID { get; set; }
-
         public long ConversationID { get; set; }
-
         [ForeignKey("ConversationID")]
         public virtual Conversation Conversation { get; set; }
 
-        public string Content { get; set; }
-        public bool Seen { get; set; }
-        public DateTime Timestamp { get; set; }
+        public string ApplicationUserID { get; set; }
+        [ForeignKey("ApplicationUserID")]
+        public virtual ApplicationUser User { get; set; }
     }
 
 }

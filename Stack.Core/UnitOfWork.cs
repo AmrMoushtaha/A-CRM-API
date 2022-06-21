@@ -2,6 +2,7 @@
 using Stack.Core.Managers.Modules.Activities;
 using Stack.Core.Managers.Modules.area;
 using Stack.Core.Managers.Modules.Auth;
+using Stack.Core.Managers.Modules.chat;
 using Stack.Core.Managers.Modules.Common;
 using Stack.Core.Managers.Modules.CR;
 using Stack.Core.Managers.Modules.CustomerStage;
@@ -10,6 +11,7 @@ using Stack.Core.Managers.Modules.Interest;
 using Stack.Core.Managers.Modules.Materials;
 using Stack.Core.Managers.Modules.Pools;
 using Stack.DAL;
+using Stack.Entities.Models.Modules.Chat;
 using System;
 using System.Threading.Tasks;
 
@@ -607,8 +609,8 @@ namespace Stack.Core
             }
         }
 
-        private ChannelManager channelManager;
-        public ChannelManager ChannelManager
+        private ConversationManager channelManager;
+        public ConversationManager ChannelManager
         {
             get
             {
@@ -844,6 +846,44 @@ namespace Stack.Core
             }
         }
 
+        private ConversationManager conversationManager;
+        public ConversationManager ConversationManager
+        {
+            get
+            {
+                if (conversationManager == null)
+                {
+                    conversationManager = new ConversationManager(context);
+                }
+                return conversationManager;
+            }
+        }
+
+        private MessageManager messageManager;
+        public MessageManager MessageManager
+        {
+            get
+            {
+                if (messageManager == null)
+                {
+                    messageManager = new MessageManager(context);
+                }
+                return messageManager;
+            }
+        }
+
+        private UsersConversationsManager usersConversationsManager;
+        public UsersConversationsManager UsersConversationsManager
+        {
+            get
+            {
+                if (usersConversationsManager == null)
+                {
+                    usersConversationsManager = new UsersConversationsManager(context);
+                }
+                return usersConversationsManager;
+            }
+        }
     }
 
 }

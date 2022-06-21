@@ -17,25 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\Modules\PO\**" />
-    <Compile Remove="Controllers\Modules\PR\**" />
-    <Compile Remove="Controllers\Modules\RFQ\**" />
-    <Compile Remove="Controllers\Modules\Vendor\**" />
-    <Content Remove="Controllers\Modules\PO\**" />
-    <Content Remove="Controllers\Modules\PR\**" />
-    <Content Remove="Controllers\Modules\RFQ\**" />
-    <Content Remove="Controllers\Modules\Vendor\**" />
-    <EmbeddedResource Remove="Controllers\Modules\PO\**" />
-    <EmbeddedResource Remove="Controllers\Modules\PR\**" />
-    <EmbeddedResource Remove="Controllers\Modules\RFQ\**" />
-    <EmbeddedResource Remove="Controllers\Modules\Vendor\**" />
-    <None Remove="Controllers\Modules\PO\**" />
-    <None Remove="Controllers\Modules\PR\**" />
-    <None Remove="Controllers\Modules\RFQ\**" />
-    <None Remove="Controllers\Modules\Vendor\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="ExcelDataReader" Version="3.6.0" />
     <PackageReference Include="Hangfire" Version="1.7.28" />
