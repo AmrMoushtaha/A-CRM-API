@@ -609,8 +609,8 @@ namespace Stack.Core
             }
         }
 
-        private ConversationManager channelManager;
-        public ConversationManager ChannelManager
+        private ChannelManager channelManager;
+        public ChannelManager ChannelManager
         {
             get
             {

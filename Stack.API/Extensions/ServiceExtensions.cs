@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Stack.ServiceLayer.Modules.Activities;
 using Stack.ServiceLayer.Modules.Auth;
 using Stack.ServiceLayer.Modules.Channels;
+using Stack.ServiceLayer.Modules.Chat;
 using Stack.ServiceLayer.Modules.CR;
 using Stack.ServiceLayer.Modules.CustomerStage;
 using Stack.ServiceLayer.Modules.Hierarchy;

@@ -135,7 +135,7 @@ namespace Stack.ServiceLayer.Modules.Chat
                     var ConversationsResult = (await unitOfWork.UsersConversationsManager.GetAsync(filter)).ToList();
 
                     result.Succeeded = true;
-                    result.Data = mapper.Map<List<UsersConversationsDto>>(ConversationsResult));
+                    result.Data = mapper.Map<List<UsersConversationsDto>>(ConversationsResult);
                     return result;
 
                 }
