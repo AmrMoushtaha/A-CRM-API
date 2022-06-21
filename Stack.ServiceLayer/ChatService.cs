@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Stack.Entities.Models.Modules.Chat;
 using Stack.DTOs.Requests.Shared;
+using Stack.API.Hubs;
 
 namespace Stack.ServiceLayer.Modules.Chat
 {
@@ -30,18 +31,20 @@ namespace Stack.ServiceLayer.Modules.Chat
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration config;
         private readonly IMapper mapper;
-   
-        public ChatService(UnitOfWork unitOfWork, IConfiguration config, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+
+        private readonly ChatHub ChatHub;
+        public ChatService(UnitOfWork unitOfWork, IConfiguration config, IMapper mapper, IHttpContextAccessor httpContextAccessor, ChatHub ChatHub)
         {
             this.unitOfWork = unitOfWork;
             _httpContextAccessor = httpContextAccessor;
             this.config = config;
             this.mapper = mapper;
+            this.ChatHub = ChatHub;
 
 
         }
 
-
+    
         public async Task<ApiResponse<List<ConversationDto>>> Get_UserConversations()
         {
             ApiResponse<List<ConversationDto>> result = new ApiResponse<List<ConversationDto>>();
