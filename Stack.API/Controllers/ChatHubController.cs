@@ -12,11 +12,11 @@ namespace Public_Chat.Controllers
 {
     [Route("api/chat")]
     [ApiController]
-    public class ChatController : ControllerBase
+    public class ChatHubController : ControllerBase
     {
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public ChatController(IHubContext<ChatHub> hubContext)
+        public ChatHubController(IHubContext<ChatHub> hubContext)
         {
             _hubContext = hubContext;
         }

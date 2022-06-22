@@ -6,9 +6,8 @@ using System.Text;
 
 namespace Stack.Entities.Models.Modules.Chat
 {
-    public class Conversation
+    public class Conversation :BaseEntity
     {
-        public long ID { get; set; }
 
         public virtual List<Message> Messages { get; set; }
         public virtual List<UsersConversations> UsersConversations { get; set; }

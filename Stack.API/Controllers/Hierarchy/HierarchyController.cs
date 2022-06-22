@@ -48,8 +48,7 @@ namespace Stack.API.Controllers.Modules.Auth
         #region Section
 
         [HttpGet]
-        public async Task<IActionResult> 
-            s()
+        public async Task<IActionResult> GetSections()
         {
             return await GetResponseHandler(async () => await service.Get_Sections());
         }

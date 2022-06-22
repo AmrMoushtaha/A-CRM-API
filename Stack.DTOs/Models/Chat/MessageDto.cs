@@ -7,12 +7,16 @@ namespace Stack.DTOs.Requests.Modules.Chat
 {
     public class MessageDto
     {
+        public long ID { get; set; }
         public string SenderID { get; set; }
 
         public long ConversationID { get; set; }
 
-        public string Content { get; set; }
+        public virtual ConversationDto Conversation { get; set; }
 
+        public string Content { get; set; }
+        public bool Seen { get; set; }
+        public DateTime Timestamp { get; set; }
 
     }
 }
