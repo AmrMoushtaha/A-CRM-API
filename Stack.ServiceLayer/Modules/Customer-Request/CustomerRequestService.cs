@@ -1,39 +1,20 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Stack.Core;
 using Stack.DTOs;
 using Stack.DTOs.Enums;
-using Stack.DTOs.Models;
+using Stack.DTOs.Models.Modules.CR;
+using Stack.Entities.Enums.Modules.CustomerStage;
+using Stack.Entities.Models.Modules.CR;
+using Stack.Repository.Common;
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using System.Collections.Generic;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Stack.Repository.Common;
-using System.IdentityModel.Tokens.Jwt;
-using Stack.DTOs.Requests.Modules.Auth;
-using Stack.Entities.Models.Modules.Auth;
-using Stack.DTOs.Models.Modules.Auth;
-using Stack.DTOs.Models.Modules.CustomerStage;
-using Stack.DTOs.Requests.Modules.CustomerStage;
-using Stack.Entities.Enums.Modules.CustomerStage;
-using Stack.Entities.Enums.Modules.Auth;
-using Stack.Entities.Models.Modules.CustomerStage;
-using Stack.DTOs.Models.Modules.Pool;
-using Stack.Entities.Enums.Modules.Pool;
-using ExcelDataReader;
-using System.Data;
-using System.IO;
-using System.Net;
-using System.Web;
-using System.Net.Http.Headers;
-using Stack.Entities.Models.Modules.CR;
-using Stack.DTOs.Models.Modules.CR;
 
 namespace Stack.ServiceLayer.Modules.CR
 {
@@ -694,14 +675,14 @@ namespace Stack.ServiceLayer.Modules.CR
                 if (request != null)
                 {
                     //Get related data via type
-                    if (request.RequestType.Type == (int)CustomerRequestTypes.InterestBased)
-                    {
+                    //if (request.RequestType.Type == (int)CustomerRequestTypes.InterestBased)
+                    //{
 
-                    }
-                    else if (request.RequestType.Type == (int)CustomerRequestTypes.Resale)
-                    {
+                    //}
+                    //else if (request.RequestType.Type == (int)CustomerRequestTypes.Resale)
+                    //{
 
-                    }
+                    //}
 
                     //Get request timeline
                     var requestTimelineQ = await unitOfWork.CR_TimelineManager.GetAsync(t => t.RequestID == request.ID && t.TimelineID == request.TimelineID,
@@ -720,7 +701,7 @@ namespace Stack.ServiceLayer.Modules.CR
                         var phase = request.Timeline[0].Timeline.Phases[i];
 
                         //Get request timeline phase
-                        var cr_timeline_phaseQ = await unitOfWork.CR_Timeline_PhaseManager.GetAsync(t => t.TimelinePhaseID == phase.ID);
+                        var cr_timeline_phaseQ = await unitOfWork.CR_Timeline_PhaseManager.GetAsync(t => t.TimelinePhaseID == phase.ID && t.RequestID == request.ID);
                         var cr_timeline_phase = cr_timeline_phaseQ.FirstOrDefault();
 
                         if (cr_timeline_phase != null)
