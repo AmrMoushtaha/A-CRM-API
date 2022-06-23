@@ -661,9 +661,9 @@ namespace Stack.ServiceLayer.Modules.CR
 
         }
 
-        public async Task<ApiResponse<CRTypeViewModel>> GetCustomerRequestByID(long requestID)
+        public async Task<ApiResponse<CRViewModel>> GetCustomerRequestByID(long requestID)
         {
-            ApiResponse<CRTypeViewModel> result = new ApiResponse<CRTypeViewModel>();
+            ApiResponse<CRViewModel> result = new ApiResponse<CRViewModel>();
             try
             {
 
@@ -706,6 +706,17 @@ namespace Stack.ServiceLayer.Modules.CR
 
                         if (cr_timeline_phase != null)
                         {
+                            CR_Timeline_Phase phaseDetails = new CR_Timeline_Phase
+                            {
+                                StartDate = cr_timeline_phase.StartDate,
+                                EndDate = cr_timeline_phase.EndDate,
+                            };
+
+                            List<CR_Timeline_Phase> detailsList = new List<CR_Timeline_Phase>();
+
+                            detailsList.Add(phaseDetails);
+
+                            phase.RequestTimelinePhaseDetails = detailsList;
                             //Get phase input answers
                             for (int j = 0; j < phase.Phase.Inputs.Count; j++)
                             {
@@ -726,7 +737,7 @@ namespace Stack.ServiceLayer.Modules.CR
 
 
                     result.Succeeded = true;
-                    result.Data = mapper.Map<CRTypeViewModel>(request);
+                    result.Data = mapper.Map<CRViewModel>(request);
 
                     //Get Request Interest
                     if (request.InterestID != null)
