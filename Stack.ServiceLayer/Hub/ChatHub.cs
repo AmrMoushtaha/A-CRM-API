@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Stack.Core;
 using Stack.DTOs.Requests.Shared;
 using Stack.Entities.Models.Modules.Chat;
+using Stack.Repository.Common;
 using Stack.ServiceLayer.Modules.Chat;
 using System;
 using System.Collections.Generic;
@@ -11,21 +14,23 @@ using System.Threading.Tasks;
 
 namespace Stack.API.Hubs
 {
+    [Authorize]
     public class ChatHub : Hub    
     {
-
         private readonly UnitOfWork unitOfWork;
-        private readonly ChatService ChatService;
         private readonly IMapper mapper;
+        protected IHubContext<ChatHub> _context;
+        private readonly ChatService ChatService;
 
-        public ChatHub(UnitOfWork unitOfWork, IMapper mapper, ChatService ChatService)
+        public ChatHub(UnitOfWork unitOfWork, IMapper mapper, IHubContext<ChatHub> context, ChatService ChatService)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this._context = context;
             this.ChatService = ChatService;
         }
 
-        public async Task SendMessage(HubAddMsg msg)  
+        public async Task SendMessage(HubAddMsg msg)
         {
             if (msg.ConversationID != 0)
             {
@@ -61,7 +66,9 @@ namespace Stack.API.Hubs
                     await Clients.User(msg.ReceiverID).SendAsync("Receive", msg);
 
             }
-            
+
         }
     }
 }
+
+

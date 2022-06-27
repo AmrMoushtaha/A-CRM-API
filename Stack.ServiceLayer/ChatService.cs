@@ -54,7 +54,7 @@ namespace Stack.ServiceLayer.Modules.Chat
                     Expression<Func<Conversation, bool>> filter = x => !x.IsDeleted
                     && x.UsersConversations.Any(a => a.ApplicationUserID == userID);
  
-                    var ConversationsResult =( await unitOfWork.ConversationManager.GetAsync(filter, includeProperties: "Messages")).ToList();
+                    var ConversationsResult =( await unitOfWork.ConversationManager.GetAsync(filter, includeProperties: "Messages,UsersConversations")).ToList();
                     if (ConversationsResult.Count != 0)
                     {
                         result.Succeeded = true;
@@ -92,14 +92,22 @@ namespace Stack.ServiceLayer.Modules.Chat
 
                 if (userID != null)
                 {
-                    Expression<Func<Conversation, bool>> filter = x => !x.IsDeleted
-                    && x.ID==ConversationID;
+                    Expression<Func<Conversation, bool>> filter = x => !x.IsDeleted && x.ID==ConversationID;
 
-                    var ConversationsResult = (await unitOfWork.ConversationManager.GetAsync(filter, includeProperties: "Messages")).ToList();
+                    var ConversationsResult = (await unitOfWork.ConversationManager.GetAsync(filter, includeProperties: "Messages,UsersConversations")).FirstOrDefault();
+                    if (ConversationsResult != null)
+                    {
 
-                    result.Succeeded = true;
-                    result.Data = mapper.Map<List<MessageDto>>(ConversationsResult.Take(50));
-                    return result;
+                        result.Succeeded = true;
+                        result.Data = mapper.Map<List<MessageDto>>(ConversationsResult.Messages.TakeLast(50));
+                        return result;
+                    }
+                    else
+                    {
+                        result.Errors.Add("Failed to find Messages!");
+                        result.Succeeded = false;
+                        return result;
+                    }
 
                 }
                 else
@@ -168,6 +176,7 @@ namespace Stack.ServiceLayer.Modules.Chat
                     Message MessageToCreate = mapper.Map<Message>(msg);
                     MessageToCreate.SenderID = userID;
                     MessageToCreate.CreatedAt = DateTime.Now;
+                    MessageToCreate.Timestamp = DateTime.Now;
 
                     var createLevelResult = await unitOfWork.MessageManager.CreateAsync(MessageToCreate);
                     var SaveResult = await unitOfWork.SaveChangesAsync();
@@ -229,6 +238,16 @@ namespace Stack.ServiceLayer.Modules.Chat
 
                         var UsersConversationResult = await unitOfWork.UsersConversationsManager.CreateAsync(UsersConversationToCreate);
                         var SaveUsersConversationResult = await unitOfWork.SaveChangesAsync();
+
+
+                        UsersConversations UsersConversationToCreate_ = new UsersConversations()
+                        {
+                            ApplicationUserID = userID,
+                            ConversationID = ConversationToCreate.ID
+                        };
+
+                        var UsersConversationResult_  = await unitOfWork.UsersConversationsManager.CreateAsync(UsersConversationToCreate_);
+                        var SaveUsersConversationResult_ = await unitOfWork.SaveChangesAsync();
 
                         AddMsg msgTocreate = new AddMsg()
                         {

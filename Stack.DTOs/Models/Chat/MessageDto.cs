@@ -18,5 +18,8 @@ namespace Stack.DTOs.Requests.Modules.Chat
         public bool Seen { get; set; }
         public DateTime Timestamp { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+        public bool IsDeleted { get; set; }
+
     }
 }
