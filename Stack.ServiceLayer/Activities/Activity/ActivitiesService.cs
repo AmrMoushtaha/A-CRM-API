@@ -19,6 +19,7 @@ using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Enums.Modules.CustomerStage;
 using Stack.DTOs.Models.Modules.Activities.ActivityDetails;
+using Stack.Entities.Models.Modules.CR;
 
 namespace Stack.ServiceLayer.Modules.Activities
 {
@@ -399,6 +400,8 @@ namespace Stack.ServiceLayer.Modules.Activities
                     //If the stage is being updated . 
                     if (model.NewStage != null && model.CurrentStage != model.NewStage)
                     {
+                        List<CustomerRequest> CustomerRequests = new List<CustomerRequest>();
+
                         //if the current stage is Contact, create a new customer &  deal and assign it to the existing process flow .
                         if (model.CurrentStage == "Contact")
                         {
@@ -419,6 +422,11 @@ namespace Stack.ServiceLayer.Modules.Activities
                             var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
 
                             await unitOfWork.SaveChangesAsync();
+
+                            //Get existing customer requests
+                            var customerRequestsQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.ContactID == referenceContact.ID);
+
+                            CustomerRequests = customerRequestsQ.ToList();
 
                             //Create a new deal record . 
                             Deal newDeal = new Deal();
@@ -456,6 +464,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 referenceContact.CustomerID = newCustomer.ID;
 
                                 var updateReferenceContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
+
 
                                 //create customer tags and comments
 
@@ -608,6 +617,23 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                             }
 
+                            //Update customer requests for new stage
+                            if (CustomerRequests != null && CustomerRequests.Count > 0)
+                            {
+                                for (int i = 0; i < CustomerRequests.Count; i++)
+                                {
+                                    var customerRequest = CustomerRequests[i];
+
+                                    if (customerRequest.ContactID != null)
+                                    {
+                                        customerRequest.ContactID = null;
+                                    }
+
+                                    customerRequest.DealID = newDeal.ID;
+
+                                    var updateCustomerRequestRes = await unitOfWork.CustomerRequestManager.UpdateAsync(customerRequest);
+                                }
+                            }
 
                             var updateDealResult = await unitOfWork.DealManager.UpdateAsync(newDeal);
 
@@ -633,6 +659,12 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 var updateProspectResutlt = await unitOfWork.ProspectManager.UpdateAsync(referenceProspect);
 
+
+                                //Get existing customer requests
+                                var customerRequestsQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.DealID == referenceProspect.DealID);
+
+                                CustomerRequests = customerRequestsQ.ToList();
+
                             }
 
                             if (model.CurrentStage == "Lead")
@@ -651,6 +683,11 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 var updateLeadResult = await unitOfWork.LeadManager.UpdateAsync(referenceLead);
 
+                                //Get existing customer requests
+                                var customerRequestsQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.DealID == referenceLead.DealID);
+
+                                CustomerRequests = customerRequestsQ.ToList();
+
                             }
 
                             if (model.CurrentStage == "Opportunity")
@@ -667,6 +704,11 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 referenceDealID = referenceOpportunity.DealID;
 
                                 var updateProspectResutlt = await unitOfWork.OpportunityManager.UpdateAsync(referenceOpportunity);
+
+                                //Get existing customer requests
+                                var customerRequestsQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.DealID == referenceOpportunity.DealID);
+
+                                CustomerRequests = customerRequestsQ.ToList();
 
                             }
 
@@ -699,6 +741,25 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 var updateReferenceDealResult = await unitOfWork.DealManager.UpdateAsync(referenceDeal);
 
+                                //Update customer requests for new stage
+                                if (CustomerRequests != null && CustomerRequests.Count > 0)
+                                {
+                                    for (int i = 0; i < CustomerRequests.Count; i++)
+                                    {
+                                        var customerRequest = CustomerRequests[i];
+
+                                        if (customerRequest.ContactID != null)
+                                        {
+                                            customerRequest.ContactID = null;
+                                        }
+
+                                        customerRequest.DealID = referenceDealID;
+
+                                        var updateCustomerRequestRes = await unitOfWork.CustomerRequestManager.UpdateAsync(customerRequest);
+                                    }
+                                }
+
+
                                 await unitOfWork.SaveChangesAsync();
 
                             }
@@ -725,6 +786,24 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 referenceDeal.ActiveStageType = (int)CustomerStageIndicator.Lead;
 
                                 var updateReferenceDealResult = await unitOfWork.DealManager.UpdateAsync(referenceDeal);
+
+                                //Update customer requests for new stage
+                                if (CustomerRequests != null && CustomerRequests.Count > 0)
+                                {
+                                    for (int i = 0; i < CustomerRequests.Count; i++)
+                                    {
+                                        var customerRequest = CustomerRequests[i];
+
+                                        if (customerRequest.ContactID != null)
+                                        {
+                                            customerRequest.ContactID = null;
+                                        }
+
+                                        customerRequest.DealID = referenceDealID;
+
+                                        var updateCustomerRequestRes = await unitOfWork.CustomerRequestManager.UpdateAsync(customerRequest);
+                                    }
+                                }
 
                                 await unitOfWork.SaveChangesAsync();
 
@@ -756,6 +835,24 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                                 var updateReferenceDealResult = await unitOfWork.DealManager.UpdateAsync(referenceDeal);
 
+                                //Update customer requests for new stage
+                                if (CustomerRequests != null && CustomerRequests.Count > 0)
+                                {
+                                    for (int i = 0; i < CustomerRequests.Count; i++)
+                                    {
+                                        var customerRequest = CustomerRequests[i];
+
+                                        if (customerRequest.ContactID != null)
+                                        {
+                                            customerRequest.ContactID = null;
+                                        }
+
+                                        customerRequest.DealID = referenceDealID;
+
+                                        var updateCustomerRequestRes = await unitOfWork.CustomerRequestManager.UpdateAsync(customerRequest);
+                                    }
+                                }
+
                                 await unitOfWork.SaveChangesAsync();
 
                             }
@@ -784,6 +881,24 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 referenceContact.IsFresh = false;
 
                                 var updateProcessFlowResult = await unitOfWork.ProcessFlowsManager.UpdateAsync(referenceProcessFlow);
+
+                                //Update customer requests for new stage
+                                if (CustomerRequests != null && CustomerRequests.Count > 0)
+                                {
+                                    for (int i = 0; i < CustomerRequests.Count; i++)
+                                    {
+                                        var customerRequest = CustomerRequests[i];
+
+                                        if (customerRequest.ContactID != null)
+                                        {
+                                            customerRequest.ContactID = null;
+                                        }
+
+                                        customerRequest.DealID = referenceDealID;
+
+                                        var updateCustomerRequestRes = await unitOfWork.CustomerRequestManager.UpdateAsync(customerRequest);
+                                    }
+                                }
 
                                 var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
 
