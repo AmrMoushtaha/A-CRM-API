@@ -41,7 +41,8 @@ namespace Stack.Core.Managers.Modules.Pools
                        }).ToList();
             });
         }
-        public async Task<List<ContactListViewModel>> GetPoolContacts(long poolID, string userID)
+
+        public async Task<ContactListMenuView> GetPoolContacts(long poolID, string userID, int pageNumber)
         {
 
             return await Task.Run(() =>
@@ -60,20 +61,21 @@ namespace Stack.Core.Managers.Modules.Pools
                                 FullNameEN = p.FullNameEN,
                                 PrimaryPhoneNumber = p.PrimaryPhoneNumber,
                                 IsLocked = p.IsLocked
-                            })).ToList();
+                            }));
 
-                List<ContactListViewModel> asList = new List<ContactListViewModel>();
+                var totalRecordsCount = enumerable.Count();
+                var paginatedRecords = enumerable.Skip((pageNumber - 1) * 10).Take(10).ToList();
 
-                foreach (var item in enumerable)
-                {
-
-                    asList.Add(item);
-                };
-
-                var contacts = enumerable.ToList();
+                var contacts = paginatedRecords.ToList();
                 if (contacts != null && contacts.Count > 0)
                 {
-                    return contacts;
+                    ContactListMenuView response = new ContactListMenuView
+                    {
+                        TotalRecords = totalRecordsCount,
+                        Records = contacts
+                    };
+
+                    return response;
                 }
                 else
                 {

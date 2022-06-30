@@ -10,6 +10,7 @@ using Stack.ServiceLayer.Modules.Hierarchy;
 using Stack.ServiceLayer.Modules.Interest;
 using Stack.ServiceLayer.Modules.pool;
 using Stack.ServiceLayer.Modules.SystemInitialization;
+using Stack.ServiceLayer.Modules.Teams;
 using Stack.ServiceLayer.Modules.Zoom;
 
 namespace Stack.API.Extensions
@@ -41,6 +42,7 @@ namespace Stack.API.Extensions
             caller.AddScoped<ChannelsService>();
             caller.AddScoped<CustomerRequestService>();
             caller.AddScoped<ChatService>();
+            caller.AddScoped<TeamService>();
         }
 
     }

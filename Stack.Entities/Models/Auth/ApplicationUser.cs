@@ -6,6 +6,7 @@ using Stack.Entities.Models.Modules.Activities;
 using Stack.Entities.Models.Modules.Chat;
 using Stack.Entities.Models.Modules.Common;
 using Stack.Entities.Models.Modules.CustomerStage;
+using Stack.Entities.Models.Modules.Teams;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -38,6 +39,7 @@ namespace Stack.Entities.Models.Modules.Auth
         public virtual List<Lead> Leads { get; set; }
         public virtual List<Opportunity> Opportunities { get; set; }
         public virtual List<Pool_User> Pools { get; set; }
+        public virtual List<Team_User> Teams { get; set; }
         public virtual List<PoolConnectionID> ConnectionIDs { get; set; }
         public virtual List<Contact_Favorite> Contact_Favorites { get; set; }
         public virtual List<Prospect_Favorite> Prospect_Favorites { get; set; }

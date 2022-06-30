@@ -10,6 +10,7 @@ using Stack.Core.Managers.Modules.Hierarchy;
 using Stack.Core.Managers.Modules.Interest;
 using Stack.Core.Managers.Modules.Materials;
 using Stack.Core.Managers.Modules.Pools;
+using Stack.Core.Managers.Modules.Teams;
 using Stack.DAL;
 using Stack.Entities.Models.Modules.Chat;
 using System;
@@ -882,6 +883,32 @@ namespace Stack.Core
                     usersConversationsManager = new UsersConversationsManager(context);
                 }
                 return usersConversationsManager;
+            }
+        }
+
+        private TeamManager teamManager;
+        public TeamManager TeamManager
+        {
+            get
+            {
+                if (teamManager == null)
+                {
+                    teamManager = new TeamManager(context);
+                }
+                return teamManager;
+            }
+        }
+
+        private TeamUserManager teamUserManager;
+        public TeamUserManager TeamUserManager
+        {
+            get
+            {
+                if (teamUserManager == null)
+                {
+                    teamUserManager = new TeamUserManager(context);
+                }
+                return teamUserManager;
             }
         }
     }

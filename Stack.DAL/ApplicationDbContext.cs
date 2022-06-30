@@ -11,6 +11,7 @@ using Stack.Entities.Models.Modules.CR;
 using Stack.Entities.Models.Modules.CustomerStage;
 using Stack.Entities.Models.Modules.Hierarchy;
 using Stack.Entities.Models.Modules.Interest;
+using Stack.Entities.Models.Modules.Teams;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -96,6 +97,9 @@ namespace Stack.DAL
            .Property<bool>("IsDeleted");
 
             modelBuilder.Entity<Pool>()
+           .Property<bool>("IsDeleted");
+
+            modelBuilder.Entity<Team>()
            .Property<bool>("IsDeleted");
 
             modelBuilder.Entity<Activity>()
@@ -212,6 +216,9 @@ namespace Stack.DAL
 
             modelBuilder.Entity<Pool>()
               .HasQueryFilter(Pool => EF.Property<bool>(Pool, "IsDeleted") == false);
+
+            modelBuilder.Entity<Team>()
+              .HasQueryFilter(Team => EF.Property<bool>(Team, "IsDeleted") == false);
 
             modelBuilder.Entity<LeadStatus>()
               .HasQueryFilter(LeadStatus => EF.Property<bool>(LeadStatus, "IsDeleted") == false);
@@ -347,6 +354,16 @@ namespace Stack.DAL
             .WithMany(p => p.Pools)
             .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<Team_User>().HasKey(x => new { x.TeamID, x.UserID });
+            modelBuilder.Entity<Team_User>()
+            .HasOne(pr => pr.Team)
+            .WithMany(p => p.Team_Users)
+            .HasForeignKey(pr => pr.TeamID).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<Team_User>()
+            .HasOne(pr => pr.User)
+            .WithMany(p => p.Teams)
+            .HasForeignKey(pr => pr.UserID).OnDelete(DeleteBehavior.NoAction);
+
 
 
 
@@ -444,6 +461,8 @@ namespace Stack.DAL
 
         public virtual DbSet<Pool> Pools { get; set; }
         public virtual DbSet<Pool_User> Pool_Users { get; set; }
+        public virtual DbSet<Team> Teams { get; set; }
+        public virtual DbSet<Team_User> Team_Users { get; set; }
         public virtual DbSet<PoolConnectionID> PoolConnectionIDs { get; set; }
         public virtual DbSet<PoolRequest> PoolRequests { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }

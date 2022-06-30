@@ -4,6 +4,14 @@ using System.Text;
 
 namespace Stack.DTOs.Models.Modules.Pool
 {
+
+
+    public class ContactListMenuView
+    {
+        public int TotalRecords { get; set; }
+        public List<ContactListViewModel> Records { get; set; }
+    }
+
     public class ContactListViewModel
     {
         public long ID { get; set; }

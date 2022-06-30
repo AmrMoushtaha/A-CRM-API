@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
 using Stack.DTOs.Models.Modules.Pool;
+using Stack.DTOs.Requests.CustomerStage;
 using Stack.DTOs.Requests.Modules.Auth;
 using Stack.DTOs.Requests.Modules.Pool;
 using Stack.ServiceLayer.Modules.Auth;
@@ -72,10 +73,10 @@ namespace Stack.API.Controllers.Modules.Pool
         }
 
         [AllowAnonymous]
-        [HttpGet("GetPoolContacts/{poolID}")]
-        public async Task<IActionResult> GetPoolContacts(long poolID)
+        [HttpPost("GetPoolContacts")]
+        public async Task<IActionResult> GetPoolContacts(GetPoolContactsModel model)
         {
-            return await GetResponseHandler(async () => await service.GetPoolContacts(poolID));
+            return await AddItemResponseHandler(async () => await service.GetPoolContacts(model));
         }
 
         [AllowAnonymous]

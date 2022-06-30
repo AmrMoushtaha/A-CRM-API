@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.SignalR;
 using Stack.API.Hubs;
 using Stack.Entities.Enums.Modules.CustomerStage;
 using Hangfire;
+using Stack.DTOs.Requests.CustomerStage;
 
 namespace Stack.ServiceLayer.Modules.pool
 {
@@ -1153,9 +1154,9 @@ namespace Stack.ServiceLayer.Modules.pool
 
         #region Pool Records Listing
 
-        public async Task<ApiResponse<List<ContactListViewModel>>> GetPoolContacts(long poolID)
+        public async Task<ApiResponse<ContactListMenuView>> GetPoolContacts(GetPoolContactsModel model)
         {
-            ApiResponse<List<ContactListViewModel>> result = new ApiResponse<List<ContactListViewModel>>();
+            ApiResponse<ContactListMenuView> result = new ApiResponse<ContactListMenuView>();
             try
             {
                 var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
@@ -1163,17 +1164,17 @@ namespace Stack.ServiceLayer.Modules.pool
                 if (userID != null)
                 {
                     //Verify user pool permissions
-                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == poolID && t.UserID == userID, includeProperties: "Pool");
+                    var userPoolQuery = await unitOfWork.PoolUserManager.GetAsync(t => t.PoolID == model.PoolID && t.UserID == userID, includeProperties: "Pool");
                     var userPool = userPoolQuery.FirstOrDefault();
 
                     if (userPool != null)
                     {
-                        var poolContacts = await unitOfWork.PoolUserManager.GetPoolContacts(poolID, userID);
+                        var poolContactsMenu = await unitOfWork.PoolUserManager.GetPoolContacts(model.PoolID, userID, model.PageNumber);
 
-                        if (poolContacts != null)
+                        if (poolContactsMenu != null)
                         {
                             result.Succeeded = true;
-                            result.Data = poolContacts;
+                            result.Data = poolContactsMenu;
                             return result;
                         }
                         else
