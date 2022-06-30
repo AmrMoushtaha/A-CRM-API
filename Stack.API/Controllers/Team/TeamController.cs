@@ -31,6 +31,13 @@ namespace Stack.API.Controllers.Modules.Teams
         }
 
         [AllowAnonymous]
+        [HttpGet("GetTeamApplicableSystemUsers")]
+        public async Task<IActionResult> GetTeamApplicableSystemUsers()
+        {
+            return await GetResponseHandler(async () => await service.GetTeamApplicableSystemUsers());
+        }
+
+        [AllowAnonymous]
         [HttpGet("GetTeamMembers/{teamID}")]
         public async Task<IActionResult> GetTeamMembers(long teamID)
         {

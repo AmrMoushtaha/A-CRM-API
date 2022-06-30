@@ -75,6 +75,18 @@ namespace Stack.Core.Managers.Modules.Auth
             });
         }
 
+
+        public async Task<List<ApplicationUser>> GetTeamApplicableSystemUsers()
+        {
+            return await Task.Run(() =>
+            {
+                var usersResult = dbSet.Where(a => a.Teams == null || a.Teams.Count == 0).ToList();
+
+                return usersResult;
+
+            });
+        }
+
     }
 
 }

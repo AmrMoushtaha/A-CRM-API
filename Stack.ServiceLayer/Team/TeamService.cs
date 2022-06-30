@@ -5,10 +5,12 @@ using Microsoft.Extensions.Configuration;
 using Stack.Core;
 using Stack.DTOs;
 using Stack.DTOs.Enums;
+using Stack.DTOs.Models.Modules.Auth;
 using Stack.DTOs.Models.Modules.Pool;
 using Stack.DTOs.Models.Modules.Teams;
 using Stack.DTOs.Requests.Modules.Teams;
 using Stack.Entities.Enums.Modules.Teams;
+using Stack.Entities.Models.Modules.Auth;
 using Stack.Entities.Models.Modules.Teams;
 using Stack.Repository.Common;
 using System;
@@ -164,7 +166,8 @@ namespace Stack.ServiceLayer.Modules.Teams
                                     {
                                         UserID = teamMember.UserID,
                                         JoinDate = await HelperFunctions.GetEgyptsCurrentLocalTime(),
-                                        IsManager = teamMember.isManager,
+                                        IsManager = teamMember.IsManager,
+                                        ManagerID = teamMember.ManagerID,
                                         Status = (int)TeamMemberStatuses.Active,
                                         TeamID = teamCreationRes.ID,
                                     };
@@ -235,7 +238,8 @@ namespace Stack.ServiceLayer.Modules.Teams
                     {
                         UserID = model.UserID,
                         JoinDate = await HelperFunctions.GetEgyptsCurrentLocalTime(),
-                        IsManager = model.isManager,
+                        IsManager = model.IsManager,
+                        ManagerID = model.ManagerID,
                         Status = (int)TeamMemberStatuses.Active,
                         TeamID = model.TeamID.Value,
                     };
@@ -331,6 +335,37 @@ namespace Stack.ServiceLayer.Modules.Teams
                 result.Succeeded = false;
                 result.Errors.Add(ex.Message);
                 result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<List<ApplicationUserDTO>>> GetTeamApplicableSystemUsers()
+        {
+            ApiResponse<List<ApplicationUserDTO>> result = new ApiResponse<List<ApplicationUserDTO>>();
+            try
+            {
+
+
+                List<ApplicationUser> usersList = await unitOfWork.UserManager.GetTeamApplicableSystemUsers();
+
+
+                var usersToReturn = mapper.Map<List<ApplicationUserDTO>>(usersList);
+
+                //usersToReturn = usersToReturn.FindAll(a => a.AuthModel.RoleNameEN != "Administrator");
+
+
+                result.Data = usersToReturn;
+
+                result.Succeeded = true;
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
                 return result;
             }
 

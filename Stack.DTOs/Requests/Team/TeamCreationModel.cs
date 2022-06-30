@@ -20,7 +20,8 @@ namespace Stack.DTOs.Requests.Modules.Teams
     {
         public long? TeamID { get; set; }
         public string UserID { get; set; }
-        public bool isManager { get; set; }
+        public bool IsManager { get; set; }
+        public string ManagerID { get; set; }
 
     }
 

@@ -12,6 +12,8 @@ namespace Stack.Entities.Models.Modules.Teams
 
         public bool IsManager { get; set; }
 
+        public string ManagerID { get; set; }
+
         public int Status { get; set; }
 
         public DateTime JoinDate { get; set; }
