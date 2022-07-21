@@ -775,6 +775,7 @@ namespace Stack.ServiceLayer.Modules.CR
         public async Task<ApiResponse<bool>> CreateCustomerRequest(CustomerRequestCreationModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
+
             try
             {
                 var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
@@ -788,6 +789,7 @@ namespace Stack.ServiceLayer.Modules.CR
                         //Get customer request type details
                         CustomerRequest creationModel = new CustomerRequest
                         {
+                            UniqueNumber = Guid.NewGuid().ToString().Substring(0, 5),
                             Status = (int)RequestTypeStatuses.Active,
                             RequestTypeID = model.RequestTypeID,
                             CreatedBy = userID,
@@ -935,17 +937,61 @@ namespace Stack.ServiceLayer.Modules.CR
                 var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
                 if (userID != null)
                 {
-                    var CRPhaseInputAnswerQ = await unitOfWork.CRPhaseInputAnswerManager.GetAsync(t => t.ID == model.PhaseID);
-                    var CRPhaseInputAnswer = CRPhaseInputAnswerQ.FirstOrDefault();
-                    if (CRPhaseInputAnswer != null)
+                    //Get request timeline phase
+                    var requestTimelinePhaseQ = await unitOfWork.CR_Timeline_PhaseManager.GetAsync(t => t.TimelinePhaseID == model.PhaseID && t.RequestID == model.RequestID);
+                    var requestTimelinePhase = requestTimelinePhaseQ.FirstOrDefault();
+                    if (requestTimelinePhase != null)
                     {
-                        throw new NotImplementedException();
+                        for (int i = 0; i < model.Inputs.Count; i++)
+                        {
+
+                            var input = model.Inputs[i];
+                            var CRPhaseInputAnswerQ = await unitOfWork.CRPhaseInputAnswerManager.GetAsync(t => t.RequestPhase.ID == requestTimelinePhase.ID && t.InputID == input.ID);
+                            var CRPhaseInputAnswer = CRPhaseInputAnswerQ.FirstOrDefault();
+
+                            if (CRPhaseInputAnswer != null)
+                            {
+
+                                CRPhaseInputAnswer.Answer = input.Answer;
+
+                                var updateRes = await unitOfWork.CRPhaseInputAnswerManager.UpdateAsync(CRPhaseInputAnswer);
+
+                            }
+                            //Create new answer
+                            else
+                            {
+                                CRPhaseInputAnswer answerModel = new CRPhaseInputAnswer
+                                {
+                                    RequestPhaseID = requestTimelinePhase.ID,
+                                    InputID = input.ID,
+                                    Answer = input.Answer,
+                                };
+
+                                var answerCreationRes = await unitOfWork.CRPhaseInputAnswerManager.CreateAsync(answerModel);
+                                if (answerCreationRes == null)
+                                {
+                                    result.Errors.Add("Failed to add answer for input: " + (model.Inputs.IndexOf(input) + 1));
+                                }
+                            }
+                        }
+
+                        if (result.Errors.Count == 0)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            return result;
+                        }
                     }
                     else
                     {
                         result.Succeeded = false;
-                        result.Errors.Add("Request Type not found");
-                        result.Errors.Add("Request Type not found");
+                        result.Errors.Add("Phase not found");
+                        result.Errors.Add("Phase not found");
                         return result;
                     }
 

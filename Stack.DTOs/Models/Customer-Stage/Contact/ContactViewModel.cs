@@ -16,9 +16,9 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
         public string Email { get; set; }
         public string Address { get; set; }
         public string Occupation { get; set; }
-        public int? ChannelID { get; set; }
-        public int? LSTID { get; set; }
-        public int? LSNID { get; set; }
+        public RecordChannelViewModel Channel { get; set; }
+        public RecordChannelViewModel LST { get; set; }
+        public RecordChannelViewModel LSN { get; set; }
         public string PrimaryPhoneNumber { get; set; }
 
         public string StatusEN { get; set; }
@@ -61,6 +61,15 @@ namespace Stack.DTOs.Models.Modules.CustomerStage
         public long ID { get; set; }
         public int RecordType { get; set; }
         public long RecordID { get; set; }
+    }
+
+    public class RecordChannelViewModel
+    {
+        public long ID { get; set; }
+        public string TitleEN { get; set; }
+        public string TitleAR { get; set; }
+        public string DescriptionEN { get; set; }
+        public string DescriptionAR { get; set; }
     }
 
 }

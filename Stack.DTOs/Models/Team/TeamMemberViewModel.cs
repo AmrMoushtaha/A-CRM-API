@@ -10,6 +10,7 @@ namespace Stack.DTOs.Models.Modules.Pool
         public string FullName { get; set; }
 
         public bool IsManager { get; set; }
+        public string ManagerID { get; set; }
         public DateTime JoinDate { get; set; }
 
         public int Status { get; set; }

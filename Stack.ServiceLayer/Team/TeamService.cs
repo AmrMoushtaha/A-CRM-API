@@ -85,6 +85,7 @@ namespace Stack.ServiceLayer.Modules.Teams
             }
 
         }
+        
         public async Task<ApiResponse<List<TeamMemberViewModel>>> GetTeamMembers(long teamID)
         {
             ApiResponse<List<TeamMemberViewModel>> result = new ApiResponse<List<TeamMemberViewModel>>();
@@ -119,7 +120,7 @@ namespace Stack.ServiceLayer.Modules.Teams
             }
 
         }
-
+        
         public async Task<ApiResponse<bool>> CreateTeam(TeamCreationModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -130,7 +131,7 @@ namespace Stack.ServiceLayer.Modules.Teams
                 if (userID != null)
                 {
 
-                    //check team's existence
+                    //check team 's existence
 
                     var teamExistsQ = await unitOfWork.TeamManager.GetAsync(t => t.NameEN == model.NameEN || t.NameAR == model.NameAR);
                     var teamExists = teamExistsQ.FirstOrDefault();
@@ -218,6 +219,7 @@ namespace Stack.ServiceLayer.Modules.Teams
             }
 
         }
+        
         public async Task<ApiResponse<bool>> AddTeamMember(TeamMemberCreationModel model)
         {
             ApiResponse<bool> result = new ApiResponse<bool>();
@@ -279,7 +281,6 @@ namespace Stack.ServiceLayer.Modules.Teams
             }
 
         }
-
 
         public async Task<ApiResponse<bool>> ChangeMemberStatus(string memberID)
         {

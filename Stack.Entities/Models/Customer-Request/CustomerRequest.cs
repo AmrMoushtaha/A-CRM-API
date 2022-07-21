@@ -11,6 +11,7 @@ namespace Stack.Entities.Models.Modules.CR
     {
         //Details
         public long ID { get; set; }
+        public string UniqueNumber { get; set; }
         public long? DealID { get; set; }
         public long? ContactID { get; set; }
         public long? InterestID { get; set; }

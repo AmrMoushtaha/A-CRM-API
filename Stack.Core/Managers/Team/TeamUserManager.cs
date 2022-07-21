@@ -35,6 +35,7 @@ namespace Stack.Core.Managers.Modules.Teams
                            UserID = p.UserID,
                            FullName = p.User.FirstName + " " + p.User.LastName,
                            IsManager = p.IsManager,
+                           ManagerID = p.ManagerID,
                            JoinDate = p.JoinDate,
                            Status = p.Status,
                        }).ToList();

@@ -49,7 +49,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
         }
 
-        public async Task<ApiResponse<StageChangeModel>> GetContactPossibleStages()
+        public async Task<ApiResponse<StageChangeModel>> GetContactPossibleStages(long ReferenceID)
         {
             ApiResponse<StageChangeModel> result = new ApiResponse<StageChangeModel>();
             try
@@ -83,16 +83,17 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                 StageModel contactStage = new StageModel();
 
-                //StageModel doneDealStage = new StageModel();
+                StageModel doneDealStage = new StageModel();
 
+
+                prospectStage.StageNameEN = "Prospect";
+                prospectStage.StageNameAR = "عميل متردد";
+                prospectStage.Statuses = new List<StatusModel>();
 
                 leadStage.StageNameEN = "Lead";
                 leadStage.StageNameAR = "عميل محتمل";
                 leadStage.Statuses = new List<StatusModel>();
 
-                prospectStage.StageNameEN = "Prospect";
-                prospectStage.StageNameAR = "عميل متردد";
-                prospectStage.Statuses = new List<StatusModel>();
 
                 opportunityStage.StageNameEN = "Opportunity";
                 opportunityStage.StageNameAR = "فرصة مبيعات";
@@ -103,9 +104,18 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 contactStage.StageNameAR = "رقم هاتف";
                 contactStage.Statuses = new List<StatusModel>();
 
-                //doneDealStage.StageNameEN = "Done-Deal";
-                //opportunityStage.StageNameAR = "صفقة منتهية";
-                //opportunityStage.Statuses = new List<StatusModel>();
+                //Verify done deal stage
+                var contactRequestsQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.ContactID == ReferenceID && t.Status == (int)CustomerRequestStatus.Completed);
+                var contactRequests = contactRequestsQ.FirstOrDefault();
+
+                if (contactRequests != null)
+                {
+                    doneDealStage.StageNameEN = "Done-Deal";
+                    opportunityStage.StageNameAR = "صفقة منتهية";
+                    opportunityStage.Statuses = new List<StatusModel>();
+                }
+
+
 
 
 
@@ -194,15 +204,15 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 }
 
 
-                result.Data.Stages.Add(leadStage);
-
                 result.Data.Stages.Add(prospectStage);
-
+                result.Data.Stages.Add(leadStage);
                 result.Data.Stages.Add(opportunityStage);
-
                 result.Data.Stages.Add(contactStage);
 
-                //result.Data.Stages.Add(doneDealStage);
+                if (doneDealStage != null)
+                {
+                    result.Data.Stages.Add(doneDealStage);
+                }
 
 
                 result.Succeeded = true;
@@ -221,7 +231,7 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
         }
 
-        public async Task<ApiResponse<StageChangeModel>> GetDealPossibleStages()
+        public async Task<ApiResponse<StageChangeModel>> GetDealPossibleStages(long ReferenceID)
         {
             ApiResponse<StageChangeModel> result = new ApiResponse<StageChangeModel>();
             try
@@ -264,6 +274,17 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
                 opportunityStage.StageNameAR = "فرصة مبيعات";
                 opportunityStage.Statuses = new List<StatusModel>();
 
+
+                //Verify done deal stage
+                var dealRequestsQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.DealID == ReferenceID && t.Status == (int)CustomerRequestStatus.Completed);
+                var dealRequests = dealRequestsQ.FirstOrDefault();
+
+                if (dealRequests != null)
+                {
+                    doneDealStage.StageNameEN = "Done-Deal";
+                    opportunityStage.StageNameAR = "صفقة منتهية";
+                    opportunityStage.Statuses = new List<StatusModel>();
+                }
 
                 doneDealStage.StageNameEN = "Done-Deal";
                 opportunityStage.StageNameAR = "صفقة منتهية";
@@ -339,7 +360,10 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                 result.Data.Stages.Add(opportunityStage);
 
-                result.Data.Stages.Add(doneDealStage);
+                if (doneDealStage != null)
+                {
+                    result.Data.Stages.Add(doneDealStage);
+                }
 
 
                 result.Succeeded = true;

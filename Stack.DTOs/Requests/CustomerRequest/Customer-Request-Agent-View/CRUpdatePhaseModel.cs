@@ -6,6 +6,7 @@ namespace Stack.DTOs.Models.Modules.CR
 {
     public class CRUpdatePhaseModel
     {
+        public long RequestID { get; set; }
         public long PhaseID { get; set; }
         public int Status { get; set; }
         public DateTime? StartDate { get; set; }

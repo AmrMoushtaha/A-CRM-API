@@ -7,6 +7,7 @@ namespace Stack.DTOs.Models.Modules.CR
     public class CRViewModel
     {
         public long ID { get; set; }
+        public string UniqueNumber { get; set; }
         public string NameEN { get; set; }
         public string NameAR { get; set; }
         public string DescriptionEN { get; set; }

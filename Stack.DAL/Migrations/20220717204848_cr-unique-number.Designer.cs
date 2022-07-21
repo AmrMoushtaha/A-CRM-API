@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stack.DAL;
 
 namespace Stack.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220717204848_cr-unique-number")]
+    partial class cruniquenumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -966,8 +968,8 @@ namespace Stack.DAL.Migrations
                     b.Property<int>("TypeIndex")
                         .HasColumnType("int");
 
-                    b.Property<string>("UniqueNumber")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("UniqueNumber")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ID");
 

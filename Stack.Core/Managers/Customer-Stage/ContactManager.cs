@@ -38,9 +38,30 @@ namespace Stack.Core.Managers.Modules.Materials
                        FullNameEN = p.FullNameEN,
                        Address = p.Address,
                        Email = p.Email,
-                       ChannelID = p.ChannelID,
-                       LSTID = p.LSTID,
-                       LSNID = p.LSNID,
+                       Channel = context.Channels.Where(t => t.ID == p.ChannelID).Select(c => new RecordChannelViewModel
+                       {
+                           ID = c.ID,
+                           TitleEN = c.TitleEN,
+                           TitleAR = c.TitleAR,
+                           DescriptionEN = c.DescriptionEN,
+                           DescriptionAR = c.DescriptionAR,
+                       }).FirstOrDefault(),
+                       LST = context.LeadSourceTypes.Where(t => t.ID == p.LSTID).Select(c => new RecordChannelViewModel
+                       {
+                           ID = c.ID,
+                           TitleEN = c.TitleEN,
+                           TitleAR = c.TitleAR,
+                           DescriptionEN = c.DescriptionEN,
+                           DescriptionAR = c.DescriptionAR,
+                       }).FirstOrDefault(),
+                       LSN = context.LeadSourceNames.Where(t => t.ID == p.LSNID).Select(c => new RecordChannelViewModel
+                       {
+                           ID = c.ID,
+                           TitleEN = c.TitleEN,
+                           TitleAR = c.TitleAR,
+                           DescriptionEN = c.DescriptionEN,
+                           DescriptionAR = c.DescriptionAR,
+                       }).FirstOrDefault(),
                        Occupation = p.Occupation,
                        PrimaryPhoneNumber = p.PrimaryPhoneNumber,
                        StatusEN = p.Status.EN,

@@ -58,7 +58,6 @@ namespace Stack.API.Controllers.Modules.Teams
             return await GetResponseHandler(async () => await service.AddTeamMember(model));
         }
 
-
         [AllowAnonymous]
         [HttpGet("ChangeMemberStatus/{memberID}")]
         public async Task<IActionResult> ChangeMemberStatus(string memberID)

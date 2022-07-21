@@ -368,8 +368,6 @@ namespace Stack.ServiceLayer.Modules.Activities
             }
 
         }
-
-
         /// <summary>
         /// Submit an activity . 
         /// </summary>
@@ -380,6 +378,16 @@ namespace Stack.ServiceLayer.Modules.Activities
             ApiResponse<ActivitySubmissionDTO> result = new ApiResponse<ActivitySubmissionDTO>();
             try
             {
+                var userResult = await unitOfWork.UserManager.GetUserById(await HelperFunctions.GetUserID(_httpContextAccessor));
+
+                if (userResult == null)
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("Unauthorized");
+                    return result;
+                }
+
 
                 var ActivitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ID == model.ActivityID);
 
@@ -950,6 +958,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                         if (model.CurrentStage == "Contact")
                         {
 
+
                             var contactsResult = await unitOfWork.ContactManager.GetAsync(a => a.ID == model.RecordID);
 
                             Contact referenceContact = contactsResult.FirstOrDefault();
@@ -967,6 +976,13 @@ namespace Stack.ServiceLayer.Modules.Activities
                                 {
                                     referenceContact.State = (int)CustomerStageState.Junked;
                                 }
+                            }
+
+                            //Update assignee ID for first activity on unassigned contact
+                            if (referenceContact.AssignedUserID == null)
+                            {
+                                referenceContact.AssignedUserID = userResult.Id;
+                                referenceContact.State = (int)CustomerStageState.Initial;
                             }
 
                             var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
@@ -1147,7 +1163,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                         if (modelToReturn.RecordType == 0)// Type Conact .
                         {
-                            modelToReturn.RecordID = referenceProcessFlow.ContactID;
+                            modelToReturn.RecordID = referenceProcessFlow.ContactID.Value;
                         }
                         else
                         {
@@ -1667,7 +1683,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
 
                     //Assign the user creating the activity to this contact . 
-                    referenceContact.AssignedUserID = userResult.Id;
+                    //referenceContact.AssignedUserID = userResult.Id;
 
                     var updateContactResult = await unitOfWork.ContactManager.UpdateAsync(referenceContact);
 
@@ -1865,7 +1881,10 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                         question.Order = UpcomingSection.Questions[i].Order;
 
+                        question.Type = UpcomingSection.Questions[i].Type;
+
                         question.Answer = "";
+
 
                         if (question.Type == "Date")
                         {
@@ -1873,7 +1892,6 @@ namespace Stack.ServiceLayer.Modules.Activities
                             question.DateAnswer = await HelperFunctions.GetEgyptsCurrentLocalTime();
 
                         }
-
 
                         //Append section question options . 
                         if (UpcomingSection.Questions[i].QuestionOptions.Count > 0)
@@ -1907,14 +1925,12 @@ namespace Stack.ServiceLayer.Modules.Activities
                     }
 
 
-                    //Assign the user creating the activity to the customer .
-
+                    //Assign the user creating the activity to this contact . 
                     referenceDeal.Customer.AssignedUserID = userResult.Id;
 
-                    var updateCustomerResult = await unitOfWork.CustomerManager.UpdateAsync(referenceDeal.Customer);
+                    var updateContactResult = await unitOfWork.DealManager.UpdateAsync(referenceDeal);
 
                     await unitOfWork.SaveChangesAsync();
-
 
 
                     //Re-arrange section questions . 
@@ -1971,7 +1987,7 @@ namespace Stack.ServiceLayer.Modules.Activities
                 //Get the number of previously submitted activities for this deal by the current user . 
                 var userSubmittedActivitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.DealID == ID && a.IsSubmitted == true && a.CreatedBy == userResult.Id);
 
-                int PreviouslySubmittedActivitiesCount = userSubmittedActivitiesResult.ToList().Count();
+                int PreviouslySubmittedActivitiesCount = userSubmittedActivitiesResult.Count();
 
 
                 var activitiesResult = await unitOfWork.ActivitiesManager.GetAsync(a => a.ProcessFlow.DealID == ID && a.IsSubmitted == false);

@@ -22,10 +22,10 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
         [AllowAnonymous]
-        [HttpGet("GetContactPossibleStages")]
-        public async Task<IActionResult> GetContactPossibleStages()
+        [HttpGet("GetContactPossibleStages/{referenceID}")]
+        public async Task<IActionResult> GetContactPossibleStages(long referenceID)
         {
-            return await GetResponseHandler(async () => await service.GetContactPossibleStages());
+            return await GetResponseHandler(async () => await service.GetContactPossibleStages(referenceID));
         }
 
         [AllowAnonymous]
@@ -36,10 +36,10 @@ namespace Stack.API.Controllers.Modules.Auth
         }
 
         [AllowAnonymous]
-        [HttpGet("GetDealPossibleStages")]
-        public async Task<IActionResult> GetDealPossibleStages()
+        [HttpGet("GetDealPossibleStages/{referenceID}")]
+        public async Task<IActionResult> GetDealPossibleStages(long referenceID)
         {
-            return await GetResponseHandler(async () => await service.GetDealPossibleStages());
+            return await GetResponseHandler(async () => await service.GetDealPossibleStages(referenceID));
         }
 
 
