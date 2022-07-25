@@ -18,6 +18,9 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string PrimaryPhoneNumber { get; set; }
         public long PoolID { get; set; }
         public int State { get; set; }
+
+        public string ProfilePhoto { get; set; }
+
         //Channel
         public int? ChannelID { get; set; }
         public int? LSTID { get; set; }

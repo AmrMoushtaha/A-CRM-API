@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stack.API.Controllers.Common;
+using Stack.DTOs.Models.Modules.General;
 using Stack.DTOs.Requests.Modules.Auth;
 using Stack.DTOs.Requests.Modules.CustomerStage;
 using Stack.DTOs.Requests.Modules.Pool;
@@ -106,6 +107,33 @@ namespace Stack.API.Controllers.Modules.Auth
         }
         #endregion
 
+
+        #region Record Profile Photo
+        [AllowAnonymous]
+        [HttpPost("UploadContactProfilePhoto")]
+        public async Task<IActionResult> UploadContactProfilePhoto(UploadRecordProfilePhoto model)
+        {
+            return await AddItemResponseHandler(async () => await service.UploadContactProfilePhoto(model));
+        }
+        [AllowAnonymous]
+        [HttpPost("UploadCustomerProfilePhoto")]
+        public async Task<IActionResult> UploadCustomerProfilePhoto(UploadRecordProfilePhoto model)
+        {
+            return await AddItemResponseHandler(async () => await service.UploadCustomerProfilePhoto(model));
+        }
+
+        #endregion
+
+
+        #region Team
+        [AllowAnonymous]
+        [HttpPost("GetTeamRecords")]
+        public async Task<IActionResult> GetTeamRecords(GetTeamRecords model)
+        {
+            return await AddItemResponseHandler(async () => await service.GetTeamRecords(model));
+        }
+
+        #endregion
     }
 
 

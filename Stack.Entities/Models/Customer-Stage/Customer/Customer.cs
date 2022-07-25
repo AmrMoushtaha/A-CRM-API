@@ -20,6 +20,7 @@ namespace Stack.Entities.Models.Modules.CustomerStage
         public string LeadSourceName { get; set; }
         public string PrimaryPhoneNumber { get; set; }
         public long PoolID { get; set; }
+        public string ProfilePhoto { get; set; }
 
         public int? ChannelID { get; set; }
         public int? LSTID { get; set; }

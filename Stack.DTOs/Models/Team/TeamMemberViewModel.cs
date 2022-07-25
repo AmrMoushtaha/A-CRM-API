@@ -14,6 +14,15 @@ namespace Stack.DTOs.Models.Modules.Pool
         public DateTime JoinDate { get; set; }
 
         public int Status { get; set; }
+        public List<ContactListViewModel> RecordsList { get; set; }
 
     }
+
+
+    public class TeamMembersRecordsViewModel
+    {
+        public List<ContactListViewModel> RecordsList { get; set; }
+        public List<TeamMemberViewModel> MembersList { get; set; }
+    }
+
 }

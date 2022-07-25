@@ -28,6 +28,7 @@ using Stack.Entities.Enums.Modules.Pool;
 using Stack.DTOs.Models.Modules.Pool;
 using Stack.DTOs.Models.Modules.CustomerStage;
 using Stack.DTOs.Requests.Modules.Pool;
+using Stack.Entities.Enums.Modules.Teams;
 
 namespace Stack.ServiceLayer.Modules.CustomerStage
 {
@@ -3911,6 +3912,296 @@ namespace Stack.ServiceLayer.Modules.CustomerStage
 
                     }
 
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+        #endregion
+
+        #region Profile Photo
+        public async Task<ApiResponse<bool>> UploadContactProfilePhoto(UploadRecordProfilePhoto model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    var recordQ = await unitOfWork.ContactManager.GetAsync(t => t.ID == model.RecordID);
+                    var record = recordQ.FirstOrDefault();
+
+                    if (record != null)
+                    {
+                        //Update record profile image
+                        record.ProfilePhoto = model.Image;
+
+                        var updateRes = await unitOfWork.ContactManager.UpdateAsync(record);
+
+                        if (updateRes)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Error updating record");
+                            result.Errors.Add("Error updating record");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Record not found");
+                        result.Errors.Add("Record not found");
+                        return result;
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+
+        public async Task<ApiResponse<bool>> UploadCustomerProfilePhoto(UploadRecordProfilePhoto model)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    var recordQ = await unitOfWork.CustomerManager.GetAsync(t => t.ID == model.RecordID);
+                    var record = recordQ.FirstOrDefault();
+
+                    if (record != null)
+                    {
+                        //Update record profile image
+                        record.ProfilePhoto = model.Image;
+
+                        var updateRes = await unitOfWork.CustomerManager.UpdateAsync(record);
+
+                        if (updateRes)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Error updating record");
+                            result.Errors.Add("Error updating record");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Record not found");
+                        result.Errors.Add("Record not found");
+                        return result;
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.Errors.Add("Unauthorized");
+                    result.Errors.Add("غير مصرح");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+
+        }
+        #endregion
+
+        #region Team
+        public async Task<ApiResponse<TeamMembersRecordsViewModel>> GetTeamRecords(GetTeamRecords model)
+        {
+            ApiResponse<TeamMembersRecordsViewModel> result = new ApiResponse<TeamMembersRecordsViewModel>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+
+                if (userID != null)
+                {
+                    //Get user's team
+
+                    var teamQ = await unitOfWork.TeamUserManager.GetAsync(t => t.UserID == userID && t.Status == (int)TeamMemberStatuses.Active);
+                    var team = teamQ.FirstOrDefault();
+
+                    if (team != null)
+                    {
+                        //Get all team members reporting to user
+
+                        TeamMembersRecordsViewModel response = new TeamMembersRecordsViewModel();
+                        if (model.CustomerStage == (int)CustomerStageIndicator.Contact)
+                        {
+                            response.MembersList = await unitOfWork.TeamUserManager.GetSubordinatesContacts(userID, model.State);
+                            if (response.MembersList != null && response.MembersList.Count > 0)
+                            {
+                                List<ContactListViewModel> recordsList = new List<ContactListViewModel>();
+
+                                recordsList = response.MembersList.Where(t => t.RecordsList.Count > 0).SelectMany(a => a.RecordsList).ToList();
+                                response.RecordsList = recordsList;
+
+                                result.Succeeded = true;
+                                result.Data = response;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No subordinates found");
+                                result.Errors.Add("No subordinates found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Prospect)
+                        {
+                            response.MembersList = await unitOfWork.TeamUserManager.GetSubordinatesProspects(userID, model.State);
+                            if (response.MembersList != null && response.MembersList.Count > 0)
+                            {
+                                List<ContactListViewModel> recordsList = new List<ContactListViewModel>();
+
+                                recordsList = response.MembersList.Where(t => t.RecordsList.Count > 0).SelectMany(a => a.RecordsList).ToList();
+                                response.RecordsList = recordsList;
+
+                                result.Succeeded = true;
+                                result.Data = response;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No subordinates found");
+                                result.Errors.Add("No subordinates found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Lead)
+                        {
+
+                            response.MembersList = await unitOfWork.TeamUserManager.GetSubordinatesLeads(userID, model.State);
+                            if (response.MembersList != null && response.MembersList.Count > 0)
+                            {
+                                List<ContactListViewModel> recordsList = new List<ContactListViewModel>();
+
+                                recordsList = response.MembersList.Where(t => t.RecordsList.Count > 0).SelectMany(a => a.RecordsList).ToList();
+                                response.RecordsList = recordsList;
+
+                                result.Succeeded = true;
+                                result.Data = response;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No subordinates found");
+                                result.Errors.Add("No subordinates found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.Opportunity)
+                        {
+
+                            response.MembersList = await unitOfWork.TeamUserManager.GetSubordinatesOpportunities(userID, model.State);
+                            if (response.MembersList != null && response.MembersList.Count > 0)
+                            {
+                                List<ContactListViewModel> recordsList = new List<ContactListViewModel>();
+
+                                recordsList = response.MembersList.Where(t => t.RecordsList.Count > 0).SelectMany(a => a.RecordsList).ToList();
+                                response.RecordsList = recordsList;
+
+                                result.Succeeded = true;
+                                result.Data = response;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No subordinates found");
+                                result.Errors.Add("No subordinates found");
+                                return result;
+                            }
+                        }
+                        else if (model.CustomerStage == (int)CustomerStageIndicator.DoneDeal)
+                        {
+
+                            response.MembersList = await unitOfWork.TeamUserManager.GetSubordinatesDoneDeals(userID, model.State);
+                            if (response.MembersList != null && response.MembersList.Count > 0)
+                            {
+                                List<ContactListViewModel> recordsList = new List<ContactListViewModel>();
+
+                                recordsList = response.MembersList.Where(t => t.RecordsList.Count > 0).SelectMany(a => a.RecordsList).ToList();
+                                response.RecordsList = recordsList;
+
+                                result.Succeeded = true;
+                                result.Data = response;
+                                return result;
+                            }
+                            else
+                            {
+                                result.Succeeded = false;
+                                result.Errors.Add("No subordinates found");
+                                result.Errors.Add("No subordinates found");
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Invalid customer stage");
+                            result.Errors.Add("Invalid customer stage");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("No teams found to user");
+                        result.Errors.Add("No teams found to user");
+                        return result;
+                    }
                 }
                 else
                 {

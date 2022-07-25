@@ -1014,6 +1014,129 @@ namespace Stack.ServiceLayer.Modules.CR
                 return result;
             }
         }
+
+        public async Task<ApiResponse<bool>> CompleteCustomerRequest(long requestID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+                if (userID != null)
+                {
+                    //Get customer request
+                    var customerRequestQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.ID == requestID);
+                    var customerRequest = customerRequestQ.FirstOrDefault();
+
+                    if (customerRequest != null && customerRequest.Status == (int)CRStatus.Active)
+                    {
+                        //Set request complete
+                        customerRequest.Status = (int)CRStatus.Completed;
+
+                        var updateRequestRes = await unitOfWork.CustomerRequestManager.UpdateAsync(customerRequest);
+
+                        if (updateRequestRes)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Error updating request");
+                            result.Errors.Add("Error updating request");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Request is not in progress");
+                        result.Errors.Add("Request is not in progress");
+                        return result;
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.ErrorCode = ErrorCode.A500;
+                    result.Errors.Add("Not Authorized");
+                    result.Errors.Add("Not Authorized");
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
+        public async Task<ApiResponse<bool>> CancelCustomerRequest(long requestID)
+        {
+            ApiResponse<bool> result = new ApiResponse<bool>();
+            try
+            {
+                var userID = await HelperFunctions.GetUserID(_httpContextAccessor);
+                if (userID != null)
+                {
+                    //Get customer request
+                    var customerRequestQ = await unitOfWork.CustomerRequestManager.GetAsync(t => t.ID == requestID);
+                    var customerRequest = customerRequestQ.FirstOrDefault();
+
+                    if (customerRequest != null && customerRequest.Status == (int)CRStatus.Active)
+                    {
+                        //Set request complete
+                        customerRequest.Status = (int)CRStatus.Cancelled;
+
+                        var updateRequestRes = await unitOfWork.CustomerRequestManager.UpdateAsync(customerRequest);
+
+                        if (updateRequestRes)
+                        {
+                            await unitOfWork.SaveChangesAsync();
+                            result.Succeeded = true;
+                            return result;
+                        }
+                        else
+                        {
+                            result.Succeeded = false;
+                            result.Errors.Add("Error updating request");
+                            result.Errors.Add("Error updating request");
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        result.Succeeded = false;
+                        result.Errors.Add("Request is not in progress");
+                        result.Errors.Add("Request is not in progress");
+                        return result;
+                    }
+
+                }
+                else
+                {
+                    result.Succeeded = false;
+                    result.ErrorCode = ErrorCode.A500;
+                    result.Errors.Add("Not Authorized");
+                    result.Errors.Add("Not Authorized");
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                result.Succeeded = false;
+                result.Errors.Add(ex.Message);
+                result.ErrorType = ErrorType.SystemError;
+                return result;
+            }
+        }
+
         #endregion
 
         #endregion

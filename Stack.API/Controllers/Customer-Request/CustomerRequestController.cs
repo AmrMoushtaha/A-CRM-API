@@ -101,6 +101,20 @@ namespace Stack.API.Controllers.Modules.CR
         {
             return await GetResponseHandler(async () => await service.GetRequestTypeByID(id));
         }
+        
+        [AllowAnonymous]
+        [HttpGet("CompleteCustomerRequest/{requestId}")]
+        public async Task<IActionResult> CompleteCustomerRequest(long requestId)
+        {
+            return await GetResponseHandler(async () => await service.CompleteCustomerRequest(requestId));
+        }
+        
+        [AllowAnonymous]
+        [HttpGet("CancelCustomerRequest/{requestId}")]
+        public async Task<IActionResult> CancelCustomerRequest(long requestId)
+        {
+            return await GetResponseHandler(async () => await service.CancelCustomerRequest(requestId));
+        }
 
 
         #region Agent Customer Request Interactions

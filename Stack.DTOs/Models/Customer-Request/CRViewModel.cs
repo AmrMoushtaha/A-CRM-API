@@ -15,6 +15,7 @@ namespace Stack.DTOs.Models.Modules.CR
         public string InterestDescriptionEN { get; set; }
         public string InterestDescriptionAR { get; set; }
         public int Type { get; set; }
+        public int Status { get; set; }
         public long? InterestID { get; set; }
         public int TypeIndex { get; set; }
         public long TimelineID { get; set; }

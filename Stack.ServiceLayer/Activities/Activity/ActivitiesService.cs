@@ -115,7 +115,7 @@ namespace Stack.ServiceLayer.Modules.Activities
 
                     List<Activity> activitiesList = activitiesResult.ToList();
 
-                    if (activitiesList.Count == 0 || activitiesList == null)
+                    if (activitiesList != null && activitiesList.Count > 0)
                     {
                         activitiesList = activitiesList.OrderBy(a => a.CreationDate).ToList();
                         result.Data = mapper.Map<List<ActivityHistoryViewDTO>>(activitiesList);

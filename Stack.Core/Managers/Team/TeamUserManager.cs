@@ -42,6 +42,139 @@ namespace Stack.Core.Managers.Modules.Teams
             });
         }
 
+        public async Task<List<TeamMemberViewModel>> GetSubordinatesContacts(string managerID, int state)
+        {
+            return await Task.Run(() =>
+            {
+                return context.Team_Users
+                .Where(t => t.ManagerID == managerID)
+                       .Select(p => new TeamMemberViewModel
+                       {
+                           UserID = p.UserID,
+                           FullName = p.User.FirstName + " " + p.User.LastName,
+                           IsManager = p.IsManager,
+                           ManagerID = p.ManagerID,
+                           JoinDate = p.JoinDate,
+                           Status = p.Status,
+                           RecordsList = context.Contacts.Where(t => t.AssignedUserID == p.UserID && t.State == state).Select(
+                               z => new ContactListViewModel
+                               {
+                                   ID = z.ID,
+                                   FullNameEN = z.FullNameEN,
+                                   FullNameAR = z.FullNameAR,
+                                   PrimaryPhoneNumber = z.PrimaryPhoneNumber
+                               }).ToList()
+                       }).ToList();
+
+
+
+            });
+        }
+
+        public async Task<List<TeamMemberViewModel>> GetSubordinatesProspects(string managerID, int state)
+        {
+            return await Task.Run(() =>
+            {
+                return context.Team_Users
+                .Where(t => t.ManagerID == managerID)
+                       .Select(p => new TeamMemberViewModel
+                       {
+                           UserID = p.UserID,
+                           FullName = p.User.FirstName + " " + p.User.LastName,
+                           IsManager = p.IsManager,
+                           ManagerID = p.ManagerID,
+                           JoinDate = p.JoinDate,
+                           Status = p.Status,
+                           RecordsList = context.Prospects.Where(t => t.AssignedUserID == p.UserID && t.State == state).Select(
+                               z => new ContactListViewModel
+                               {
+                                   ID = z.ID,
+                                   FullNameEN = z.Deal.Customer.FullNameEN,
+                                   FullNameAR = z.Deal.Customer.FullNameEN,
+                                   PrimaryPhoneNumber = z.Deal.Customer.PrimaryPhoneNumber
+                               }).ToList()
+                       }).ToList();
+            });
+        }
+
+        public async Task<List<TeamMemberViewModel>> GetSubordinatesLeads(string managerID, int state)
+        {
+            return await Task.Run(() =>
+            {
+                return context.Team_Users
+                .Where(t => t.ManagerID == managerID)
+                       .Select(p => new TeamMemberViewModel
+                       {
+                           UserID = p.UserID,
+                           FullName = p.User.FirstName + " " + p.User.LastName,
+                           IsManager = p.IsManager,
+                           ManagerID = p.ManagerID,
+                           JoinDate = p.JoinDate,
+                           Status = p.Status,
+                           RecordsList = context.Prospects.Where(t => t.AssignedUserID == p.UserID && t.State == state).Select(
+                               z => new ContactListViewModel
+                               {
+                                   ID = z.ID,
+                                   FullNameEN = z.Deal.Customer.FullNameEN,
+                                   FullNameAR = z.Deal.Customer.FullNameEN,
+                                   PrimaryPhoneNumber = z.Deal.Customer.PrimaryPhoneNumber
+                               }).ToList()
+                       }).ToList();
+            });
+        }
+
+        public async Task<List<TeamMemberViewModel>> GetSubordinatesOpportunities(string managerID, int state)
+        {
+            return await Task.Run(() =>
+            {
+                return context.Team_Users
+                .Where(t => t.ManagerID == managerID)
+                       .Select(p => new TeamMemberViewModel
+                       {
+                           UserID = p.UserID,
+                           FullName = p.User.FirstName + " " + p.User.LastName,
+                           IsManager = p.IsManager,
+                           ManagerID = p.ManagerID,
+                           JoinDate = p.JoinDate,
+                           Status = p.Status,
+                           RecordsList = context.Prospects.Where(t => t.AssignedUserID == p.UserID && t.State == state).Select(
+                               z => new ContactListViewModel
+                               {
+                                   ID = z.ID,
+                                   FullNameEN = z.Deal.Customer.FullNameEN,
+                                   FullNameAR = z.Deal.Customer.FullNameEN,
+                                   PrimaryPhoneNumber = z.Deal.Customer.PrimaryPhoneNumber
+                               }).ToList()
+                       }).ToList();
+            });
+        }
+
+        public async Task<List<TeamMemberViewModel>> GetSubordinatesDoneDeals(string managerID, int state)
+        {
+            return await Task.Run(() =>
+            {
+                return context.Team_Users
+                .Where(t => t.ManagerID == managerID)
+                       .Select(p => new TeamMemberViewModel
+                       {
+                           UserID = p.UserID,
+                           FullName = p.User.FirstName + " " + p.User.LastName,
+                           IsManager = p.IsManager,
+                           ManagerID = p.ManagerID,
+                           JoinDate = p.JoinDate,
+                           Status = p.Status,
+                           RecordsList = context.Prospects.Where(t => t.AssignedUserID == p.UserID && t.State == state).Select(
+                               z => new ContactListViewModel
+                               {
+                                   ID = z.ID,
+                                   FullNameEN = z.Deal.Customer.FullNameEN,
+                                   FullNameAR = z.Deal.Customer.FullNameEN,
+                                   PrimaryPhoneNumber = z.Deal.Customer.PrimaryPhoneNumber
+                               }).ToList()
+                       }).ToList();
+            });
+        }
+
     }
 
 }
